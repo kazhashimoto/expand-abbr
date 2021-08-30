@@ -6,7 +6,7 @@ const expand = emmet.default;
 
 program
   .name('expand-abbr')
-  .version('1.0.0')
+  .version('1.0.2')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
