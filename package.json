@@ -1,0 +1,27 @@
+{
+  "name": "expand-abbr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "expand-abbr": "bin/expand-abbr.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kazhashimoto/expand-abbr.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kazhashimoto/expand-abbr/issues"
+  },
+  "homepage": "https://github.com/kazhashimoto/expand-abbr#readme",
+  "dependencies": {
+    "commander": "^8.1.0",
+    "emmet": "^2.3.4"
+  }
+}
