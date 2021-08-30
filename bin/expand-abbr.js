@@ -9,6 +9,7 @@ program
   .version('1.0.0')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
+  .option('-h,--head', 'prepend html header')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
 
 program.parse(process.argv);
@@ -25,11 +26,25 @@ function concat(abbr_list) {
   return expression;
 }
 
-if (options.wrapper) {
-  // console.log(expand(options.wrapper));
-  console.log(expand(options.wrapper + '>' + concat(program.args)));
+if (options.head) {
+  let str = expand('!');
+  str = str.replace(/<body>[^]*<\/html>/, '');
+  process.stdout.write(str);
+}
+if (options.head || options.wrapper) {
+  let root = '';
+  if (options.head) {
+    root = 'body>';
+  }
+  if (options.wrapper) {
+    root += `${options.wrapper}>`
+  }
+  console.log(expand(root + concat(program.args)));
 } else {
   program.args.forEach(abbr => {
     console.log(expand(abbr));
   });
+}
+if (options.head) {
+  console.log('</html>');
 }
