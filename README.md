@@ -1,5 +1,5 @@
 # expand-abbr
-expand-abbrは[Emmet](https://docs.emmet.io/)のシンタックスで記述したHTMLの省略記法の文字列を展開して標準出力に書き出すコマンドラインインターフェイスです。
+expand-abbrは、[Emmet](https://docs.emmet.io/)のシンタックスで記述した省略記法の文字列をHTMLタグに展開して標準出力に書き出すコマンドラインインターフェイスです。
 
 ## Installation
 ```
@@ -27,7 +27,7 @@ Options:
   --help                 display help for command
 ```
 
-引数abbreviationを複数並べて指定した場合は、それぞれがタグに展開されて直列に繋いだ結果が出力されます。
+引数abbreviationを複数並べて指定した場合は、展開したそれぞれのスニペットを直列に繋いだHTMLの構造が出力されます。
 ```
 $ expand-abbr 'ul>li>a'
 $ expand-abbr 'header>div' 'dl>(dt+dd)*3' 'footer>p'
