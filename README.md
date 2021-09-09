@@ -42,3 +42,8 @@ $ expand-abbr -w .wrapper '(header>ul>li*2>a)+footer>p'
 ```
 $ expand-abbr -h '(div>dl>(dt+dd)*3)+footer>p'
 ```
+
+出力されるコードのインデントはtabです。タブをスペースに置き換えるにはコードフォーマッターを使って整形することができます。次の例では、expand-abbrの出力を[js-beautify](https://github.com/beautify-web/js-beautify)の標準入力を通じてタブをスペース2個に置き換えています。
+```
+$ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
+```
