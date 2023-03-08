@@ -10,6 +10,14 @@ $ echo "@kazhashimoto:registry=https://npm.pkg.github.com" > .npmrc
 $ npm install -g @kazhashimoto/expand-abbr
 ```
 
+```.npmrc```に自分のPersonal access tokenを追加します。このtokenは、scopeにread:packages権限を有効にしたものを[Developer settings](https://github.com/settings/apps)ページを通じて取得する必要があります。
+
+```
+@kazhashimoto:registry=https://npm.pkg.github.com/
+
+//npm.pkg.github.com/:_authToken=ghp_<PERSONAL_ACCESS_TOKEN>
+```
+
 How to uninstall this package:
 ```
 $ npm uninstall -g @kazhashimoto/expand-abbr
