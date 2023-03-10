@@ -4,12 +4,17 @@ const { program } = require("commander");
 const emmet = require('emmet');
 const expand = emmet.default;
 
+function collect(value, previous) {
+  return previous.concat([value]);
+}
+
 program
   .name('expand-abbr')
-  .version('1.0.6')
+  .version('1.0.7')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
+  .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
 
 program.parse(process.argv);
@@ -28,8 +33,18 @@ function concat(abbr_list) {
 
 if (options.head) {
   let str = expand('!');
-  str = str.replace(/<body>[^]*<\/html>/, '');
+  if (options.css) {
+    str = str.replace(/<\/head>[^]*<\/html>/, '');
+  } else {
+    str = str.replace(/<body>[^]*<\/html>/, '');
+  }
   process.stdout.write(str);
+  if (options.css) {
+    for (const p of options.css) {
+      console.log('\t' + expand(`link[href=${p}]`));
+    }
+    console.log('</head>');
+  }
 }
 if (options.head || options.wrapper) {
   let root = '';

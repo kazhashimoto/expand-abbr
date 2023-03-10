@@ -28,12 +28,13 @@ $ npm uninstall -g @kazhashimoto/expand-abbr
 
 ## Usage
 ```
-$ expand-abbr --help
 Usage: expand-abbr [options] abbreviation ...
 
 Options:
   -V, --version          output the version number
   -h,--head              prepend html header
+  -c,--css <stylesheet>  insert a link to an external stylesheet inside head
+                         element (default: [])
   -w,--wrapper <parent>  wrap expanded elements with parent
   --help                 display help for command
 ```
@@ -57,4 +58,30 @@ $ expand-abbr -h '(div>dl>(dt+dd)*3)+footer>p'
 出力されるコードのインデントはtabです。タブをスペースに置き換えるにはコードフォーマッターを使って整形することができます。次の例では、expand-abbrの出力を[js-beautify](https://github.com/beautify-web/js-beautify)の標準入力を通じてタブをスペース2個に置き換えています。
 ```
 $ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
+```
+
+## Examples
+デモのソースコードはこちら： https://github.com/kazhashimoto/expand-abbr-demo
+
+次のシェルスクリプト```demo1.sh```は、5個のセクションとそれぞれの見出しへのナビゲーションリンクから成るページを出力します。
+```
+#!/bin/bash
+
+header='header>h1{Title}+nav>ul.links>(li>a[href=#s$]{Section $})*5'
+main='(section#s$>h2{Section $}+(p.text>lorem)*4+p.top>a[href=#]{Top})*5'
+footer='footer>p{&copy; 2023 Example}'
+
+css='style.css'
+
+INDENT="js-beautify --type html -s 2 -n"
+
+expand-abbr -h -c "$css" "$header" "$main" "$footer" | $INDENT
+```
+
+このスクリプトの出力をindex.htmlファイルに保存し、ブラウザーで開きます。
+```
+$ cd demo1
+$ chmod +x demo1.sh
+$ ./demo1.sh > index.html
+$ open index.html
 ```
