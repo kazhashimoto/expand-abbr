@@ -78,7 +78,7 @@ INDENT="js-beautify --type html -s 2 -n"
 expand-abbr -h -c "$css" "$header" "$main" "$footer" | $INDENT
 ```
 
-このスクリプトの出力をindex.htmlファイルに保存し、ブラウザーで開きます。
+このスクリプトの出力をindex.htmlファイルに保存し、ブラウザーで開きます(macOSの場合)。
 ```
 $ cd demo1
 $ chmod +x demo1.sh
