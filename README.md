@@ -60,6 +60,19 @@ $ expand-abbr -h '(div>dl>(dt+dd)*3)+footer>p'
 $ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
 ```
 
+外部スタイルシートへのリンクをhead要素に挿入するには、-cオプションを指定します。コマンドラインに-cオプションを複数指定することができます。その場合、コマンドラインに指定した順序で、expand-abbrはlink要素を書き出します。
+```
+$ expand-abbr -h -c 'reset.css' -c "https://www.example.com/style.css" 'div>p'
+```
+
+```
+<head>
+	.....
+	<link rel="stylesheet" href="reset.css">
+	<link rel="stylesheet" href="https://www.example.com/style.css">
+</head>
+```
+
 ## Examples
 デモのソースコードはこちら： https://github.com/kazhashimoto/expand-abbr-demo
 
@@ -78,7 +91,9 @@ INDENT="js-beautify --type html -s 2 -n"
 expand-abbr -h -c "$css" "$header" "$main" "$footer" | $INDENT
 ```
 
-このスクリプトの出力をindex.htmlファイルに保存し、ブラウザーで開きます(macOSの場合)。
+シェルの変数にemmet省略記法を値として設定するときは、　```$```記号による変数展開を防ぐために、文字列全体をシングルクォート（'）で囲みます。また、これらの変数をexpand-abbrの引数に指定するときは、１つの省略記法として扱うために、ダブルクォート(")で囲みます（例：```"$footer"```）。
+
+このスクリプトの出力をindex.htmlファイルに保存すれば、ブラウザーで開くことができます(macOSの場合)。
 ```
 $ cd demo1
 $ chmod +x demo1.sh
