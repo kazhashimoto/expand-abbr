@@ -61,6 +61,8 @@ $ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
 ```
 
 ## Examples
+デモのソースコードはこちら： https://github.com/kazhashimoto/expand-abbr-demo
+
 次のシェルスクリプト```demo1.sh```は、5個のセクションとそれぞれの見出しへのナビゲーションリンクから成るページを出力します。
 ```
 #!/bin/bash
@@ -78,6 +80,8 @@ expand-abbr -h -c "$css" "$header" "$main" "$footer" | $INDENT
 
 このスクリプトの出力をindex.htmlファイルに保存し、ブラウザーで開きます。
 ```
+$ cd demo1
+$ chmod +x demo1.sh
 $ ./demo1.sh > index.html
 $ open index.html
 ```
