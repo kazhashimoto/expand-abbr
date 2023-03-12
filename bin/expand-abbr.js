@@ -10,7 +10,7 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.0')
+  .version('1.1.1')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
@@ -63,8 +63,53 @@ function replacer(match) {
   return `*${n}`;
 }
 
+const macroMap = new Map();
+macroMap.set('div', [
+  'div>(p>lorem4)%2,5%',
+  'div>img[src=photo1.jpg]+p>lorem10',
+  'div>%ul%',
+  'div>%ul%'
+]);
+macroMap.set('ul', [
+  'ul>(li>lorem4)%2,5%',
+  'ul>(li>a[href=#]>lorem4)%2,5%',
+  'ul>(li>%div%)',
+  'ul>(li>%div%)',
+  'ul>(li>%div%)'
+]);
+macroMap.set('section', [
+  'section>h2{Title}+(p>lorem10)%5%',
+  'section>h2{Title}+%div%',
+  'section>h2{Title}+%div%',
+  'section>h2{Title}+%div%',
+  'section>h2{Title}+%div%',
+]);
+
+function macro(match) {
+  const tag = match.replace(/%/g, '');
+  const values = macroMap.get(tag);
+  if (!values) {
+    return 'div.error';
+  }
+  let i = getRandomInt(0, values.length - 1);
+  return values[i];
+}
+
 function compile(abbr) {
-  const re = /%\d+(,\d+)?%/g;
+  let re = /%[a-z]+%/g;
+  const found = abbr.match(re);
+  if (found) {
+    let limit = found.length * 5;
+    while (limit > 0 && re.test(abbr)) {
+      abbr = abbr.replace(re, macro);
+      limit--;
+    }
+    if (!limit) {
+      abbr.replace(re, 'div');
+    }
+  }
+
+  re = /%\d+(,\d+)?%/g;
   while (re.test(abbr)) {
     abbr = abbr.replace(re, replacer);
   }
