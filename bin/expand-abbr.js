@@ -67,25 +67,35 @@ function replacer(match) {
 const macroMap = new Map();
 macroMap.set('root', [
   '(%section%)%2,5%',
-  'div>%textblock%',
-  'div>%list%',
-  'div>%list%',
-  // 'div>img[src=photo1.jpg]+p>(%inline%)',
-  // 'div>%list%',
-  // 'div>%list%'
+  '(%block%)%+3,5%'
 ]);
-macroMap.set('textblock', [
+macroMap.set('block', [
+  'div>%p%',
+  'div>%p%+%block%',
+  'div>%list%',
+  'div>%list%+%block%',
+  'div>img[src=photo.jpg]',
+  'div>img[src=photo.jpg]+%block%',
+  'div>(a[href=#]>%inline%)',
+  'div>%block%',
+  'div>(%block%+%block%)'
+]);
+macroMap.set('p', [
   '(p>%lorem10%)%2,5%',
+  '(p>%inline%)%2,5%'
 ]);
 macroMap.set('list', [
   'ul>(li>%lorem%)%2,5%',
   'ul>(li>%lorem8%)%2,5%',
   'ul>(li>a[href=#]>%lorem2%)%2,5%',
   'ul>(li>a[href=#]>%lorem4%)%2,5%',
+  'dl>(dt>%lorem2%^dd>%lorem4%)%3,6%'
 ]);
 macroMap.set('section', [
-  'section>h2{Section $}+%textblock%',
-  'section>h2{Section $}+div>%textblock%',
+  'section>h2{Section $}+div>%p%+div>img[src=photo$.jpg]',
+  'section>h2{Section $}+div>%p%^div>img[src=photo$.jpg]',
+  'section>h2{Section $}+div>img[src=photo$.jpg]+div>%p%',
+  'section>h2{Section $}+div>img[src=photo$.jpg]^div>%p%',
 ]);
 macroMap.set('inline', [
   '{%text8%}',
@@ -113,20 +123,49 @@ function macro(match) {
   }
   const base = getRandomInt(0, 10000);
   let i = base % values.length;
-  return values[i];
+  let abbr = values[i];
+  const re = /%\+\d+(,\d+)?%$/;
+  found = abbr.match(re);
+  if (found) {
+    const range = found[0].replace(/%/g, '').replace(/^\+/, '').split(',')
+        .map(x => isNaN(x)? 1: parseInt(x));
+    abbr = abbr.replace(re, '');
+    if (!range.length) {
+      return abbr;
+    }
+    let x, y;
+    if (range.length === 1) {
+      x = 1;
+      y = range[0];
+    } else {
+      [x, y] = range;
+    }
+    if (x > y) {
+      return abbr;
+    }
+    const base = getRandomInt(0, 10000);
+    let n = x + base % (y - x + 1);
+    let expression = abbr;
+    for (; n > 1; n--) {
+      expression += `+${abbr}`;
+    }
+    return `(${expression})`;
+
+  }
+  return abbr;
 }
 
 function compile(abbr) {
   let re = /%[a-z]+([0-9]+)?%/g;
   const found = abbr.match(re);
   if (found) {
-    let limit = found.length * 5;
+    let limit = found.length * 10;
     while (limit > 0 && re.test(abbr)) {
       abbr = abbr.replace(re, macro);
       limit--;
     }
     if (!limit) {
-      abbr.replace(re, 'div');
+      abbr = abbr.replace(re, 'div.limit');
     }
   }
 
