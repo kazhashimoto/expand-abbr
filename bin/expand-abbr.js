@@ -59,44 +59,65 @@ function replacer(match) {
   if (x > y) {
     return '*1';
   }
-  const n = getRandomInt(x, y);
+  const base = getRandomInt(0, 10000);
+  const n = x + base % (y - x + 1);
   return `*${n}`;
 }
 
 const macroMap = new Map();
-macroMap.set('div', [
-  'div>(p>lorem4)%2,5%',
-  'div>img[src=photo1.jpg]+p>lorem10',
-  'div>%ul%',
-  'div>%ul%'
+macroMap.set('root', [
+  '(%section%)%2,5%',
+  'div>%textblock%',
+  'div>%list%',
+  'div>%list%',
+  // 'div>img[src=photo1.jpg]+p>(%inline%)',
+  // 'div>%list%',
+  // 'div>%list%'
 ]);
-macroMap.set('ul', [
-  'ul>(li>lorem4)%2,5%',
-  'ul>(li>a[href=#]>lorem4)%2,5%',
-  'ul>(li>%div%)',
-  'ul>(li>%div%)',
-  'ul>(li>%div%)'
+macroMap.set('textblock', [
+  '(p>%lorem10%)%2,5%',
+]);
+macroMap.set('list', [
+  'ul>(li>%lorem%)%2,5%',
+  'ul>(li>%lorem8%)%2,5%',
+  'ul>(li>a[href=#]>%lorem2%)%2,5%',
+  'ul>(li>a[href=#]>%lorem4%)%2,5%',
 ]);
 macroMap.set('section', [
-  'section>h2{Title}+(p>lorem10)%5%',
-  'section>h2{Title}+%div%',
-  'section>h2{Title}+%div%',
-  'section>h2{Title}+%div%',
-  'section>h2{Title}+%div%',
+  'section>h2{Section $}+%textblock%',
+  'section>h2{Section $}+div>%textblock%',
+]);
+macroMap.set('inline', [
+  '{%text8%}',
+  '({%text%}+span{%text2%})',
+  '({%text8%}+span{%text2%})',
 ]);
 
 function macro(match) {
   const tag = match.replace(/%/g, '');
+  let found = tag.match(/^(lorem|text)(\d+)?$/);
+  if (found) {
+    const n = found[2]? parseInt(found[2]): 4;
+    const base = getRandomInt(0, 10000);
+    const words = n + base % (n * 2);
+    if (found[1] == 'lorem') {
+      return `lorem${words}`;
+    } else {
+      const text = expand(`lorem${words}*2`).split('\n');
+      return text[1];
+    }
+  }
   const values = macroMap.get(tag);
   if (!values) {
     return 'div.error';
   }
-  let i = getRandomInt(0, values.length - 1);
+  const base = getRandomInt(0, 10000);
+  let i = base % values.length;
   return values[i];
 }
 
 function compile(abbr) {
-  let re = /%[a-z]+%/g;
+  let re = /%[a-z]+([0-9]+)?%/g;
   const found = abbr.match(re);
   if (found) {
     let limit = found.length * 5;
