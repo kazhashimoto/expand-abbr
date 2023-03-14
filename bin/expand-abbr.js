@@ -59,8 +59,9 @@ function replacer(match) {
   if (x > y) {
     return '*1';
   }
-  const base = getRandomInt(0, 10000);
+  const base = getRandomInt(0, 1000 * (y - x + 1));
   const n = x + base % (y - x + 1);
+  console.log('rand=n,x,y', n, x, y);
   return `*${n}`;
 }
 
@@ -113,8 +114,9 @@ function macro(match) {
   let found = tag.match(/^(lorem|text)(\d+)?$/);
   if (found) {
     const n = found[2]? parseInt(found[2]): 4;
-    const base = getRandomInt(0, 10000);
+    const base = getRandomInt(0, 1000 * (n * 2));
     const words = n + base % (n * 2);
+    console.log('rand=words,n', words, n);
     if (found[1] == 'lorem') {
       return `lorem${words}`;
     } else {
@@ -126,8 +128,9 @@ function macro(match) {
   if (!values) {
     return 'div.error';
   }
-  const base = getRandomInt(0, 10000);
+  const base = getRandomInt(0, 1000 * values.length);
   let i = base % values.length;
+  console.log('rand=i,length', i, values.length);
   let abbr = values[i];
   if (tag == 'one-time') {
     if (abbr) {
@@ -156,8 +159,9 @@ function macro(match) {
     if (x > y) {
       return abbr;
     }
-    const base = getRandomInt(0, 10000);
+    const base = getRandomInt(0, 1000 * (y - x + 1));
     let n = x + base % (y - x + 1);
+    console.log('macro: rand=n,x,y', n, x, y);
     let expression = abbr;
     for (; n > 1; n--) {
       expression += `+${abbr}`;
