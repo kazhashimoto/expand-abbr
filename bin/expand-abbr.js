@@ -70,32 +70,37 @@ macroMap.set('root', [
   '(%block%)%+3,5%'
 ]);
 macroMap.set('block', [
-  'div>%p%',
-  'div>%p%+%block%',
-  'div>%list%',
-  'div>%list%+%block%',
+  'div>(%p%)',
   'div>img[src=photo.jpg]',
-  'div>img[src=photo.jpg]+%block%',
-  'div>(a[href=#]>%inline%)',
-  'div>%block%',
-  'div>(%block%+%block%)'
+  'div>(a[href=#]>(%inline%))',
+  'div>(%one-time%)',
+  '(div>(%block%))+(%block%)',
+  'div>(%block%)+(%block%)',
+]);
+macroMap.set('one-time', [
+  'div>(%list%)',
+  'div>(%table%)',
 ]);
 macroMap.set('p', [
-  '(p>%lorem10%)%2,5%',
-  '(p>%inline%)%2,5%'
+  '(p>(%lorem10%))%2,5%',
+  '(p>(%inline%))%2,5%'
 ]);
 macroMap.set('list', [
-  'ul>(li>%lorem%)%2,5%',
-  'ul>(li>%lorem8%)%2,5%',
-  'ul>(li>a[href=#]>%lorem2%)%2,5%',
-  'ul>(li>a[href=#]>%lorem4%)%2,5%',
-  'dl>(dt>%lorem2%^dd>%lorem4%)%3,6%'
+  'ul>(li>(%lorem%))%2,5%',
+  'ul>(li>(%lorem8%))%2,5%',
+  'ul>(li>a[href=#]>(%lorem2%))%2,5%',
+  'ul>(li>a[href=#]>(%lorem4%))%2,5%',
+  'dl>(dt>(%lorem2%)^dd>(%lorem4%))%3,6%'
 ]);
 macroMap.set('section', [
-  'section>h2{Section $}+div>%p%+div>img[src=photo$.jpg]',
-  'section>h2{Section $}+div>%p%^div>img[src=photo$.jpg]',
-  'section>h2{Section $}+div>img[src=photo$.jpg]+div>%p%',
-  'section>h2{Section $}+div>img[src=photo$.jpg]^div>%p%',
+  'section>h2{Section $}+div>(%p%)+div>img[src=photo$.jpg]',
+  'section>h2{Section $}+div>(%p%)^div>img[src=photo$.jpg]',
+  'section>h2{Section $}+div>img[src=photo$.jpg]+div>(%p%)',
+  'section>h2{Section $}+div>img[src=photo$.jpg]^div>(%p%)',
+]);
+macroMap.set('table', [
+  'table>thead>tr>(th{item$})*3^^tbody>(tr>(td>lorem4)*3)%3,5%',
+  'table>caption>lorem4^thead>tr>(th{item$})*4^^tbody>(tr>(td>lorem4)*4)%3,5%'
 ]);
 macroMap.set('inline', [
   '{%text8%}',
@@ -124,6 +129,14 @@ function macro(match) {
   const base = getRandomInt(0, 10000);
   let i = base % values.length;
   let abbr = values[i];
+  if (tag == 'one-time') {
+    if (abbr) {
+      abbr = abbr.slice(0);
+      values[i] = undefined;
+    } else {
+      return 'div>p{%text4%}';
+    }
+  }
   const re = /%\+\d+(,\d+)?%$/;
   found = abbr.match(re);
   if (found) {
@@ -156,7 +169,7 @@ function macro(match) {
 }
 
 function compile(abbr) {
-  let re = /%[a-z]+([0-9]+)?%/g;
+  let re = /%[a-z-]+([0-9]+)?%/g;
   const found = abbr.match(re);
   if (found) {
     let limit = found.length * 10;
