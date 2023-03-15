@@ -134,7 +134,7 @@ function macro(match) {
   const base = gen.random_int();
   let i = base % values.length;
   if (options.d) {
-    console.log('rand=i,length', i, values.length);
+    console.log('macro: rand=i,length', i, values.length);
   }
   let abbr = values[i];
   if (tag == 'one-time') {
