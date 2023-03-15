@@ -23,7 +23,8 @@
   "homepage": "https://github.com/kazhashimoto/expand-abbr#readme",
   "dependencies": {
     "commander": "^8.1.0",
-    "emmet": "^2.3.4"
+    "emmet": "^2.3.4",
+    "mersenne-twister": "^1.1.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0"
