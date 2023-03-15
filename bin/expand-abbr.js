@@ -3,6 +3,8 @@
 const { program } = require("commander");
 const emmet = require('emmet');
 const expand = emmet.default;
+const MersenneTwister = require('mersenne-twister');
+const mt = new MersenneTwister();
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -33,16 +35,6 @@ function concat(abbr_list) {
   return expression;
 }
 
-/**
- * Taken from
- * https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Math/random
- */
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
-}
-
 function replacer(match) {
   // convert '%min,max%' to array [min, max]
   const range = match.replace(/%/g, '').split(',').map(x => isNaN(x)? 1: parseInt(x));
@@ -59,7 +51,7 @@ function replacer(match) {
   if (x > y) {
     return '*1';
   }
-  const base = getRandomInt(0, 1000 * (y - x + 1));
+  const base = mt.random_int();
   const n = x + base % (y - x + 1);
   console.log('rand=n,x,y', n, x, y);
   return `*${n}`;
@@ -114,7 +106,7 @@ function macro(match) {
   let found = tag.match(/^(lorem|text)(\d+)?$/);
   if (found) {
     const n = found[2]? parseInt(found[2]): 4;
-    const base = getRandomInt(0, 1000 * (n * 2));
+    const base = mt.random_int();
     const words = n + base % (n * 2);
     console.log('rand=words,n', words, n);
     if (found[1] == 'lorem') {
@@ -128,7 +120,7 @@ function macro(match) {
   if (!values) {
     return 'div.error';
   }
-  const base = getRandomInt(0, 1000 * values.length);
+  const base = mt.random_int();
   let i = base % values.length;
   console.log('rand=i,length', i, values.length);
   let abbr = values[i];
@@ -159,7 +151,7 @@ function macro(match) {
     if (x > y) {
       return abbr;
     }
-    const base = getRandomInt(0, 1000 * (y - x + 1));
+    const base = mt.random_int();
     let n = x + base % (y - x + 1);
     console.log('macro: rand=n,x,y', n, x, y);
     let expression = abbr;
