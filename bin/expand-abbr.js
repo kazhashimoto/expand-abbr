@@ -19,6 +19,7 @@ program
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add HTML comments to output')
+  .option('-d', 'debug random numbers generated')
 
 program.parse(process.argv);
 const options = program.opts();
@@ -53,7 +54,9 @@ function replacer(match) {
   }
   const base = mt.random_int();
   const n = x + base % (y - x + 1);
-  console.log('rand=n,x,y', n, x, y);
+  if (options.d) {
+    console.log('rand=n,x,y', n, x, y);
+  }
   return `*${n}`;
 }
 
@@ -101,6 +104,11 @@ macroMap.set('inline', [
   '({%text8%}+span{%text2%})',
 ]);
 
+const randGenMap = new Map();
+for (const key of macroMap.keys()) {
+  randGenMap.set(key, new MersenneTwister());
+}
+
 function macro(match) {
   const tag = match.replace(/%/g, '');
   let found = tag.match(/^(lorem|text)(\d+)?$/);
@@ -108,7 +116,9 @@ function macro(match) {
     const n = found[2]? parseInt(found[2]): 4;
     const base = mt.random_int();
     const words = n + base % (n * 2);
-    console.log('rand=words,n', words, n);
+    if (options.d) {
+      console.log('rand=words,n', words, n);
+    }
     if (found[1] == 'lorem') {
       return `lorem${words}`;
     } else {
@@ -120,9 +130,12 @@ function macro(match) {
   if (!values) {
     return 'div.error';
   }
-  const base = mt.random_int();
+  const gen = randGenMap.get(tag);
+  const base = gen.random_int();
   let i = base % values.length;
-  console.log('rand=i,length', i, values.length);
+  if (options.d) {
+    console.log('rand=i,length', i, values.length);
+  }
   let abbr = values[i];
   if (tag == 'one-time') {
     if (abbr) {
@@ -153,7 +166,9 @@ function macro(match) {
     }
     const base = mt.random_int();
     let n = x + base % (y - x + 1);
-    console.log('macro: rand=n,x,y', n, x, y);
+    if (options.d) {
+      console.log('macro: rand=n,x,y', n, x, y);
+    }
     let expression = abbr;
     for (; n > 1; n--) {
       expression += `+${abbr}`;
