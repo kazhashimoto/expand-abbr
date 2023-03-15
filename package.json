@@ -1,6 +1,6 @@
 {
   "name": "@kazhashimoto/expand-abbr",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -22,14 +22,14 @@
   },
   "homepage": "https://github.com/kazhashimoto/expand-abbr#readme",
   "dependencies": {
-    "commander": "^8.1.0",
-    "emmet": "^2.3.4",
+    "commander": "^10.0.0",
+    "emmet": "^2.3.6",
     "mersenne-twister": "^1.1.0"
-  },
-  "devDependencies": {
-    "eslint": "^7.32.0"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
+  },
+  "devDependencies": {
+    "eslint": "^8.36.0"
   }
 }
