@@ -12,7 +12,7 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.2')
+  .version('1.1.3')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
@@ -62,8 +62,26 @@ function replacer(match) {
 
 const macroMap = new Map();
 macroMap.set('root', [
-  '(%section%)%2,5%',
-  '(%block%)%+3,5%'
+  '%pg-main-content%',
+  '(%pg-header%)+(%pg-main-content%)',
+  '(%pg-header%)+(%pg-main-content%)+(%pg-footer%)',
+  '(%pg-main-content%)+(%pg-footer%)'
+]);
+macroMap.set('pg-main-content', [
+  '(%section%)%3,6%',
+  '(%block%)%+3,6%',
+]);
+macroMap.set('pg-header', [
+  'header>(%nav%)',
+  'header>(h1>%lorem4%)+(%nav%)',
+]);
+macroMap.set('pg-footer', [
+  'footer>p{&copy;2023 Example}',
+  'footer>nav>p>(a[href=page$.html]{page$})%3,5%',
+  'footer>(nav>p>(a[href=page$.html]{page$})%3,5%)+p{&copy;2023 Example}'
+]);
+macroMap.set('nav', [
+  'nav>(li>a[href=#s$]{Section $})%3,6%'
 ]);
 macroMap.set('block', [
   'div>(%p%)',
@@ -145,7 +163,7 @@ function macro(match) {
       return 'div>p{%text4%}';
     }
   }
-  const re = /%\+\d+(,\d+)?%$/;
+  const re = /%\+\d+(,\d+)?%/;
   found = abbr.match(re);
   if (found) {
     const range = found[0].replace(/%/g, '').replace(/^\+/, '').split(',')
