@@ -3,6 +3,8 @@
 const { program } = require("commander");
 const emmet = require('emmet');
 const expand = emmet.default;
+const MersenneTwister = require('mersenne-twister');
+const mt = new MersenneTwister();
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -10,13 +12,14 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.0')
+  .version('1.1.1')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add HTML comments to output')
+  .option('-d', 'debug random numbers generated')
 
 program.parse(process.argv);
 const options = program.opts();
@@ -31,16 +34,6 @@ function concat(abbr_list) {
     expression += `(${abbr})`;
   });
   return expression;
-}
-
-/**
- * Taken from
- * https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Math/random
- */
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
 function replacer(match) {
@@ -59,12 +52,148 @@ function replacer(match) {
   if (x > y) {
     return '*1';
   }
-  const n = getRandomInt(x, y);
+  const base = mt.random_int();
+  const n = x + base % (y - x + 1);
+  if (options.d) {
+    console.log('rand=n,x,y', n, x, y);
+  }
   return `*${n}`;
 }
 
+const macroMap = new Map();
+macroMap.set('root', [
+  '(%section%)%2,5%',
+  '(%block%)%+3,5%'
+]);
+macroMap.set('block', [
+  'div>(%p%)',
+  'div>img[src=photo.jpg]',
+  'div>(a[href=#]>(%inline%))',
+  'div>(%one-time%)',
+  '(div>(%block%))+(%block%)',
+  'div>(%block%)+(%block%)',
+]);
+macroMap.set('one-time', [
+  'div>(%list%)',
+  'div>(%table%)',
+]);
+macroMap.set('p', [
+  '(p>(%lorem10%))%2,5%',
+  '(p>(%inline%))%2,5%'
+]);
+macroMap.set('list', [
+  'ul>(li>(%lorem%))%2,5%',
+  'ul>(li>(%lorem8%))%2,5%',
+  'ul>(li>a[href=#]>(%lorem2%))%2,5%',
+  'ul>(li>a[href=#]>(%lorem4%))%2,5%',
+  'dl>(dt>(%lorem2%)^dd>(%lorem4%))%3,6%'
+]);
+macroMap.set('section', [
+  'section>h2{Section $}+div>(%p%)+div>img[src=photo$.jpg]',
+  'section>h2{Section $}+div>(%p%)^div>img[src=photo$.jpg]',
+  'section>h2{Section $}+div>img[src=photo$.jpg]+div>(%p%)',
+  'section>h2{Section $}+div>img[src=photo$.jpg]^div>(%p%)',
+]);
+macroMap.set('table', [
+  'table>thead>tr>(th{item$})*3^^tbody>(tr>(td>lorem4)*3)%3,5%',
+  'table>caption>lorem4^thead>tr>(th{item$})*4^^tbody>(tr>(td>lorem4)*4)%3,5%'
+]);
+macroMap.set('inline', [
+  '{%text8%}',
+  '({%text%}+span{%text2%})',
+  '({%text8%}+span{%text2%})',
+]);
+
+const randGenMap = new Map();
+for (const key of macroMap.keys()) {
+  randGenMap.set(key, new MersenneTwister());
+}
+
+function macro(match) {
+  const tag = match.replace(/%/g, '');
+  let found = tag.match(/^(lorem|text)(\d+)?$/);
+  if (found) {
+    const n = found[2]? parseInt(found[2]): 4;
+    const base = mt.random_int();
+    const words = n + base % (n * 2);
+    if (options.d) {
+      console.log('rand=words,n', words, n);
+    }
+    if (found[1] == 'lorem') {
+      return `lorem${words}`;
+    } else {
+      const text = expand(`lorem${words}*2`).split('\n');
+      return text[1];
+    }
+  }
+  const values = macroMap.get(tag);
+  if (!values) {
+    return 'div.error';
+  }
+  const gen = randGenMap.get(tag);
+  const base = gen.random_int();
+  let i = base % values.length;
+  if (options.d) {
+    console.log('macro: rand=i,length', i, values.length);
+  }
+  let abbr = values[i];
+  if (tag == 'one-time') {
+    if (abbr) {
+      abbr = abbr.slice(0);
+      values[i] = undefined;
+    } else {
+      return 'div>p{%text4%}';
+    }
+  }
+  const re = /%\+\d+(,\d+)?%$/;
+  found = abbr.match(re);
+  if (found) {
+    const range = found[0].replace(/%/g, '').replace(/^\+/, '').split(',')
+        .map(x => isNaN(x)? 1: parseInt(x));
+    abbr = abbr.replace(re, '');
+    if (!range.length) {
+      return abbr;
+    }
+    let x, y;
+    if (range.length === 1) {
+      x = 1;
+      y = range[0];
+    } else {
+      [x, y] = range;
+    }
+    if (x > y) {
+      return abbr;
+    }
+    const base = mt.random_int();
+    let n = x + base % (y - x + 1);
+    if (options.d) {
+      console.log('macro: rand=n,x,y', n, x, y);
+    }
+    let expression = abbr;
+    for (; n > 1; n--) {
+      expression += `+${abbr}`;
+    }
+    return `(${expression})`;
+
+  }
+  return abbr;
+}
+
 function compile(abbr) {
-  const re = /%\d+(,\d+)?%/g;
+  let re = /%[a-z-]+([0-9]+)?%/g;
+  const found = abbr.match(re);
+  if (found) {
+    let limit = found.length * 10;
+    while (limit > 0 && re.test(abbr)) {
+      abbr = abbr.replace(re, macro);
+      limit--;
+    }
+    if (!limit) {
+      abbr = abbr.replace(re, 'div.limit');
+    }
+  }
+
+  re = /%\d+(,\d+)?%/g;
   while (re.test(abbr)) {
     abbr = abbr.replace(re, replacer);
   }
