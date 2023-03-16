@@ -72,22 +72,24 @@ macroMap.set('pg-main-content', [
   '(%block%)%+3,6%',
 ]);
 macroMap.set('pg-header', [
-  'header>(%nav%)',
-  'header>(h1>%lorem4%)+(%nav%)',
+  'header%>div{1}%(%nav%)',
+  'header%>div{1}%((h1>%lorem4%)+(%nav%))',
+  'header%>div{1}%(h1>%lorem4%)+(%nav%)',
+  'header%>div{1}%(h1>%lorem4%)+div>(%nav%)',
 ]);
 macroMap.set('pg-footer', [
-  'footer>p{&copy;2023 Example}',
-  'footer>nav>p>(a[href=page$.html]{page$})%3,5%',
-  'footer>(nav>p>(a[href=page$.html]{page$})%3,5%)+p{&copy;2023 Example}'
+  'footer%>div{1}%p{&copy;2023 Example}',
+  'footer%>div{1}%nav>p>(a[href=page$.html]{page$})%3,5%',
+  'footer%>div{1}%(nav>p>(a[href=page$.html]{page$})%3,5%)+p{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
   'nav>(li>a[href=#s$]{Section $})%3,6%'
 ]);
 macroMap.set('block', [
-  'div>(%p%)',
-  'div>img[src=photo.jpg]',
-  'div>(a[href=#]>(%inline%))',
-  'div>(%one-time%)',
+  'div%>div{1}%(%p%)',
+  'div%>div{1}%img[src=photo.jpg]',
+  'div%>div{1}%(a[href=#]>(%inline%))',
+  'div%>div{2}%(%one-time%)',
   '(div>(%block%))+(%block%)',
   'div>(%block%)+(%block%)',
 ]);
@@ -136,8 +138,8 @@ function macro(specifier) {
     idx = parseInt(found[1]);
     specifier = specifier.replace(re, '');
   }
-  const tag = specifier.replace(/%/g, '');
-  found = tag.match(/^(lorem|text)(\d+)?$/);
+  const item = specifier.replace(/%/g, '');
+  found = item.match(/^(lorem|text)(\d+)?$/);
   if (found) {
     const n = found[2]? parseInt(found[2]): 4;
     const base = mt.random_int();
@@ -152,14 +154,29 @@ function macro(specifier) {
       return text[1];
     }
   }
-  const values = macroMap.get(tag);
+  re = /^>([a-z]+){(\d+)}$/;
+  found = item.match(re);
+  if (found) {
+      let tag = found[1];
+      let depth = found[2];
+      abbr = '';
+      for (let i = 0; i < depth; i++) {
+        const p = mt.random_incl();
+        if (p < 0.3) {
+          break;
+        }
+        abbr += `>${tag}`;
+      }
+      return `${abbr}>`;
+  }
+  const values = macroMap.get(item);
   if (!values) {
     return 'div.error';
   }
   if (idx >= 0) {
     idx = Math.min(idx, values.length - 1);
   } else {
-    const gen = randGenMap.get(tag);
+    const gen = randGenMap.get(item);
     const base = gen.random_int();
     idx = base % values.length;
     if (options.d) {
@@ -167,7 +184,7 @@ function macro(specifier) {
     }
   }
   abbr = values[idx];
-  if (tag == 'one-time') {
+  if (item == 'one-time') {
     if (abbr) {
       abbr = abbr.slice(0);
       values[idx] = undefined;
@@ -210,7 +227,7 @@ function macro(specifier) {
 }
 
 function compile(abbr) {
-  let re = /%[a-z-]+(\d+)?(@\d+)?%/g;
+  let re = /%>?[a-z-]+(\d+)?({\d+})?(@\d+)?%/g;
   const found = abbr.match(re);
   if (found) {
     let limit = found.length * 10;
