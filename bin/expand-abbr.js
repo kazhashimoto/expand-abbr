@@ -72,30 +72,43 @@ macroMap.set('pg-main-content', [
   '(%block%)%+3,6%',
 ]);
 macroMap.set('pg-header', [
+  '%pg-header-content%',
+  'div%>div{1}%(%pg-header-content%)'
+]);
+macroMap.set('pg-header-content', [
   'header%>div{1}%(%nav%)',
   'header%>div{1}%((h1>%lorem4%)+(%nav%))',
   'header%>div{1}%(h1>%lorem4%)+(%nav%)',
   'header%>div{1}%(h1>%lorem4%)+div>(%nav%)',
 ]);
 macroMap.set('pg-footer', [
+  '%pg-footer-content%',
+  'div%>div{1}%(%pg-footer-content%)'
+]);
+macroMap.set('pg-footer-content', [
   'footer%>div{1}%p{&copy;2023 Example}',
   'footer%>div{1}%nav>p>(a[href=page$.html]{page$})%3,5%',
   'footer%>div{1}%(nav>p>(a[href=page$.html]{page$})%3,5%)+p{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
-  'nav>(li>a[href=#s$]{Section $})%3,6%'
+  'nav>ul>(li>a[href=#s$]{Section $})%3,6%'
 ]);
 macroMap.set('block', [
-  'div%>div{1}%(%p%)',
-  'div%>div{1}%img[src=photo.jpg]',
-  'div%>div{1}%(a[href=#]>(%inline%))',
-  'div%>div{2}%(%one-time%)',
+  '%block-content%',
+  'div%>div{2}%(%block-content%)',
   '(div>(%block%))+(%block%)',
-  'div>(%block%)+(%block%)',
+  '(%block%)+div>(%block%)',
+  'div>(%block%)+div>(%block%)',
+]);
+macroMap.set('block-content', [
+  '%p%',
+  'img[src=photo.jpg]',
+  'a[href=#]>(%inline%)',
+  '%one-time%'
 ]);
 macroMap.set('one-time', [
-  'div>(%list%)',
-  'div>(%table%)',
+  '%list%',
+  '%table%',
 ]);
 macroMap.set('p', [
   '(p>(%lorem10%))%2,5%',
@@ -109,10 +122,28 @@ macroMap.set('list', [
   'dl>(dt>(%lorem2%)^dd>(%lorem4%))%3,6%'
 ]);
 macroMap.set('section', [
-  'section>h2{Section $}+div>(%p%)+div>img[src=photo$.jpg]',
-  'section>h2{Section $}+div>(%p%)^div>img[src=photo$.jpg]',
-  'section>h2{Section $}+div>img[src=photo$.jpg]+div>(%p%)',
-  'section>h2{Section $}+div>img[src=photo$.jpg]^div>(%p%)',
+  '%section-content%',
+  'div%>div{1}%(%section-content%)'
+]);
+macroMap.set('section-content', [
+  'section>(%section-inner%)',
+  'section%>div{1}%(%section-inner%)',
+]);
+macroMap.set('section-inner', [
+  '(%section-heading%)+(%section-body%)',
+]);
+macroMap.set('section-heading', [
+  'h2{Section $}',
+  'div>h2{Section $}'
+]);
+macroMap.set('section-body', [
+  '(%section-body-content%)%3%'
+]);
+macroMap.set('section-body-content', [
+  'div>(%p%)+div>img[src=photo$.jpg]',
+  'div>(%p%)^div>img[src=photo$.jpg]',
+  'div>img[src=photo$.jpg]+div>(%p%)',
+  'div>img[src=photo$.jpg]^div>(%p%)',
 ]);
 macroMap.set('table', [
   'table>thead>tr>(th{item$})*3^^tbody>(tr>(td>lorem4)*3)%3,5%',
@@ -162,7 +193,7 @@ function macro(specifier) {
       abbr = '';
       for (let i = 0; i < depth; i++) {
         const p = mt.random_incl();
-        if (p < 0.3) {
+        if (p < 0.4) {
           break;
         }
         abbr += `>${tag}`;
@@ -230,13 +261,13 @@ function compile(abbr) {
   let re = /%>?[a-z-]+(\d+)?({\d+})?(@\d+)?%/g;
   const found = abbr.match(re);
   if (found) {
-    let limit = found.length * 10;
+    let limit = found.length * 20;
     while (limit > 0 && re.test(abbr)) {
       abbr = abbr.replace(re, macro);
       limit--;
     }
     if (!limit) {
-      abbr = abbr.replace(re, 'div.limit');
+      abbr = abbr.replace(re, '');
     }
   }
 
