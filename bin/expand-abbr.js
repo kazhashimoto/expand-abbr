@@ -127,9 +127,17 @@ for (const key of macroMap.keys()) {
   randGenMap.set(key, new MersenneTwister());
 }
 
-function macro(match) {
-  const tag = match.replace(/%/g, '');
-  let found = tag.match(/^(lorem|text)(\d+)?$/);
+function macro(specifier) {
+  let idx = -1;
+  let abbr;
+  let re = /@(\d+)%$/;
+  let found = specifier.match(re);
+  if (found) {
+    idx = parseInt(found[1]);
+    specifier = specifier.replace(re, '');
+  }
+  const tag = specifier.replace(/%/g, '');
+  found = tag.match(/^(lorem|text)(\d+)?$/);
   if (found) {
     const n = found[2]? parseInt(found[2]): 4;
     const base = mt.random_int();
@@ -148,22 +156,26 @@ function macro(match) {
   if (!values) {
     return 'div.error';
   }
-  const gen = randGenMap.get(tag);
-  const base = gen.random_int();
-  let i = base % values.length;
-  if (options.d) {
-    console.log('macro: rand=i,length', i, values.length);
+  if (idx >= 0) {
+    idx = Math.min(idx, values.length - 1);
+  } else {
+    const gen = randGenMap.get(tag);
+    const base = gen.random_int();
+    idx = base % values.length;
+    if (options.d) {
+      console.log('macro: rand=i,length', idx, values.length);
+    }
   }
-  let abbr = values[i];
+  abbr = values[idx];
   if (tag == 'one-time') {
     if (abbr) {
       abbr = abbr.slice(0);
-      values[i] = undefined;
+      values[idx] = undefined;
     } else {
       return 'div>p{%text4%}';
     }
   }
-  const re = /%\+\d+(,\d+)?%/;
+  re = /%\+\d+(,\d+)?%/;
   found = abbr.match(re);
   if (found) {
     const range = found[0].replace(/%/g, '').replace(/^\+/, '').split(',')
@@ -198,7 +210,7 @@ function macro(match) {
 }
 
 function compile(abbr) {
-  let re = /%[a-z-]+([0-9]+)?%/g;
+  let re = /%[a-z-]+(\d+)?(@\d+)?%/g;
   const found = abbr.match(re);
   if (found) {
     let limit = found.length * 10;
