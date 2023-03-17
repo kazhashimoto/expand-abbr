@@ -190,15 +190,19 @@ function macro(specifier) {
   if (found) {
       let tag = found[1];
       let depth = found[2];
-      abbr = '';
+      const descend = [];
       for (let i = 0; i < depth; i++) {
         const p = mt.random_incl();
         if (p < 0.4) {
           break;
         }
-        abbr += `>${tag}`;
+        descend.push(tag);
       }
-      return `${abbr}>`;
+      if (descend.length) {
+        abbr = descend.join('>');
+        return `>${abbr}>`;
+      }
+      return `>`;
   }
   const values = macroMap.get(item);
   if (!values) {
