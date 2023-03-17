@@ -20,9 +20,15 @@ program
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add HTML comments to output')
   .option('-d', 'debug random numbers generated')
+  .option('--stat', 'print counters');
 
 program.parse(process.argv);
 const options = program.opts();
+
+let debug = () => {};
+if (options.d) {
+  debug = (...args) => { console.log(...args); }
+}
 
 function concat(abbr_list) {
   let expression = '';
@@ -54,9 +60,7 @@ function replacer(match) {
   }
   const base = mt.random_int();
   const n = x + base % (y - x + 1);
-  if (options.d) {
-    console.log('rand=n,x,y', n, x, y);
-  }
+  debug('rand=n,x,y', n, x, y);
   return `*${n}`;
 }
 
@@ -94,16 +98,19 @@ macroMap.set('nav', [
   'nav>ul>(li>a[href=#s$]{Section $})%3,6%'
 ]);
 macroMap.set('block', [
-  '%block-content%',
-  'div%>div{2}%(%block-content%)',
-  '(div>(%block%))+(%block%)',
-  '(%block%)+div>(%block%)',
-  'div>(%block%)+div>(%block%)',
+  '%block-content-list%',
+  'div>(%block-content-list%)',
+  '(div>(%block-content-list%))+(%block-content-list%)',
+  '(%block-content-list%)+(div>(%block-content-list%))',
+  'div>(%block-content-list%)+div>(%block-content-list%)',
+]);
+macroMap.set('block-content-list', [
+  '(%block-content%)%+6%',
 ]);
 macroMap.set('block-content', [
   '%p%',
-  'img[src=photo.jpg]',
-  'a[href=#]>(%inline%)',
+  '%img%',
+  '%anchor%',
   '%one-time%'
 ]);
 macroMap.set('one-time', [
@@ -113,6 +120,13 @@ macroMap.set('one-time', [
 macroMap.set('p', [
   '(p>(%lorem10%))%2,5%',
   '(p>(%inline%))%2,5%'
+]);
+macroMap.set('img', [
+  'div>img[src=photo.jpg]',
+  '(div>img[src=photo$.jpg])%3%'
+]);
+macroMap.set('anchor', [
+  '(div>a[href=#]>(%inline%))%3%',
 ]);
 macroMap.set('list', [
   'ul>(li>(%lorem%))%2,5%',
@@ -155,9 +169,12 @@ macroMap.set('inline', [
   '({%text8%}+span{%text2%})',
 ]);
 
+const statMap = new Map();
 const randGenMap = new Map();
 for (const key of macroMap.keys()) {
   randGenMap.set(key, new MersenneTwister());
+  const val = macroMap.get(key);
+  statMap.set(key, (new Array(val.length)).fill(0));
 }
 
 function macro(specifier) {
@@ -175,9 +192,7 @@ function macro(specifier) {
     const n = found[2]? parseInt(found[2]): 4;
     const base = mt.random_int();
     const words = n + base % (n * 2);
-    if (options.d) {
-      console.log('rand=words,n', words, n);
-    }
+    debug('rand=words,n', words, n);
     if (found[1] == 'lorem') {
       return `lorem${words}`;
     } else {
@@ -214,9 +229,9 @@ function macro(specifier) {
     const gen = randGenMap.get(item);
     const base = gen.random_int();
     idx = base % values.length;
-    if (options.d) {
-      console.log('macro: rand=i,length', idx, values.length);
-    }
+    debug('macro: rand=i,length', idx, values.length);
+    const stat = statMap.get(item);
+    stat[idx]++;
   }
   abbr = values[idx];
   if (item == 'one-time') {
@@ -248,9 +263,7 @@ function macro(specifier) {
     }
     const base = mt.random_int();
     let n = x + base % (y - x + 1);
-    if (options.d) {
-      console.log('macro: rand=n,x,y', n, x, y);
-    }
+    debug('macro: rand=n,x,y', n, x, y);
     let expression = abbr;
     for (; n > 1; n--) {
       expression += `+${abbr}`;
@@ -265,11 +278,12 @@ function compile(abbr) {
   let re = /%>?[a-z-]+(\d+)?({\d+})?(@\d+)?%/g;
   const found = abbr.match(re);
   if (found) {
-    let limit = found.length * 20;
+    let limit = 20;
     while (limit > 0 && re.test(abbr)) {
       abbr = abbr.replace(re, macro);
       limit--;
     }
+    debug('## limit, length', limit, found.length, found);
     if (!limit) {
       abbr = abbr.replace(re, '');
     }
@@ -321,4 +335,7 @@ if (options.head || options.wrapper) {
 }
 if (options.head) {
   console.log('</html>');
+}
+if (options.stat) {
+  console.log(statMap);
 }
