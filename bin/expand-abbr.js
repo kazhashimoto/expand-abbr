@@ -81,9 +81,9 @@ macroMap.set('pg-header', [
 ]);
 macroMap.set('pg-header-content', [
   'header%>div{1}%(%nav%)',
-  'header%>div{1}%((h1>%lorem4%)+(%nav%))',
-  'header%>div{1}%(h1>%lorem4%)+(%nav%)',
-  'header%>div{1}%(h1>%lorem4%)+div>(%nav%)',
+  'header%>div{1}%((h1>lorem4-8)+(%nav%))',
+  'header%>div{1}%(h1>lorem4-8)+(%nav%)',
+  'header%>div{1}%(h1>lorem4-8)+div>(%nav%)',
 ]);
 macroMap.set('pg-footer', [
   '%pg-footer-content%',
@@ -141,11 +141,11 @@ macroMap.set('anchor', [
   'div>a[href=#]>img[src=button.svg]',
 ]);
 macroMap.set('list', [
-  'ul>li%2,5%>(%lorem%)',
-  'ul>li%2,5%>(%lorem8%)',
-  'ul>li%2,5%>a[href=#]>(%lorem2%)',
-  'ul>li%2,5%>a[href=#]>(%lorem4%)',
-  'dl>(dt>(%lorem2%)^dd>(%lorem4%))%3,6%'
+  'ul>li%2,5%>lorem4-8',
+  'ul>li%2,5%>lorem8-16',
+  'ul>li%2,5%>a[href=page$.html]>lorem2-4',
+  'ul>li%2,5%>a[href=page$,html]>lorem4-8',
+  'dl>(dt>lorem2-4^dd>lorem4-8)%3,6%'
 ]);
 macroMap.set('section', [
   '%section-content%',
@@ -194,19 +194,6 @@ function macro(specifier) {
     specifier = specifier.replace(re, '');
   }
   const item = specifier.replace(/%/g, '');
-  found = item.match(/^(lorem|text)(\d+)?$/);
-  if (found) {
-    const n = found[2]? parseInt(found[2]): 4;
-    const base = mt.random_int();
-    const words = n + base % (n * 2);
-    debug('rand=words,n', words, n);
-    if (found[1] == 'lorem') {
-      return `lorem${words}`;
-    } else {
-      const text = expand(`lorem${words}*2`).split('\n');
-      return text[1];
-    }
-  }
   re = /^>([a-z]+){(\d+)}$/;
   found = item.match(re);
   if (found) {
@@ -246,7 +233,7 @@ function macro(specifier) {
       abbr = abbr.slice(0);
       values[idx] = undefined;
     } else {
-      return 'div>p{%text4%}';
+      return 'div>p>lorem4-8';
     }
   }
   re = /%\+\d+(,\d+)?%/;
