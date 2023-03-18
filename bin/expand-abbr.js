@@ -91,11 +91,11 @@ macroMap.set('pg-footer', [
 ]);
 macroMap.set('pg-footer-content', [
   'footer%>div{1}%p{&copy;2023 Example}',
-  'footer%>div{1}%nav>p>(a[href=page$.html]{page$})%3,5%',
-  'footer%>div{1}%(nav>p>(a[href=page$.html]{page$})%3,5%)+p{&copy;2023 Example}'
+  'footer%>div{1}%nav>p%3,5%>a[href=page$.html]{page$}',
+  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+p{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
-  'nav>ul>(li>a[href=#s$]{Section $})%3,6%'
+  'nav>ul>li%3,6%>a[href=#s$]{Section $}'
 ]);
 macroMap.set('block', [
   '%block-content-list%',
@@ -123,17 +123,17 @@ macroMap.set('one-time', [
   '%table%',
 ]);
 macroMap.set('p', [
-  '(p>lorem10)%2,5%',
-  '(p>span>lorem2^lorem8)%5%',
-  '(p>lorem8+span>lorem2)%5%',
-  '(p>a[href=page$.html]>lorem2^lorem8)%5%',
-  '(p>a>lorem2+span>lorem2)%5%',
-  '(p>lorem8+a[href=page$.html]>lorem2)%5%',
-  '(p>lorem6+a[href=page$.html]>lorem2+span>lorem2)%5%'
+  '(p%2,5%>lorem10)',
+  '(p%5%>span>lorem2^lorem8)',
+  '(p%5%>lorem8+span>lorem2)',
+  '(p%5%>a[href=page$.html]>lorem2^lorem8)',
+  '(p%5%>a>lorem2+span>lorem2)',
+  '(p%5%>lorem8+a[href=page$.html]>lorem2)',
+  '(p%5%>lorem6+a[href=page$.html]>lorem2+span>lorem2)'
 ]);
 macroMap.set('img', [
   'div>img[src=photo.jpg]',
-  '(div>img[src=photo$.jpg])%3%'
+  '(div%3%>img[src=photo$.jpg])'
 ]);
 macroMap.set('anchor', [
   'div>a[href=#]>lorem4',
@@ -141,10 +141,10 @@ macroMap.set('anchor', [
   'div>a[href=#]>img[src=button.svg]',
 ]);
 macroMap.set('list', [
-  'ul>(li>(%lorem%))%2,5%',
-  'ul>(li>(%lorem8%))%2,5%',
-  'ul>(li>a[href=#]>(%lorem2%))%2,5%',
-  'ul>(li>a[href=#]>(%lorem4%))%2,5%',
+  'ul>li%2,5%>(%lorem%)',
+  'ul>li%2,5%>(%lorem8%)',
+  'ul>li%2,5%>a[href=#]>(%lorem2%)',
+  'ul>li%2,5%>a[href=#]>(%lorem4%)',
   'dl>(dt>(%lorem2%)^dd>(%lorem4%))%3,6%'
 ]);
 macroMap.set('section', [
@@ -172,8 +172,8 @@ macroMap.set('section-body-content', [
   'div>img[src=photo$.jpg]^div>(%p%)',
 ]);
 macroMap.set('table', [
-  'table>thead>tr>(th{item$})*3^^tbody>(tr>(td>lorem4)*3)%3,5%',
-  'table>caption>lorem4^thead>tr>(th{item$})*4^^tbody>(tr>(td>lorem4)*4)%3,5%'
+  'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>lorem4',
+  'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>lorem4'
 ]);
 
 const statMap = new Map();
