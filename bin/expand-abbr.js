@@ -109,8 +109,13 @@ macroMap.set('block-content-list', [
 ]);
 macroMap.set('block-content', [
   '%p%',
-  '%img%',
-  '%anchor%',
+  '(%p%)+(%p%)',
+  '(%p%)+(%anchor%)',
+  '(%p%)+(%img%)',
+  '(%img%)+(%p%)',
+  '(%p%)+(%img%)+(%anchor%)',
+  '(%img%)+(%p%)+(%anchor%)',
+  '(%p%)+(%anchor%)+(%img%)',
   '%one-time%'
 ]);
 macroMap.set('one-time', [
@@ -118,15 +123,22 @@ macroMap.set('one-time', [
   '%table%',
 ]);
 macroMap.set('p', [
-  '(p>(%lorem10%))%2,5%',
-  '(p>(%inline%))%2,5%'
+  '(p>lorem10)%2,5%',
+  '(p>span>lorem2^lorem8)%5%',
+  '(p>lorem8+span>lorem2)%5%',
+  '(p>a[href=page$.html]>lorem2^lorem8)%5%',
+  '(p>a>lorem2+span>lorem2)%5%',
+  '(p>lorem8+a[href=page$.html]>lorem2)%5%',
+  '(p>lorem6+a[href=page$.html]>lorem2+span>lorem2)%5%'
 ]);
 macroMap.set('img', [
   'div>img[src=photo.jpg]',
   '(div>img[src=photo$.jpg])%3%'
 ]);
 macroMap.set('anchor', [
-  '(div>a[href=#]>(%inline%))%3%',
+  'div>a[href=#]>lorem4',
+  'div>a[href=#]>span>lorem4',
+  'div>a[href=#]>img[src=button.svg]',
 ]);
 macroMap.set('list', [
   'ul>(li>(%lorem%))%2,5%',
@@ -162,11 +174,6 @@ macroMap.set('section-body-content', [
 macroMap.set('table', [
   'table>thead>tr>(th{item$})*3^^tbody>(tr>(td>lorem4)*3)%3,5%',
   'table>caption>lorem4^thead>tr>(th{item$})*4^^tbody>(tr>(td>lorem4)*4)%3,5%'
-]);
-macroMap.set('inline', [
-  '{%text8%}',
-  '({%text%}+span{%text2%})',
-  '({%text8%}+span{%text2%})',
 ]);
 
 const statMap = new Map();
