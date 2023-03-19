@@ -98,24 +98,29 @@ macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s$]{Section $}'
 ]);
 macroMap.set('block', [
-  '%block-content-list%',
-  'div>(%block-content-list%)',
-  '(div>(%block-content-list%))+(%block-content-list%)',
-  '(%block-content-list%)+(div>(%block-content-list%))',
-  'div>(%block-content-list%)+div>(%block-content-list%)',
-]);
-macroMap.set('block-content-list', [
   '(%block-content%)%+6%',
+  '(((div>(%block-content%))+(div>(%block-content%)))%+3%',
+  '(((div>(%block-content%))+(div>(%block-content%))+(div>(%block-content%)))%+3%'
 ]);
 macroMap.set('block-content', [
   '%p%',
-  '(%p%)+(%p%)',
-  '(%p%)+(%anchor%)',
-  '(%p%)+(%img%)',
-  '(%img%)+(%p%)',
-  '(%p%)+(%img%)+(%anchor%)',
-  '(%img%)+(%p%)+(%anchor%)',
-  '(%p%)+(%anchor%)+(%img%)',
+  'div>(%p%)^(div>(%p%))',
+  'div>(%p%)+div>(%p%)',
+  'div>(%p%)^(%anchor%)',
+  'div>(%p%)+(%anchor%)',
+  'div>(%p%)^(%img%)',
+  'div>(%p%)+(%img%)',
+  '(%img%)+(div>(%p%))',
+  '%img%+(div>(%p%))',
+  'div>(%p%)^(%img%)^(%anchor%)',
+  '(div>(%p%)+(%img%))^(%anchor%)',
+  'div>(%p%)^(%img%+%anchor%)',
+  'div>((%p%)+%img%+%anchor%)',
+  '(%img%)+(div>(%p%))+(%anchor%)',
+  '(%img%+(div>(%p%))+(%anchor%)',
+  '%img%+(div>(%p%)+(%anchor%))',
+  '(div>(%p%))+(%anchor%)+(%img%)',
+  'div>(%p%)+(%anchor%)+(%img%)',
   '%one-time%'
 ]);
 macroMap.set('one-time', [
@@ -123,17 +128,17 @@ macroMap.set('one-time', [
   '%table%',
 ]);
 macroMap.set('p', [
-  '(p%2,5%>lorem10)',
-  '(p%5%>span>lorem2^lorem8)',
-  '(p%5%>lorem8+span>lorem2)',
-  '(p%5%>a[href=page$.html]>lorem2^lorem8)',
-  '(p%5%>a>lorem2+span>lorem2)',
-  '(p%5%>lorem8+a[href=page$.html]>lorem2)',
-  '(p%5%>lorem6+a[href=page$.html]>lorem2+span>lorem2)'
+  'p%2,5%>lorem10',
+  'p%5%>span>lorem2^lorem8',
+  'p%5%>lorem8+span>lorem2',
+  'p%5%>a[href=page$.html]>lorem2^lorem8',
+  'p%5%>a>lorem2+span>lorem2',
+  'p%5%>lorem8+a[href=page$.html]>lorem2',
+  'p%5%>lorem6+a[href=page$.html]>lorem2+span>lorem2'
 ]);
 macroMap.set('img', [
   'div>img[src=photo.jpg]',
-  '(div%3%>img[src=photo$.jpg])'
+  'div%3%>img[src=photo$.jpg]'
 ]);
 macroMap.set('anchor', [
   'div>a[href=#]>lorem4',
