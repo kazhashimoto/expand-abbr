@@ -131,26 +131,33 @@ macroMap.set('p', [
   'p%2,5%>lorem10',
   'p%5%>span>lorem2^lorem8',
   'p%5%>lorem8+span>lorem2',
-  'p%5%>a[href=page$.html]>lorem2^lorem8',
-  'p%5%>a>lorem2+span>lorem2',
-  'p%5%>lorem8+a[href=page$.html]>lorem2',
-  'p%5%>lorem6+a[href=page$.html]>lorem2+span>lorem2'
+  'p%5%>a[href=page$.html]{__PHRASE__}+lorem8',
+  'p%5%>a[href=page$.html]>{__PHRASE__}+span>{__PHRASE__}',
+  'p%5%>lorem8+a[href=page$.html]{__PHRASE__}',
+  "p%5%>lorem6+a[href=page$.html]>{__PHRASE__}+span{__PHRASE__}"
+]);
+macroMap.set('p-long', [
+  'p>lorem100',
+  'p*2>lorem50',
+  'p*3>lorem33',
+  'p*4>lorem25',
+  'p*5>lorem20'
 ]);
 macroMap.set('img', [
   'div>img[src=photo.jpg]',
   'div%3%>img[src=photo$.jpg]'
 ]);
 macroMap.set('anchor', [
-  'div>a[href=#]>lorem4',
-  'div>a[href=#]>span>lorem4',
+  'div>a[href=#]{__PHRASE__}',
+  'div>a[href=#]>span{__PHRASE__}',
   'div>a[href=#]>img[src=button.svg]',
 ]);
 macroMap.set('list', [
   'ul>li%2,5%>lorem4-8',
   'ul>li%2,5%>lorem8-16',
-  'ul>li%2,5%>a[href=page$.html]>lorem2-4',
+  'ul>li*4>a[href=page$.html]{__PHRASE__}',
   'ul>li%2,5%>a[href=page$,html]>lorem4-8',
-  'dl>(dt>lorem2-4^dd>lorem4-8)%3,6%'
+  'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
 ]);
 macroMap.set('section', [
   '%section-content%',
@@ -171,14 +178,14 @@ macroMap.set('section-body', [
   '(%section-body-content%)%3%'
 ]);
 macroMap.set('section-body-content', [
-  'div>(%p%)+div>img[src=photo$.jpg]',
-  'div>(%p%)^div>img[src=photo$.jpg]',
-  'div>img[src=photo$.jpg]+div>(%p%)',
-  'div>img[src=photo$.jpg]^div>(%p%)',
+  'div>(%p-long%)+div>img[src=photo$.jpg]',
+  'div>(%p-long%)^div>img[src=photo$.jpg]',
+  'div>img[src=photo$.jpg]+div>(%p-long%)',
+  'div>img[src=photo$.jpg]^div>(%p-long%)',
 ]);
 macroMap.set('table', [
-  'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>lorem4',
-  'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>lorem4'
+  'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
+  'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>{__PHRASE__}'
 ]);
 
 const statMap = new Map();
@@ -331,6 +338,8 @@ function replaceText(specifier) {
     const macro = found[1];
     if (macro == 'HEADING') {
       text = getLoremText('lorem6*3', 1, false, true);
+    } else if (macro == 'PHRASE') {
+      text = getLoremText('lorem2*5', 1, false, false);
     }
   }
   return text;
