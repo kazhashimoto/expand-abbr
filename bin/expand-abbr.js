@@ -81,9 +81,9 @@ macroMap.set('pg-header', [
 ]);
 macroMap.set('pg-header-content', [
   'header%>div{1}%(%nav%)',
-  'header%>div{1}%((h1>lorem4-8)+(%nav%))',
-  'header%>div{1}%(h1>lorem4-8)+(%nav%)',
-  'header%>div{1}%(h1>lorem4-8)+div>(%nav%)',
+  'header%>div{1}%(h1{__HEADING__}+(%nav%))',
+  'header%>div{1}%div>(h1{__HEADING__}+h2{__HEADING__})^(%nav%)',
+  'header%>div{1}%h1{__HEADING__}+div>(%nav%)',
 ]);
 macroMap.set('pg-footer', [
   '%pg-footer-content%',
@@ -295,6 +295,52 @@ function compile(abbr) {
   return abbr;
 }
 
+/**
+ * @param lorem lorem[min [-max]][*times]
+ * @param idx   the index of the array from which the dummy text is extracted
+ * @param punctuation  if true, remove punctuation characters
+ * @param capitalize  if true, capitalize the first letter of each word in the dummy text
+ */
+function getLoremText(lorem, idx, punctuation, capitalize) {
+  let arr = expand(lorem).split('\n');
+  if (idx < 0) {
+    idx = 0;
+  } else if (idx >= arr.length) {
+    idx = arr.length - 1;
+  }
+  let text = arr[idx];
+  if (!punctuation) {
+    text = text.replace(/[.,!]/g, '');
+  }
+  if (capitalize) {
+    arr = text.split(' ');
+    for (let i = 0; i < arr.length; i++) {
+      arr[i] = arr[i].charAt(0).toUpperCase() + arr[i].slice(1);
+    }
+    text = arr.join(' ');
+  }
+  return text;
+}
+
+function replaceText(specifier) {
+  let text = '';
+  const re = /__([A-Z_]+)__/;
+  const found = specifier.match(re);
+  if (found) {
+
+    const macro = found[1];
+    if (macro == 'HEADING') {
+      text = getLoremText('lorem6*3', 1, false, true);
+    }
+  }
+  return text;
+}
+
+function outputHTML(abbr) {
+  const html = expand(abbr).replace(/__[A-Z_]+__/g, replaceText);
+  console.log(html);
+}
+
 if (options.head) {
   let str = expand('!');
   if (options.css) {
@@ -322,14 +368,18 @@ if (options.head || options.wrapper) {
   if (options.x) {
     console.log('<!--', abbr, '-->');
   }
-  console.log(expand(abbr));
+  // console.log(expand(abbr));
+  outputHTML(abbr);
 } else {
   program.args.forEach(abbr => {
     abbr = compile(abbr);
     if (options.x) {
       console.log('<!--', abbr, '-->');
     }
-    console.log(expand(abbr));
+    // let html = expand(abbr).replace(/__[A-Z_]+__/g, replaceText);
+    // console.log(html);
+    outputHTML(abbr);
+    // console.log(expand(abbr));
   });
 }
 if (options.head) {
