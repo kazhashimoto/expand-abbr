@@ -69,10 +69,7 @@ macroMap.set('root', [
   '(%pg-header%)+(%pg-main-content%)+(%pg-footer%)'
 ]);
 macroMap.set('pg-main-content', [
-  '(%section%)%3,6%',
-  '((%section%)+(%section%))%3%',
-  '((%section%)+(%section%)+(%section%))%2%',
-  '(%block%)%+3,6%',
+  '(%section%)%+5,5%',
 ]);
 macroMap.set('pg-header', [
   '%pg-header-content%',
@@ -95,11 +92,6 @@ macroMap.set('pg-footer-content', [
 ]);
 macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s__SEQ_ID_REF__]{Section $}'
-]);
-macroMap.set('block', [
-  '(%block-content%)%+6%',
-  '(((div>(%block-content%))+(div>(%block-content%)))%+3%',
-  '(((div>(%block-content%))+(div>(%block-content%))+(div>(%block-content%)))%+3%'
 ]);
 macroMap.set('block-content', [
   '%p%',
@@ -143,8 +135,13 @@ macroMap.set('p-long', [
   'p*5>lorem20'
 ]);
 macroMap.set('img', [
-  'div>img[src=photo.jpg]',
-  'div%3%>img[src=photo$.jpg]'
+  'div>img[src=photo$.jpg %dim% alt=__PHRASE__]',
+  'div%3%>img[src=photo$.jpg %dim% alt=__PHRASE__]'
+]);
+macroMap.set('dim', [
+  'width=640 height=480',
+  'width=800 height=450',
+  'width=800 height=600'
 ]);
 macroMap.set('anchor', [
   'div>a[href=#]{__PHRASE__}',
@@ -174,13 +171,14 @@ macroMap.set('section-heading', [
   'div>h2{Section __SEQ_1__}'
 ]);
 macroMap.set('section-body', [
-  '(%section-body-content%)%3%'
+  '(%section-body-content%)%3%',
+  '((%section-body-content%)+(%block-content%))%3%'
 ]);
 macroMap.set('section-body-content', [
-  'div>(%p-long%)+div>img[src=photo$.jpg]',
-  'div>(%p-long%)^div>img[src=photo$.jpg]',
-  'div>img[src=photo$.jpg]+div>(%p-long%)',
-  'div>img[src=photo$.jpg]^div>(%p-long%)',
+  'div>(%p-long%)+(%img%)',
+  'div>(%p-long%)^(%img%)',
+  '%img%+div>(%p-long%)',
+  '%img%^div>(%p-long%)',
 ]);
 macroMap.set('table', [
   'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
