@@ -66,13 +66,12 @@ function replacer(match) {
 
 const macroMap = new Map();
 macroMap.set('root', [
-  '%pg-main-content%',
-  '(%pg-header%)+(%pg-main-content%)',
-  '(%pg-header%)+(%pg-main-content%)+(%pg-footer%)',
-  '(%pg-main-content%)+(%pg-footer%)'
+  '(%pg-header%)+(%pg-main-content%)+(%pg-footer%)'
 ]);
 macroMap.set('pg-main-content', [
   '(%section%)%3,6%',
+  '((%section%)+(%section%))%3%',
+  '((%section%)+(%section%)+(%section%))%2%',
   '(%block%)%+3,6%',
 ]);
 macroMap.set('pg-header', [
@@ -95,7 +94,7 @@ macroMap.set('pg-footer-content', [
   'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+p{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
-  'nav>ul>li%3,6%>a[href=#s$]{Section $}'
+  'nav>ul>li%3,6%>a[href=#s__SEQ_ID_REF__]{Section $}'
 ]);
 macroMap.set('block', [
   '(%block-content%)%+6%',
@@ -164,15 +163,15 @@ macroMap.set('section', [
   'div%>div{1}%(%section-content%)'
 ]);
 macroMap.set('section-content', [
-  'section>(%section-inner%)',
-  'section%>div{1}%(%section-inner%)',
+  'section[id=s__SEQ_ID__]>(%section-inner%)',
+  'section[id=s__SEQ_ID__]%>div{1}%(%section-inner%)',
 ]);
 macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)',
 ]);
 macroMap.set('section-heading', [
-  'h2{Section $}',
-  'div>h2{Section $}'
+  'h2{Section __SEQ_1__}',
+  'div>h2{Section __SEQ_1__}'
 ]);
 macroMap.set('section-body', [
   '(%section-body-content%)%3%'
@@ -329,24 +328,34 @@ function getLoremText(lorem, idx, punctuation, capitalize) {
   return text;
 }
 
+const seqMap = new Map();
+
 function replaceText(specifier) {
   let text = '';
-  const re = /__([A-Z_]+)__/;
+  const re = /__([A-Z][A-Z_0-9]*)__/;
   const found = specifier.match(re);
   if (found) {
-
     const macro = found[1];
     if (macro == 'HEADING') {
       text = getLoremText('lorem6*3', 1, false, true);
     } else if (macro == 'PHRASE') {
       text = getLoremText('lorem2*5', 1, false, false);
+    } else if (/^SEQ*/.test(macro)) {
+      let v = [0];
+      if (seqMap.has(macro)) {
+        v = seqMap.get(macro);
+      } else {
+        seqMap.set(macro, v);
+      }
+      v[0]++;
+      text = v[0].toString();
     }
   }
   return text;
 }
 
 function outputHTML(abbr) {
-  const html = expand(abbr).replace(/__[A-Z_]+__/g, replaceText);
+  const html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
   console.log(html);
 }
 
