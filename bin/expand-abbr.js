@@ -17,6 +17,7 @@ program
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
+  .option('--picsum', 'embed a random image via picsum into the document')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add HTML comments to output')
   .option('-d', 'debug random numbers generated')
@@ -135,13 +136,10 @@ macroMap.set('p-long', [
   'p*5>lorem20'
 ]);
 macroMap.set('img', [
-  'div>img[src=photo$.jpg %dim% alt=__PHRASE__]',
-  'div%3%>img[src=photo$.jpg %dim% alt=__PHRASE__]'
-]);
-macroMap.set('dim', [
-  'width=640 height=480',
-  'width=800 height=450',
-  'width=800 height=600'
+  'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
+  'div%3%>img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'div%3%>img[src=photo16x9_$.jpg alt=__PHRASE__]'
 ]);
 macroMap.set('anchor', [
   'div>a[href=#]{__PHRASE__}',
@@ -245,6 +243,27 @@ function macro(specifier) {
       return 'div>p>lorem4-8';
     }
   }
+
+  re = /(img\[src=)photo(\d+x\d+)?_?\$?\.(jpg|png)/;
+  found = abbr.match(re);
+  if (found) {
+    let [width, height] = [320, 240];
+    if (found[2]) {
+      let dim = found[2].split('x').map(d => +d);
+      let c = (dim[0] < 10)? 150: 50;
+      width = dim[0] * c;
+      height = dim[1] * c;
+      const attr = `width=${width} height=${height}`;
+      abbr = abbr.replace(re, `$& ${attr}`);
+    }
+    if (options.picsum) {
+      found = abbr.match(re);
+      if (found) {
+        abbr = abbr.replace(re, `$1__IMAGE${width}X${height}__`);
+      }
+    }
+  }
+
   re = /%\+\d+(,\d+)?%/;
   found = abbr.match(re);
   if (found) {
@@ -330,15 +349,15 @@ const seqMap = new Map();
 
 function replaceText(specifier) {
   let text = '';
-  const re = /__([A-Z][A-Z_0-9]*)__/;
-  const found = specifier.match(re);
+  let re = /__([A-Z][A-Z_0-9]*)__/;
+  let found = specifier.match(re);
   if (found) {
     const macro = found[1];
     if (macro == 'HEADING') {
       text = getLoremText('lorem6*3', 1, false, true);
     } else if (macro == 'PHRASE') {
       text = getLoremText('lorem2*5', 1, false, false);
-    } else if (/^SEQ*/.test(macro)) {
+    } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
         v = seqMap.get(macro);
@@ -347,6 +366,11 @@ function replaceText(specifier) {
       }
       v[0]++;
       text = v[0].toString();
+    } else if (/^IMAGE(\d+X\d+)/.test(macro)) {
+      found = macro.match(/^IMAGE(\d+X\d+)/);
+      let dim = found[1].split('X').map(d => +d);
+      let x = 1 + mt.random_int() % 1000;
+      text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
     }
   }
   return text;
@@ -384,7 +408,6 @@ if (options.head || options.wrapper) {
   if (options.x) {
     console.log('<!--', abbr, '-->');
   }
-  // console.log(expand(abbr));
   outputHTML(abbr);
 } else {
   program.args.forEach(abbr => {
@@ -392,10 +415,7 @@ if (options.head || options.wrapper) {
     if (options.x) {
       console.log('<!--', abbr, '-->');
     }
-    // let html = expand(abbr).replace(/__[A-Z_]+__/g, replaceText);
-    // console.log(html);
     outputHTML(abbr);
-    // console.log(expand(abbr));
   });
 }
 if (options.head) {
