@@ -92,7 +92,7 @@ macroMap.set('pg-footer-content', [
   'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+p{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
-  'nav>ul>li%3,6%>a[href=#s__SEQ_ID_REF__]{Section $}'
+  'nav>ul>li%3,6%>a[href=#s$]{Section $}'
 ]);
 macroMap.set('block-content', [
   '%p%',
