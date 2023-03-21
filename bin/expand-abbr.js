@@ -112,12 +112,7 @@ macroMap.set('block-content', [
   '(%img%+(div>(%p%))+(%anchor%)',
   '%img%+(div>(%p%)+(%anchor%))',
   '(div>(%p%))+(%anchor%)+(%img%)',
-  'div>(%p%)+(%anchor%)+(%img%)',
-  '%one-time%'
-]);
-macroMap.set('one-time', [
-  '%list%',
-  '%table%',
+  'div>(%p%)+(%anchor%)+(%img%)'
 ]);
 macroMap.set('p', [
   'p%2,5%>lorem10',
@@ -163,6 +158,9 @@ macroMap.set('section-content', [
 ]);
 macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)',
+  '(%section-heading%)+(%section-body%)+div>(%list%)',
+  '(%section-heading%)+(%section-body%)+div>(%table%)',
+  '(%section-heading%)+(%section-body%)+div>(%list%)^div>(%table%)',
 ]);
 macroMap.set('section-heading', [
   'h2{Section __SEQ_1__}',
@@ -235,14 +233,6 @@ function macro(specifier) {
     stat[idx]++;
   }
   abbr = values[idx];
-  if (item == 'one-time') {
-    if (abbr) {
-      abbr = abbr.slice(0);
-      values[idx] = undefined;
-    } else {
-      return 'div>p>lorem4-8';
-    }
-  }
 
   re = /(img\[src=)photo(\d+x\d+)?_?\$?\.(jpg|png)/;
   found = abbr.match(re);
