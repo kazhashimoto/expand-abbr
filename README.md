@@ -109,7 +109,8 @@ $ open index.html
 expand-abbrは、Emmetの省略記法に加えて、組み込みのマクロを呼び出すための拡張構文をサポートします。
 
 
-**{\_\_HEADING\_\_}**
+### 文字列置換マクロ
+**\_\_HEADING\_\_**
 
 例
 ```
@@ -120,7 +121,7 @@ $ expand-abbr "h1{__HEADING__}"
 <h1>Sint Et Possimus Officia Magni Hic</h1>
 ```
 
-**{\_\_PHRASE\_\_}**
+**\_\_PHRASE\_\_**
 
 例
 ```
@@ -135,7 +136,7 @@ $ expand-abbr "ul>li*3>a[href=#]{__PHRASE__}"
 </ul>
 ```
 
-**{\_\_SEQ\_\_}**
+**\_\_SEQ\_\_**
 
 例
 ```
@@ -180,6 +181,17 @@ $ expand-abbr "a{page__SEQ1__}" "div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2
 <a href="">page5</a>
 ```
 
+例
+```
+% bin/expand-abbr.js "a[href=page__SEQ__.html]*3{click}"
+```
+結果
+```
+<a href="page1.html">click</a>
+<a href="page2.html">click</a>
+<a href="page3.html">click</a>
+```
+
 **\_\_IMAGE** _width_ **X** _height_ **\_\_**
 
 例
@@ -189,4 +201,49 @@ $ expand-abbr "img[src=__IMAGE800X600__]"
 結果
 ```
 <img src="https://picsum.photos/800/600?random=230" alt="">
+```
+
+### %オペレーター
+
+例
+```
+$ expand-abbr "p%5%>span{item $}"
+```
+```
+$ expand-abbr "(p>span{item $})%3%"
+```
+
+結果
+```
+<p><span>item 1</span></p>
+<p><span>item 2</span></p>
+<p><span>item 3</span></p>
+```
+
+例
+```
+$ expand-abbr "(p>span{item $})%4,6%"
+```
+
+**%>** _tag_ **{** _depth_ **}**
+
+例
+```
+$ expand-abbr "header%>div{3}%p"
+```
+
+結果
+```
+<header>
+  <p></p>
+</header>
+```
+```
+<header>
+  <div>
+    <div>
+      <p></p>
+    </div>
+  </div>
+</header>
 ```
