@@ -35,7 +35,11 @@ Options:
   -h,--head              prepend html header
   -c,--css <stylesheet>  insert a link to an external stylesheet inside head
                          element (default: [])
+  --picsum               embed a random image via picsum into the document
   -w,--wrapper <parent>  wrap expanded elements with parent
+  -x                     add HTML comments to output
+  -d                     debug random numbers generated
+  --stat                 print counters
   --help                 display help for command
 ```
 
@@ -67,9 +71,9 @@ $ expand-abbr -h -c 'reset.css' -c "https://www.example.com/style.css" 'div>p'
 
 ```
 <head>
-	.....
-	<link rel="stylesheet" href="reset.css">
-	<link rel="stylesheet" href="https://www.example.com/style.css">
+  .....
+  <link rel="stylesheet" href="reset.css">
+  <link rel="stylesheet" href="https://www.example.com/style.css">
 </head>
 ```
 
@@ -99,4 +103,90 @@ $ cd demo1
 $ chmod +x demo1.sh
 $ ./demo1.sh > index.html
 $ open index.html
+```
+
+## Extended Syntax
+expand-abbrは、Emmetの省略記法に加えて、組み込みのマクロを呼び出すための拡張構文をサポートします。
+
+
+**{\_\_HEADING\_\_}**
+
+例
+```
+$ expand-abbr "h1{__HEADING__}"
+```
+結果
+```   
+<h1>Sint Et Possimus Officia Magni Hic</h1>
+```
+
+**{\_\_PHRASE\_\_}**
+
+例
+```
+$ expand-abbr "ul>li*3>a[href=#]{__PHRASE__}"
+```
+結果
+```
+<ul>
+  <li><a href="#">Culpa amet</a></li>
+  <li><a href="#">Laborum non</a></li>
+  <li><a href="#">Enim obcaecati</a></li>
+</ul>
+```
+
+**{\_\_SEQ\_\_}**
+
+例
+```
+$ expand-abbr "ul>li*3>{item __SEQ__}" "ul>li*3>{item __SEQ__}"
+```
+結果
+```
+<ul>
+  <li>item 1</li>
+  <li>item 2</li>
+  <li>item 3</li>
+</ul>
+<ul>
+  <li>item 4</li>
+  <li>item 5</li>
+  <li>item 6</li>
+</ul>
+```
+
+例
+```
+$ expand-abbr "a{page__SEQ1__}" "div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2__.jpg]" "a{page__SEQ1__}"
+```
+結果
+```
+<a href="">page1</a>
+<div>
+  <a href="">page2</a>
+  <div><img src="photo1.jpg" alt=""></div>
+  <div><img src="photo2.jpg" alt=""></div>
+</div>
+<div>
+  <a href="">page3</a>
+  <div><img src="photo3.jpg" alt=""></div>
+  <div><img src="photo4.jpg" alt=""></div>
+</div>
+<div>
+  <a href="">page4</a>
+  <div><img src="photo5.jpg" alt=""></div>
+  <div><img src="photo6.jpg" alt=""></div>
+</div>
+<a href="">page5</a>
+```
+
+**\_\_IMAGE** _width_ **X** _height_ **\_\_**
+
+例
+```
+$ expand-abbr "img[src=__IMAGE800X600__]"
+```
+結果
+```
+<img src="https://picsum.photos/800/600?random=230" alt="">
 ```
