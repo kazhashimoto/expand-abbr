@@ -136,6 +136,11 @@ macroMap.set('img', [
   'div%3%>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div%3%>img[src=photo16x9_$.jpg alt=__PHRASE__]'
 ]);
+macroMap.set('thumbnail', [
+  'div>img[src=photo1x1_$.jpg alt=__PHRASE__]',
+  'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
+]);
 macroMap.set('anchor', [
   'div>a[href=#]{__PHRASE__}',
   'div>a[href=#]>span{__PHRASE__}',
@@ -173,8 +178,12 @@ macroMap.set('section-body', [
 macroMap.set('section-body-content', [
   'div>(%p-long%)+(%img%)',
   'div>(%p-long%)^(%img%)',
+  'div>(%p-long%)+(%thumbnail%)',
+  'div>(%p-long%)^(%thumbnail%)',
   '%img%+div>(%p-long%)',
   '%img%^div>(%p-long%)',
+  '%thumbnail%+div>(%p-long%)',
+  '%thumbnail%^div>(%p-long%)',
 ]);
 macroMap.set('table', [
   'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
@@ -239,10 +248,26 @@ function macro(specifier) {
   if (found) {
     let [width, height] = [320, 240];
     if (found[2]) {
-      let dim = found[2].split('x').map(d => +d);
-      let c = (dim[0] < 10)? 150: 50;
-      width = dim[0] * c;
-      height = dim[1] * c;
+      let [rx, ry] = found[2].split('x').map(d => +d);
+      let c;
+      if (item == 'thumbnail') {
+        c = 15;
+        if (rx === 1) {
+          c = 100;
+        } else if (rx < 10) {
+          c = 60;
+        }
+      } else {
+        c = 50;
+        if (rx === 1) {
+          c = 300;
+        } else if (rx < 10) {
+          c = 150;
+        }
+      }
+
+      width = rx * c;
+      height = ry * c;
       const attr = `width=${width} height=${height}`;
       abbr = abbr.replace(re, `$& ${attr}`);
     }
