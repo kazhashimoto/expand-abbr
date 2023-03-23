@@ -207,22 +207,73 @@ $ expand-abbr "img[src=__IMAGE800X600__]"
 
 例
 ```
-$ expand-abbr "p%5%>span{item $}"
+$ expand-abbr "(div>p)%+3%"
 ```
 ```
-$ expand-abbr "(p>span{item $})%3%"
+(div>p)
+(div>p)+(div>p)
+(div>p)+(div>p)+(div>p)
 ```
+```
+$ expand-abbr "(div>p)%+2,4%"
+```
+```
+(div>p)+(div>p)
+(div>p)+(div>p)+(div>p)
+(div>p)+(div>p)+(div>p)+(div>p)
 
-結果
-```
-<p><span>item 1</span></p>
-<p><span>item 2</span></p>
-<p><span>item 3</span></p>
 ```
 
 例
 ```
-$ expand-abbr "(p>span{item $})%4,6%"
+$ expand-abbr "(div>p)%+3%+(p>span)%+2,2%"
+```
+```
+(div>p)+(p>span)+(p>span)
+(div>p)+(div>p)+(p>span)+(p>span)
+(div>p)+(div>p)+(div>p)+(p>span)+(p>span)
+```
+
+例
+```
+$ expand-abbr "((div>p)%+3%+(p>span))%+2,2%"
+```
+```
+ ((div>p)+(p>span))+((div>p)+(p>span))
+ ((div>p)+(p>span))+((div>p)+(div>p)+(p>span))
+ ((div>p)+(div>p)+(div>p)+(p>span))+((div>p)+(p>span))
+ ((div>p)+(div>p)+(div>p)+(p>span))+((div>p)+(div>p)+(p>span))
+ ...
+```
+
+例
+```
+$ expand-abbr "p%3%>span{item $}"
+```
+```
+p*1>span{item $}
+p*2>span{item $}
+p*3>span{item $}
+```
+
+
+```
+$ expand-abbr "(p>span{item $})%3%"
+```
+```
+(p>span{item $})*1
+(p>span{item $})*2
+(p>span{item $})*3
+```
+
+例
+```
+$ expand-abbr "(p>span{item $})%2,4%"
+```
+```
+(p>span{item $})*2
+(p>span{item $})*3
+(p>span{item $})*4
 ```
 
 **%>** _tag_ **{** _depth_ **}**
@@ -231,19 +282,9 @@ $ expand-abbr "(p>span{item $})%4,6%"
 ```
 $ expand-abbr "header%>div{3}%p"
 ```
-
-結果
 ```
-<header>
-  <p></p>
-</header>
-```
-```
-<header>
-  <div>
-    <div>
-      <p></p>
-    </div>
-  </div>
-</header>
+header>p
+header>div>p
+header>div>div>p
+header>div>div>div>p
 ```
