@@ -205,6 +205,9 @@ $ expand-abbr "img[src=__IMAGE800X600__]"
 
 ### %オペレーター
 
+**(** _expression_ **)%+** _max_ **%**  
+**(** _expression_ **)%+** _min, max_ **%**
+
 例
 ```
 $ expand-abbr "(div>p)%+3%"
@@ -246,6 +249,9 @@ $ expand-abbr "((div>p)%+3%+(p>span))%+2,2%"
  ...
 ```
 
+_expression_ **%** _max_ **%**  
+_expression_ **%** _min, max_ **%**
+
 例
 ```
 $ expand-abbr "p%3%>span{item $}"
@@ -276,7 +282,7 @@ $ expand-abbr "(p>span{item $})%2,4%"
 (p>span{item $})*4
 ```
 
-**%>** _tag_ **{** _depth_ **}**
+_parentTag_ **%>** _tag_ **{** _maxDepth_ **}**
 
 例
 ```
