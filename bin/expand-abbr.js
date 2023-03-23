@@ -367,10 +367,16 @@ function replaceAddition(abbr) {
   return abbr;
 }
 
-function compile(abbr) {
-  abbr = replaceAddition(abbr);
+function replaceMultiplication(abbr) {
+  let re = /%\d+(,\d+)?%/g;
+  while (re.test(abbr)) {
+    abbr = abbr.replace(re, multiplication);
+  }
+  return abbr;
+}
 
-  re = /%>?[a-z-]+(\d+)?({\d+})?(@\d+)?%/g;
+function replaceMacro(abbr) {
+  let re = /%>?[a-z-]+(\d+)?({\d+})?(@\d+)?%/g;
   const found = abbr.match(re);
   if (found) {
     let limit = 20;
@@ -383,11 +389,13 @@ function compile(abbr) {
       abbr = abbr.replace(re, '');
     }
   }
+  return abbr;
+}
 
-  re = /%\d+(,\d+)?%/g;
-  while (re.test(abbr)) {
-    abbr = abbr.replace(re, multiplication);
-  }
+function compile(abbr) {
+  abbr = replaceAddition(abbr);
+  abbr = replaceMacro(abbr);
+  abbr = replaceMultiplication(abbr);
   return abbr;
 }
 
