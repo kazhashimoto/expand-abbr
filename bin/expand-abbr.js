@@ -3,6 +3,7 @@
 const { program } = require("commander");
 const emmet = require('emmet');
 const expand = emmet.default;
+const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 
@@ -43,7 +44,7 @@ function concat(abbr_list) {
   return expression;
 }
 
-function replacer(match) {
+function multiplication(match) {
   // convert '%min,max%' to array [min, max]
   const range = match.replace(/%/g, '').split(',').map(x => isNaN(x)? 1: parseInt(x));
   if (!range.length) {
@@ -65,12 +66,87 @@ function replacer(match) {
   return `*${n}`;
 }
 
+function addition(str) {
+  let arr;
+  const options = {
+    valueNames: [
+    'outside',
+    'left',
+    'text-between',
+    'right']
+  };
+  let found = XRegExp.matchRecursive(str, '\\(', '\\)', 'g', options);
+  let range = {};
+  for (const o of found) {
+    if (o.name == 'outside' && /^%\+\d+/.test(o.value)) {
+      range.end = o.start;
+      let [min, max] = [1, 1];
+      let val = o.value.replace(/^%\+/, '').replace(/%.*$/, '')
+              .split(',').map(d => isNaN(d)? 1: +d);
+      if (val.length === 1) {
+        max = val[0];
+      } else {
+        [min, max] = val;
+      }
+      range.repeat = [min, max];
+      const t = o.value.match(/^%\+\d+(,\d+)?%/);
+      range.startTrailing = o.start + t[0].length;
+      break;
+    }
+  }
+  if (!range.end) {
+    for (const o of found) {
+      if (o.name == 'text-between' && /%\+\d+/.test(o.value)) {
+        arr = splitText(str, o.start, o.end);
+        arr[1] = addition(o.value);
+        return arr.join('');
+      }
+    }
+  }
+  for (const o of found) {
+    if (o.name == 'text-between' && o.end === range.end - 1) {
+      range.startExpr = o.start;
+      range.expression = o.value;
+      break;
+    }
+  }
+
+  /*
+   * outside ( expression ) %+d,d% outside
+   *           ^1           ^2     ^3
+   * 1: startExpr
+   * 2: end
+   * 3: startTrailing
+   */
+  arr = splitText(str, range.startExpr - 1, range.startTrailing);
+  const term = `(${range.expression})`;
+
+  let [x, y] = range.repeat;
+  const base = mt.random_int();
+  let n = x + base % (y - x + 1);
+  debug('addition: rand=n,x,y', n, x, y);
+
+  let expression = term;
+  for (let i = 1; i < n; i++) {
+    expression += `+${term}`;
+  }
+  arr[1] = expression;
+  return arr.join('');
+}
+
+function splitText(str, left, right) {
+  const arr = [];
+  arr[0] = str.slice(0, left);
+  arr[2] = str.slice(right);
+  return arr;
+}
+
 const macroMap = new Map();
 macroMap.set('root', [
   '(%pg-header%)+(%pg-main-content%)+(%pg-footer%)'
 ]);
 macroMap.set('pg-main-content', [
-  '(%section%)%+5,5%',
+  '(%section%)%+4,6%',
 ]);
 macroMap.set('pg-header', [
   '%pg-header-content%',
@@ -279,40 +355,22 @@ function macro(specifier) {
     }
   }
 
-  re = /%\+\d+(,\d+)?%/;
-  found = abbr.match(re);
-  if (found) {
-    const range = found[0].replace(/%/g, '').replace(/^\+/, '').split(',')
-        .map(x => isNaN(x)? 1: parseInt(x));
-    abbr = abbr.replace(re, '');
-    if (!range.length) {
-      return abbr;
-    }
-    let x, y;
-    if (range.length === 1) {
-      x = 1;
-      y = range[0];
-    } else {
-      [x, y] = range;
-    }
-    if (x > y) {
-      return abbr;
-    }
-    const base = mt.random_int();
-    let n = x + base % (y - x + 1);
-    debug('macro: rand=n,x,y', n, x, y);
-    let expression = abbr;
-    for (; n > 1; n--) {
-      expression += `+${abbr}`;
-    }
-    return `(${expression})`;
+  abbr = replaceAddition(abbr);
+  return abbr;
+}
 
+function replaceAddition(abbr) {
+  let re = /%\+\d+(,\d+)?%/;
+  while (re.test(abbr)) {
+    abbr = addition(abbr);
   }
   return abbr;
 }
 
 function compile(abbr) {
-  let re = /%>?[a-z-]+(\d+)?({\d+})?(@\d+)?%/g;
+  abbr = replaceAddition(abbr);
+
+  re = /%>?[a-z-]+(\d+)?({\d+})?(@\d+)?%/g;
   const found = abbr.match(re);
   if (found) {
     let limit = 20;
@@ -328,7 +386,7 @@ function compile(abbr) {
 
   re = /%\d+(,\d+)?%/g;
   while (re.test(abbr)) {
-    abbr = abbr.replace(re, replacer);
+    abbr = abbr.replace(re, multiplication);
   }
   return abbr;
 }
