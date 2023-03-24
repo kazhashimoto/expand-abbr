@@ -105,12 +105,42 @@ $ ./demo1.sh > index.html
 $ open index.html
 ```
 
+## ダミーHTML文書の生成
+引数にキーワード```%root%```を指定すると、expand-abbrはHTML要素のツリー構造をランダムに組み合わせた**ダミーHTML文書**を出力します。
+```
+% expand-abbr -h "%root%" > index.html            
+% open index.html
+```
+デフォルトの場合、ダミーHTML文書に書き出される&lt;img>要素について、```src```属性の値は```photo```で始まるjpgファイル名、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます。
+
+引数```--picsum```を指定してダミーHTML文書を生成すると、&lt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込むことができます。
+```
+% expand-abbr -h --picsum "%root%"
+```
+例
+```
+<img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
+```
+
 ## Extended Syntax
-expand-abbrは、Emmetの省略記法に加えて、組み込みのマクロを呼び出すための拡張構文をサポートします。
+ダミーHTML文書の生成を可能とするために、expand-abbrはEmmetの省略記法に対して独自に拡張した構文をサポートしています。
 
+- ダミーテキストの表記調整: \_\_ _keyword_ \_\_
+- グローバルなスコープをもつ順序番号: \_\_ SEQ \_\_
+- picsumイメージの指定: \_\_ _IMAGE_ \_\_
+- ノードのランダム個数の繰り返し指定: %オペレーター
 
-### 文字列置換マクロ
-**\_\_HEADING\_\_**
+### ダミーテキストの表記調整: \_\_ _keyword_ \_\_
+\_\_ _keyword_ \_\_変数は、EmmetのLorem Ipsumジェネレーターを使って取得したダミーテキストに対して、次の方法を組み合わせて表記を調整したテキストに置き換えます。これらの変数は、Emmetの構文で通常のテキストを埋め込める箇所で使用できます。（例: {...}の内側, タグの属性[attr]表記に指定する値）
+
+- 単語の先頭を大文字にする(capitalize)
+- 文字列からコンマ"."やピリオド"."を取り除く
+- 書き出しが"lorem ipsum"以外の文字列も選ばれるようにする
+
+これらの機能は、見出しやリンクの文字列など短いダミーテキストを埋め込むのに役立ちます。
+
+**\_\_HEADING\_\_**  
+```__HEADING__```変数は、見出しに適した長さのダミーテキストに置き換えます。返されるダミーテキストは単語の先頭が大文字で、文中にコンマ"."やピリオド"."を含みません。
 
 例
 ```
@@ -121,7 +151,8 @@ $ expand-abbr "h1{__HEADING__}"
 <h1>Sint Et Possimus Officia Magni Hic</h1>
 ```
 
-**\_\_PHRASE\_\_**
+**\_\_PHRASE\_\_**  
+```__PHRASE__```変数は、リンクのテキストなどに適した２語からなるダミーテキストに置き換えます。返されるダミーテキストはコンマ"."やピリオド"."を含みません。
 
 例
 ```
@@ -136,7 +167,8 @@ $ expand-abbr "ul>li*3>a[href=#]{__PHRASE__}"
 </ul>
 ```
 
-**\_\_SEQ\_\_**
+### グローバルなスコープをもつ順序番号: \_\_ SEQ \_\_  
+```__SEQ__```変数は、1から始まる番号で置き換えます。Emmetの```$```オペレータとの違いは、```*```オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。
 
 例
 ```
@@ -155,6 +187,19 @@ $ expand-abbr "ul>li*3>{item __SEQ__}" "ul>li*3>{item __SEQ__}"
   <li>item 6</li>
 </ul>
 ```
+例
+```
+% bin/expand-abbr.js "a[href=page__SEQ__.html]*3{click}"
+```
+結果
+```
+<a href="page1.html">click</a>
+<a href="page2.html">click</a>
+<a href="page3.html">click</a>
+```
+接頭辞```SEQ```の後に任意の名前を付けることにより、順序番号を"発生"させる"レジスター"を必要なだけ複数個定義することができます。名前に使用できる文字は、英大文字・数字・アンダースコアです。
+
+次の例では、&lt;a>要素のテキストに現れる番号と、&lt;img>要素の画像ファイル名に含まれる番号とを異なる連番で割り当てています。
 
 例
 ```
@@ -181,17 +226,7 @@ $ expand-abbr "a{page__SEQ1__}" "div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2
 <a href="">page5</a>
 ```
 
-例
-```
-% bin/expand-abbr.js "a[href=page__SEQ__.html]*3{click}"
-```
-結果
-```
-<a href="page1.html">click</a>
-<a href="page2.html">click</a>
-<a href="page3.html">click</a>
-```
-
+### picsumイメージの指定: \_\_ _IMAGE_ \_\_
 **\_\_IMAGE** _width_ **X** _height_ **\_\_**
 
 例
@@ -203,7 +238,7 @@ $ expand-abbr "img[src=__IMAGE800X600__]"
 <img src="https://picsum.photos/800/600?random=230" alt="">
 ```
 
-### %オペレーター
+### ノードのランダム個数の繰り返し指定: %オペレーター
 
 **(** _expression_ **)%+** _max_ **%**  
 **(** _expression_ **)%+** _min, max_ **%**
