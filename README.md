@@ -228,7 +228,7 @@ $ expand-abbr "a{page__SEQ1__}" "div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2
 
 ### picsumイメージの埋め込み: \_\_ _IMAGE_ \_\_
 **\_\_IMAGE** _width_ **X** _height_ **\_\_**  
-```__IMAGE__```変数は、[Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURLに置き換えます。画像のサイズは、```IMAGE```の後ろにwidth```X```heightで指定します。
+```__IMAGE__```変数は、[Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURLに置き換えます。画像のサイズは、```IMAGE```の後ろに _width_ ```X``` _height_ で指定します。
 
 例
 ```
@@ -244,7 +244,7 @@ $ expand-abbr "img[src=__IMAGE800X600__]"
 
 **(** _expression_ **)%+** _max_ **%**  
 **(** _expression_ **)%+** _min, max_ **%**  
-式```(```_expression_```)```をEmmetの```+```オペレーターで最大_max_個結合します。結合する式の個数は_min_以上、_max_以下の乱数です。_min_の省略時の値は1です。
+式```(```_expression_```)```をEmmetの```+```オペレーターで最大 _max_ 個結合します。結合する式の個数は _min_ 〜 _max_ の乱数です。 _min_ の省略時の値は1です。
 
 例
 ```
@@ -294,7 +294,7 @@ $ expand-abbr "((div>p)%+3%+(p>span))%+2,2%"
 
 _element_ **%** _max_ **%**  
 _element_ **%** _min, max_ **%**  
-```%*```オペレーターは、Emmetの```*```オペレーターに変換され、要素_element_を最大_max_個繰り返します。繰り返しの回数は_min_以上、_max_以下の乱数です。_min_省略時の値は1です。
+```%*```オペレーターは、Emmetの```*```オペレーターに変換され、要素 _element_ を最大 _max_ 個繰り返します。繰り返しの回数は _min_ 〜 _max_ 以下の乱数です。 _min_ 省略時の値は1です。
 
 例
 ```
@@ -330,7 +330,7 @@ $ expand-abbr "(p>span{item $})%2,4%"
 ```
 
 _parentTag_ **%>** _tag_ **{** _maxDepth_ **}**  
-```%>```オペレーターは、```_tag_```要素を最大_maxDepth_階層入れ子にした構造を、親要素_parentTag_の子として挿入します。挿入される階層の個数は、0〜_maxDepth_の乱数です。
+```%>```オペレーターは、 _tag_ 要素を最大 _maxDepth_ 階層入れ子にした構造を、親要素 _parentTag_ の子として挿入します。挿入される階層の個数は、0〜 _maxDepth_ の乱数です。
 
 例
 ```
