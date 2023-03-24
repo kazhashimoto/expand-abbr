@@ -127,8 +127,8 @@ $ open index.html
 
 - ダミーテキストの表記調整: \_\_ _keyword_ \_\_
 - グローバルなスコープをもつ順序番号: \_\_ SEQ \_\_
-- picsumイメージの指定: \_\_ _IMAGE_ \_\_
-- ノードのランダム個数の繰り返し指定: %オペレーター
+- picsumイメージの埋め込み: \_\_ _IMAGE_ \_\_
+- ランダムな繰り返し回数の指定: %オペレーター
 
 ### ダミーテキストの表記調整: \_\_ _keyword_ \_\_
 \_\_ _keyword_ \_\_変数は、EmmetのLorem Ipsumジェネレーターを使って取得したダミーテキストに対して、次の方法を組み合わせて表記を調整したテキストに置き換えます。これらの変数は、Emmetの構文で通常のテキストを埋め込める箇所で使用できます。（例: {...}の内側, タグの属性[attr]表記に指定する値）
@@ -226,8 +226,9 @@ $ expand-abbr "a{page__SEQ1__}" "div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2
 <a href="">page5</a>
 ```
 
-### picsumイメージの指定: \_\_ _IMAGE_ \_\_
-**\_\_IMAGE** _width_ **X** _height_ **\_\_**
+### picsumイメージの埋め込み: \_\_ _IMAGE_ \_\_
+**\_\_IMAGE** _width_ **X** _height_ **\_\_**  
+```__IMAGE__```変数は、[Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURLに置き換えます。画像のサイズは、```IMAGE```の後ろにwidth```X```heightで指定します。
 
 例
 ```
@@ -238,15 +239,18 @@ $ expand-abbr "img[src=__IMAGE800X600__]"
 <img src="https://picsum.photos/800/600?random=230" alt="">
 ```
 
-### ノードのランダム個数の繰り返し指定: %オペレーター
+### ランダムな繰り返し回数の指定: %オペレーター  
+```%```で囲んだ表記は、Emmetの省略記法の項目や式の後ろに付けると、直前の式に対するランダムな回数の繰り返しを表します。
 
 **(** _expression_ **)%+** _max_ **%**  
-**(** _expression_ **)%+** _min, max_ **%**
+**(** _expression_ **)%+** _min, max_ **%**  
+式```(```_expression_```)```をEmmetの```+```オペレーターで最大_max_個結合します。結合する式の個数は_min_以上、_max_以下の乱数です。_min_の省略時の値は1です。
 
 例
 ```
 $ expand-abbr "(div>p)%+3%"
 ```
+これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
 (div>p)
 (div>p)+(div>p)
@@ -255,27 +259,31 @@ $ expand-abbr "(div>p)%+3%"
 ```
 $ expand-abbr "(div>p)%+2,4%"
 ```
+これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
 (div>p)+(div>p)
 (div>p)+(div>p)+(div>p)
 (div>p)+(div>p)+(div>p)+(div>p)
-
 ```
 
 例
 ```
 $ expand-abbr "(div>p)%+3%+(p>span)%+2,2%"
 ```
+これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
 (div>p)+(p>span)+(p>span)
 (div>p)+(div>p)+(p>span)+(p>span)
 (div>p)+(div>p)+(div>p)+(p>span)+(p>span)
 ```
 
+```%+```オペレーターが修飾する式の中にさらに```%+```を指定することもできます。
+
 例
 ```
 $ expand-abbr "((div>p)%+3%+(p>span))%+2,2%"
 ```
+これは次に示した多数のバリエーションのうちいずれか1つに展開されます。
 ```
  ((div>p)+(p>span))+((div>p)+(p>span))
  ((div>p)+(p>span))+((div>p)+(div>p)+(p>span))
@@ -284,23 +292,26 @@ $ expand-abbr "((div>p)%+3%+(p>span))%+2,2%"
  ...
 ```
 
-_expression_ **%** _max_ **%**  
-_expression_ **%** _min, max_ **%**
+_element_ **%** _max_ **%**  
+_element_ **%** _min, max_ **%**  
+```%*```オペレーターは、Emmetの```*```オペレーターに変換され、要素_element_を最大_max_個繰り返します。繰り返しの回数は_min_以上、_max_以下の乱数です。_min_省略時の値は1です。
 
 例
 ```
 $ expand-abbr "p%3%>span{item $}"
 ```
+これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
 p*1>span{item $}
 p*2>span{item $}
 p*3>span{item $}
 ```
 
-
+例
 ```
 $ expand-abbr "(p>span{item $})%3%"
 ```
+これは次のいずれか1つに展開されます。
 ```
 (p>span{item $})*1
 (p>span{item $})*2
@@ -311,18 +322,21 @@ $ expand-abbr "(p>span{item $})%3%"
 ```
 $ expand-abbr "(p>span{item $})%2,4%"
 ```
+これは次のいずれか1つに展開されます。
 ```
 (p>span{item $})*2
 (p>span{item $})*3
 (p>span{item $})*4
 ```
 
-_parentTag_ **%>** _tag_ **{** _maxDepth_ **}**
+_parentTag_ **%>** _tag_ **{** _maxDepth_ **}**  
+```%>```オペレーターは、```_tag_```要素を最大_maxDepth_階層入れ子にした構造を、親要素_parentTag_の子として挿入します。挿入される階層の個数は、0〜_maxDepth_の乱数です。
 
 例
 ```
 $ expand-abbr "header%>div{3}%p"
 ```
+これは次のいずれか1つに展開されます。
 ```
 header>p
 header>div>p
