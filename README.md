@@ -292,8 +292,8 @@ $ expand-abbr "((div>p)%+3%+(p>span))%+2,2%"
  ...
 ```
 
-_element_ **%** _max_ **%**  
-_element_ **%** _min, max_ **%**  
+_element_ **%\*** _max_ **%**  
+_element_ **%\*** _min, max_ **%**  
 ```%*```オペレーターは、Emmetの```*```オペレーターに変換され、要素 _element_ を最大 _max_ 個繰り返します。繰り返しの回数は _min_ 〜 _max_ 以下の乱数です。 _min_ 省略時の値は1です。
 
 例
