@@ -43,18 +43,30 @@ Options:
   --help                 display help for command
 ```
 
-引数abbreviationを複数並べて指定した場合は、展開したそれぞれのスニペットを直列に繋いだHTMLの構造が出力されます。
+expand-abbrは、引数```abbreviation```ごとにHTML要素のツリーに展開し、それらを順に連結して出力します。
 ```
 $ expand-abbr 'ul>li>a'
 $ expand-abbr 'header>div' 'dl>(dt+dd)*3' 'footer>p'
+$ expand-abbr '(header>ul>li*2>a)+footer>p'
 ```
 
-展開したHTMLの構造をさらにラッパーで包むには、-wオプションを指定します。
+-wオプションを指定すると、展開した要素全体を```<div>```要素のラッパーで包んだ1つのツリーとして出力します。
 ```
-$ expand-abbr -w .wrapper '(header>ul>li*2>a)+footer>p'
+$ expand-abbr -w .wrapper 'div>p' 'ul>li*2>a'
+```
+```
+<div class="wrapper">
+  <div>
+    <p></p>
+  </div>
+  <ul>
+    <li><a href=""></a></li>
+    <li><a href=""></a></li>
+  </ul>
+</div>
 ```
 
-展開したHTMLの構造を ```<html>```, ```<head>```, ```<body>```要素で包んでHTML文書の体裁にするには、-hオプションを指定します。-wオプションと併用できます。ヘッダの内容は、emmetの省略記法```!```により生成したテンプレートが使用されます。
+展開した要素全体をさらに```<html>```, ```<head>```, ```<body>```要素で包んでHTML文書にするには、-hオプションを指定します。-hオプションは-wと一緒に使用できます。```<html>```要素の内容は、emmetの省略記法```!```を使って生成したテンプレートが使用されます。
 ```
 $ expand-abbr -h '(div>dl>(dt+dd)*3)+footer>p'
 ```
@@ -64,7 +76,7 @@ $ expand-abbr -h '(div>dl>(dt+dd)*3)+footer>p'
 $ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
 ```
 
-外部スタイルシートへのリンクをhead要素に挿入するには、-cオプションを指定します。コマンドラインに-cオプションを複数指定することができます。その場合、コマンドラインに指定した順序で、expand-abbrはlink要素を書き出します。
+外部スタイルシートへのリンクを```<head>```要素に挿入するには、-cオプションを指定します。コマンドラインに-cオプションを複数指定することができます。その場合、コマンドラインに指定した順序で、expand-abbrはlink要素を書き出します。
 ```
 $ expand-abbr -h -c 'reset.css' -c "https://www.example.com/style.css" 'div>p'
 ```
@@ -95,7 +107,7 @@ INDENT="js-beautify --type html -s 2 -n"
 expand-abbr -h -c "$css" "$header" "$main" "$footer" | $INDENT
 ```
 
-シェルの変数にemmet省略記法を値として設定するときは、```$```記号による変数展開を防ぐために、文字列全体をシングルクォート（'）で囲みます。また、これらの変数をexpand-abbrの引数に指定するときは、１つの省略記法として扱うために、ダブルクォート(")で囲みます（例：```"$footer"```）。
+シェルの変数にEmmet省略記法を値として設定するときは、```$```記号による変数展開を防ぐために、文字列全体をシングルクォート（'）で囲みます。また、これらの変数をexpand-abbrの引数に指定するときは、１つの省略記法として扱うために、ダブルクォート(")で囲みます（例：```"$footer"```）。
 
 このスクリプトの出力をindex.htmlファイルに保存すれば、ブラウザーで開くことができます(macOSでの例)。
 ```
@@ -106,9 +118,10 @@ $ open index.html
 ```
 
 ## ダミーHTML文書の生成
-引数にキーワード```%root%```を指定すると、expand-abbrはHTML要素のツリー構造をランダムに組み合わせた**ダミーHTML文書**を出力します。
+expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーHTML文書**を生成することができます。
+引数にキーワード```%root%```を指定すると、expand-abbrはHTML要素をランダムに組み合わせたツリーを出力します。Emmetを使ってツリーに展開しているため、出力されるHTML文書は文法的に正しいものがえられます。
 ```
-% expand-abbr -h "%root%" > index.html            
+% expand-abbr -h '%root%' > index.html            
 % open index.html
 ```
 デフォルトの場合、ダミーHTML文書に書き出される&lt;img>要素について、```src```属性の値は```photo```で始まるjpgファイル名、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます。
@@ -144,7 +157,7 @@ $ open index.html
 
 例
 ```
-$ expand-abbr "h1{__HEADING__}"
+$ expand-abbr 'h1{__HEADING__}'
 ```
 結果
 ```   
@@ -156,7 +169,7 @@ $ expand-abbr "h1{__HEADING__}"
 
 例
 ```
-$ expand-abbr "ul>li*3>a[href=#]{__PHRASE__}"
+$ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
 ```
 結果
 ```
@@ -172,7 +185,7 @@ $ expand-abbr "ul>li*3>a[href=#]{__PHRASE__}"
 
 例
 ```
-$ expand-abbr "ul>li*3>{item __SEQ__}" "ul>li*3>{item __SEQ__}"
+$ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
 ```
 結果
 ```
@@ -189,7 +202,7 @@ $ expand-abbr "ul>li*3>{item __SEQ__}" "ul>li*3>{item __SEQ__}"
 ```
 例
 ```
-% bin/expand-abbr.js "a[href=page__SEQ__.html]*3{click}"
+% bin/expand-abbr.js 'a[href=page__SEQ__.html]*3{click}'
 ```
 結果
 ```
@@ -203,7 +216,7 @@ $ expand-abbr "ul>li*3>{item __SEQ__}" "ul>li*3>{item __SEQ__}"
 
 例
 ```
-$ expand-abbr "a{page__SEQ1__}" "div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2__.jpg]" "a{page__SEQ1__}"
+$ expand-abbr 'a{page__SEQ1__}' 'div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2__.jpg]' 'a{page__SEQ1__}'
 ```
 結果
 ```
@@ -232,7 +245,7 @@ $ expand-abbr "a{page__SEQ1__}" "div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2
 
 例
 ```
-$ expand-abbr "img[src=__IMAGE800X600__]"
+$ expand-abbr 'img[src=__IMAGE800X600__]'
 ```
 結果
 ```
@@ -248,7 +261,7 @@ $ expand-abbr "img[src=__IMAGE800X600__]"
 
 例
 ```
-$ expand-abbr "(div>p)%+3%"
+$ expand-abbr '(div>p)%+3%'
 ```
 これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
@@ -257,7 +270,7 @@ $ expand-abbr "(div>p)%+3%"
 (div>p)+(div>p)+(div>p)
 ```
 ```
-$ expand-abbr "(div>p)%+2,4%"
+$ expand-abbr '(div>p)%+2,4%'
 ```
 これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
@@ -268,7 +281,7 @@ $ expand-abbr "(div>p)%+2,4%"
 
 例
 ```
-$ expand-abbr "(div>p)%+3%+(p>span)%+2,2%"
+$ expand-abbr '(div>p)%+3%+(p>span)%+2,2%'
 ```
 これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
@@ -281,7 +294,7 @@ $ expand-abbr "(div>p)%+3%+(p>span)%+2,2%"
 
 例
 ```
-$ expand-abbr "((div>p)%+3%+(p>span))%+2,2%"
+$ expand-abbr '((div>p)%+3%+(p>span))%+2,2%'
 ```
 これは次に示した多数のバリエーションのうちいずれか1つに展開されます。
 ```
@@ -298,7 +311,7 @@ _element_ **%\*** _min, max_ **%**
 
 例
 ```
-$ expand-abbr "p%3%>span{item $}"
+$ expand-abbr 'p%3%>span{item $}'
 ```
 これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
@@ -309,7 +322,7 @@ p*3>span{item $}
 
 例
 ```
-$ expand-abbr "(p>span{item $})%3%"
+$ expand-abbr '(p>span{item $})%3%'
 ```
 これは次のいずれか1つに展開されます。
 ```
@@ -320,7 +333,7 @@ $ expand-abbr "(p>span{item $})%3%"
 
 例
 ```
-$ expand-abbr "(p>span{item $})%2,4%"
+$ expand-abbr '(p>span{item $})%2,4%'
 ```
 これは次のいずれか1つに展開されます。
 ```
@@ -334,7 +347,7 @@ _parentTag_ **%>** _tag_ **{** _maxDepth_ **}**
 
 例
 ```
-$ expand-abbr "header%>div{3}%p"
+$ expand-abbr 'header%>div{3}%p'
 ```
 これは次のいずれか1つに展開されます。
 ```
