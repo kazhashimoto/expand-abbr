@@ -1,5 +1,5 @@
 # expand-abbr
-expand-abbrは、[Emmet](https://docs.emmet.io/)のシンタックスで記述した省略記法の文字列をHTMLタグに展開して標準出力に書き出すコマンドラインインターフェイスです。
+expand-abbrは、[Emmet](https://docs.emmet.io/)のシンタックスで記述した省略記法の文字列をHTML要素に展開して標準出力に書き出すコマンドラインインターフェイスです。
 
 ## Installation
 ```
@@ -43,7 +43,7 @@ Options:
   --help                 display help for command
 ```
 
-expand-abbrは、引数```abbreviation```ごとにHTML要素のツリーに展開し、それらを順に連結して出力します。
+expand-abbrは、引数```abbreviation```ごとにHTML要素のツリーに展開し、展開した結果を順に連結して出力します。
 ```
 $ expand-abbr 'ul>li>a'
 $ expand-abbr 'header>div' 'dl>(dt+dd)*3' 'footer>p'
@@ -76,9 +76,9 @@ $ expand-abbr -h '(div>dl>(dt+dd)*3)+footer>p'
 $ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
 ```
 
-外部スタイルシートへのリンクを```<head>```要素に挿入するには、-cオプションを指定します。コマンドラインに-cオプションを複数指定することができます。その場合、コマンドラインに指定した順序で、expand-abbrはlink要素を書き出します。
+外部スタイルシートへのリンクを```<head>```要素に挿入するには、-cオプションを指定します。コマンドラインに複数の-cオプションを指定した場合、コマンドラインに現れた順序でexpand-abbrはlink要素を書き出します。
 ```
-$ expand-abbr -h -c 'reset.css' -c "https://www.example.com/style.css" 'div>p'
+$ expand-abbr -h -c "reset.css" -c "https://www.example.com/style.css" 'div>p'
 ```
 
 ```
@@ -119,24 +119,24 @@ $ open index.html
 
 ## ダミーHTML文書の生成
 expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーHTML文書**を生成することができます。
-引数にキーワード```%root%```を指定すると、expand-abbrはHTML要素をランダムに組み合わせたツリーを出力します。Emmetを使ってツリーに展開しているため、出力されるHTML文書は文法的に正しいものがえられます。
+引数にキーワード```%root%```を指定すると、expand-abbrはHTML要素をランダムに組み合わせたツリーを出力します。ランダムとはいえ、Emmetを使ってツリーに展開しているため、出力されるHTML文書は文法的に正しいものが得られます。
 ```
 % expand-abbr -h '%root%' > index.html            
 % open index.html
 ```
-デフォルトの場合、ダミーHTML文書に書き出される&lt;img>要素について、```src```属性の値は```photo```で始まるjpgファイル名、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます。
+ダミーHTML文書に書き出される&lt;img>要素について、```src```属性の値は```photo```で始まるjpgファイル名、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます（デフォルトの場合）。
 
 引数```--picsum```を指定してダミーHTML文書を生成すると、&lt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込むことができます。
 ```
 % expand-abbr -h --picsum "%root%"
 ```
-例
+出力例
 ```
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
 ```
 
 ## Extended Syntax
-ダミーHTML文書の生成を可能とするために、expand-abbrはEmmetの省略記法に対して独自に拡張した構文をサポートしています。
+expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの省略記法に対して独自に拡張した構文をサポートしています。
 
 - ダミーテキストの表記調整: \_\_ _keyword_ \_\_
 - グローバルなスコープをもつ順序番号: \_\_ SEQ \_\_
@@ -144,7 +144,7 @@ expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーH
 - ランダムな繰り返し回数の指定: %オペレーター
 
 ### ダミーテキストの表記調整: \_\_ _keyword_ \_\_
-\_\_ _keyword_ \_\_変数は、EmmetのLorem Ipsumジェネレーターを使って取得したダミーテキストに対して、次の方法を組み合わせて表記を調整したテキストに置き換えます。これらの変数は、Emmetの構文で通常のテキストを埋め込める箇所で使用できます。（例: {...}の内側, タグの属性[attr]表記に指定する値）
+\_\_ _keyword_ \_\_変数は、EmmetのLorem Ipsumジェネレーターを使って取得したダミーテキストに対して、次の方法を組み合わせて表記を調整した内容に書き換えます。これらの変数は、Emmetの構文で通常のテキストを埋め込める箇所で使用できます。（例: {...}の内側, タグの属性[attr]表記に指定する値）
 
 - 単語の先頭を大文字にする(capitalize)
 - 文字列からコンマ"."やピリオド"."を取り除く
@@ -210,7 +210,7 @@ $ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
 <a href="page2.html">click</a>
 <a href="page3.html">click</a>
 ```
-接頭辞```SEQ```の後に任意の名前を付けることにより、順序番号を"発生"させる"レジスター"を必要なだけ複数個定義することができます。名前に使用できる文字は、英大文字・数字・アンダースコアです。
+接頭辞```SEQ```の後に任意の名前を付けることにより、順序番号を発生させる"レジスター"を必要なだけ複数個定義することができます。名前に使用できる文字は、英大文字・数字・アンダースコアです。
 
 次の例では、&lt;a>要素のテキストに現れる番号と、&lt;img>要素の画像ファイル名に含まれる番号とを異なる連番で割り当てています。
 
@@ -272,7 +272,7 @@ $ expand-abbr '(div>p)%+3%'
 ```
 $ expand-abbr '(div>p)%+2,4%'
 ```
-これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
+これは次の3通りの記法のいずれか1つに展開されます。
 ```
 (div>p)+(div>p)
 (div>p)+(div>p)+(div>p)
@@ -283,7 +283,7 @@ $ expand-abbr '(div>p)%+2,4%'
 ```
 $ expand-abbr '(div>p)%+3%+(p>span)%+2,2%'
 ```
-これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
+これは次の3通りの記法のいずれか1つに展開されます。
 ```
 (div>p)+(p>span)+(p>span)
 (div>p)+(div>p)+(p>span)+(p>span)
