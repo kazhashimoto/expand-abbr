@@ -13,7 +13,7 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.3')
+  .version('1.1.4')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
@@ -214,13 +214,14 @@ macroMap.set('img', [
 ]);
 macroMap.set('thumbnail', [
   'div>img[src=photo1x1_$.jpg alt=__PHRASE__]',
+  'div>img[src=photo2x2_$.jpg alt=__PHRASE__]',
   'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
 ]);
 macroMap.set('anchor', [
-  'div>a[href=#]{__PHRASE__}',
-  'div>a[href=#]>span{__PHRASE__}',
-  'div>a[href=#]>img[src=button.svg]',
+  'div>a[href=page$.html]{__PHRASE__}',
+  'div>a[href=page$.html]>span{__PHRASE__}',
+  'div>a[href=page$.html]>img[src=button.svg]',
 ]);
 macroMap.set('list', [
   'ul>li%2,5%>lorem4-8',
@@ -242,6 +243,7 @@ macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)+div>(%list%)',
   '(%section-heading%)+(%section-body%)+div>(%table%)',
   '(%section-heading%)+(%section-body%)+div>(%list%)^div>(%table%)',
+  '(%section-heading%)+(%section-body%)+(%grid%)',
 ]);
 macroMap.set('section-heading', [
   'h2{Section __SEQ_1__}',
@@ -264,6 +266,15 @@ macroMap.set('section-body-content', [
 macroMap.set('table', [
   'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
   'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>{__PHRASE__}'
+]);
+macroMap.set('grid', [
+  '.grid>(%card%)%4,8%'
+]);
+macroMap.set('card', [
+  'div>(%thumbnail@0%)+div>(h5{__PHRASE__}+h6{99.99})',
+  'div>(%thumbnail@1%)+div>(h3{__HEADING__}+p>lorem20^%anchor@0%)',
+  'div>(%thumbnail@1%)+p>lorem10',
+  'div>(%thumbnail@1%)+p>lorem20'
 ]);
 
 const statMap = new Map();
@@ -328,7 +339,7 @@ function macro(specifier) {
       let c;
       if (item == 'thumbnail') {
         c = 15;
-        if (rx === 1) {
+        if (rx < 4) {
           c = 100;
         } else if (rx < 10) {
           c = 60;
