@@ -279,7 +279,6 @@ macroMap.set('card', [
   'div>(%thumbnail@1%)+p>lorem20'
 ]);
 
-console.log(options);
 if (options.class) {
   addClassNames();
 }
