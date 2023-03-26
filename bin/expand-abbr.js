@@ -148,6 +148,7 @@ macroMap.set('root', [
 ]);
 macroMap.set('pg-main-content', [
   '(%section%)%+4,6%',
+  '(%blog-post%)%+4,6%'
 ]);
 macroMap.set('pg-header', [
   '%pg-header-content%',
@@ -211,7 +212,12 @@ macroMap.set('img', [
   'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
   'div%3%>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div%3%>img[src=photo16x9_$.jpg alt=__PHRASE__]'
+  'div%3%>img[src=photo16x9_$.jpg alt=__PHRASE__]',
+  '(%figure%)'
+]);
+macroMap.set('figure', [
+  'figure>figcaption>lorem8^img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'figure>img[src=photo4x3_$.jpg alt=__PHRASE__]+figcaption>lorem8'
 ]);
 macroMap.set('thumbnail', [
   'div>img[src=photo1x1_$.jpg alt=__PHRASE__]',
@@ -264,6 +270,34 @@ macroMap.set('section-body-content', [
   '%img%^div>(%p-long%)',
   '%thumbnail%+div>(%p-long%)',
   '%thumbnail%^div>(%p-long%)',
+]);
+macroMap.set('article', [
+  'article>h1{__HEADING__}+(%article-item%)%+3,5%'
+]);
+macroMap.set('article-item', [
+  'article>h2{03 March 2023}+p{__PHRASE__}'
+]);
+macroMap.set('blog-post', [
+  'article>(%blog-post-header%)+(%blog-post-main%)+(%blog-post-comment%)+(%blog-post-footer%)'
+]);
+macroMap.set('blog-post-header', [
+  'h2{__HEADING__}'
+]);
+macroMap.set('blog-post-main', [
+  'section>h3{__HEADING__}+p>lorem5'
+]);
+macroMap.set('blog-post-comment', [
+  'section>h3{__HEADING__}+(%blog-post-comment-body%)%2,5%'
+]);
+macroMap.set('blog-post-comment-body', [
+  'article>h4>lorem4-6^p>lorem8-10^(%blog-post-footer%)'
+]);
+macroMap.set('blog-post-footer', [
+  'footer>p>{Posted on}+(%time%)+{by __PHRASE__}'
+]);
+macroMap.set('time', [
+  'time[datetime="2023-03-27"]{Mar 23}',
+  'time[datetime="2023-02-16"]{Feb 16}'
 ]);
 macroMap.set('table', [
   'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
