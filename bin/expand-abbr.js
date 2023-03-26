@@ -18,6 +18,7 @@ program
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
+  .option('--class [prefix]', 'add class starting with prefix to elements (default: _x)')
   .option('--picsum', 'embed a random image via picsum into the document')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add HTML comments to output')
@@ -228,6 +229,7 @@ macroMap.set('list', [
   'ul>li%2,5%>lorem8-16',
   'ul>li*4>a[href=page$.html]{__PHRASE__}',
   'ul>li%2,5%>a[href=page$,html]>lorem4-8',
+  'ol>li%4,6%{__PHRASE__}',
   'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
 ]);
 macroMap.set('section', [
@@ -268,7 +270,7 @@ macroMap.set('table', [
   'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>{__PHRASE__}'
 ]);
 macroMap.set('grid', [
-  '.grid>(%card%)%4,8%'
+  'div>(%card%)%4,8%'
 ]);
 macroMap.set('card', [
   'div>(%thumbnail@0%)+div>(h5{__PHRASE__}+h6{99.99})',
@@ -276,6 +278,47 @@ macroMap.set('card', [
   'div>(%thumbnail@1%)+p>lorem10',
   'div>(%thumbnail@1%)+p>lorem20'
 ]);
+
+console.log(options);
+if (options.class) {
+  addClassNames();
+}
+
+function addClassNames() {
+  const matches = [
+    [/^pg-header/, 'header'],
+    [/^pg-footer/, 'footer'],
+    [/^nav/, 'nav'],
+    [/^section/, 'section'],
+    [/^list/, '(ul|ol|dl)', 'list'],
+    [/^p(-long)?$/, 'p', 'text'],
+    [/^table/, 'table'],
+    [/^grid/, 'div', 'grid'],
+    [/^card/, 'div', 'card']
+  ];
+  const prefix = (options.class === true)? '_x': options.class;
+  const addClass = (key, item) => {
+    for (const m of matches) {
+      const [re, tag] = m;
+      if (re.test(key)) {
+        const tagRe = new RegExp(`^${tag}[^a-z]`);
+        if (tagRe.test(item)) {
+          const name = m[2]? m[2]: tag;
+          return item.replace(new RegExp(`^${tag}`), `$&.${prefix}-${name}`)
+        }
+        return item;
+      }
+    }
+    return item;
+  }
+
+  for (const key of macroMap.keys()) {
+    const values = macroMap.get(key);
+    for (let i = 0; i < values.length; i++) {
+      values[i] = addClass(key, values[i]);
+    }
+  }
+}
 
 const statMap = new Map();
 const randGenMap = new Map();
