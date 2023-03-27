@@ -556,7 +556,6 @@ function getRandomTime() {
 
   let diff = mt.random_int() % 365;
   day.setDate(base.getDate() - diff);
-
   diff = mt.random_int() % (60 * 60 * 24);
   day.setMinutes(day.getMinutes() - diff);
   const found = day.toISOString().match(/^(\d{4}-\d{2}-\d{2})T(\d\d:\d\d)/);
