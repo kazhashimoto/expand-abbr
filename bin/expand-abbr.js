@@ -293,11 +293,10 @@ macroMap.set('blog-post-comment-body', [
   'article>h4>lorem4-6^p>lorem8-10^(%blog-post-footer%)'
 ]);
 macroMap.set('blog-post-footer', [
-  'footer>p>{Posted on}+(%time%)+{by __PHRASE__}'
+  'footer>p>{Posted on}+(%time%)+{by __NAME__}'
 ]);
 macroMap.set('time', [
-  'time[datetime="2023-03-27"]{Mar 23}',
-  'time[datetime="2023-02-16"]{Feb 16}'
+  'time[datetime=__DATETIME__]{__DATE__}',
 ]);
 macroMap.set('table', [
   'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
@@ -525,6 +524,9 @@ function replaceText(specifier) {
       text = getLoremText('lorem6*3', 1, false, true);
     } else if (macro == 'PHRASE') {
       text = getLoremText('lorem2*5', 1, false, false);
+    } else if (macro == 'NAME') {
+      text = getLoremText('lorem2*5', 1, false, true);
+      text = text.replace(/\?/, '');
     } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
@@ -539,13 +541,52 @@ function replaceText(specifier) {
       let dim = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
+    } else if (macro == 'DATETIME') {
+      text = getRandomTime();
+    } else if (macro == 'DATE') {
+      return specifier;
     }
   }
   return text;
 }
 
+function getRandomTime() {
+  const base = new Date();
+  const day = new Date();
+
+  let diff = mt.random_int() % 365;
+  day.setDate(base.getDate() - diff);
+
+  diff = mt.random_int() % (60 * 60 * 24);
+  day.setMinutes(day.getMinutes() - diff);
+  const found = day.toISOString().match(/^(\d{4}-\d{2}-\d{2})T(\d\d:\d\d)/);
+  return `${found[1]} ${found[2]}`;
+}
+
+function replaceDate(html) {
+  let re = /<time datetime="([0-9-: ]+)">(__DATE__)/;
+
+  const replacer = (tag) => {
+    const found = tag.match(re);
+    if (found) {
+      let iso = found[1].replace(' ', 'T').replace(/$/, ':00.000Z');
+      const day = new Date(iso);
+      const opt = {
+        month: 'short', day: 'numeric', year: 'numeric'
+      };
+      let str = new Intl.DateTimeFormat('en-US', opt).format(day);
+      tag = tag.replace(/__DATE__/, str);
+    }
+    return tag;
+  };
+
+  html = html.replace(new RegExp(re, 'g'), replacer);
+  return html;
+}
+
 function outputHTML(abbr) {
-  const html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
+  let html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
+  html = replaceDate(html);
   console.log(html);
 }
 
