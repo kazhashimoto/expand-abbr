@@ -284,13 +284,14 @@ macroMap.set('blog-post-header', [
   'h2{__HEADING__}'
 ]);
 macroMap.set('blog-post-main', [
-  'section>h3{__HEADING__}+p>lorem5'
+  'section>h3{__HEADING__}+p{__MESSAGE__}',
+  'section>h3{__HEADING__}+p{__MESSAGE__}+(%img@0%)'
 ]);
 macroMap.set('blog-post-comment', [
   'section>h3{__HEADING__}+(%blog-post-comment-body%)%2,5%'
 ]);
 macroMap.set('blog-post-comment-body', [
-  'article>h4>lorem4-6^p>lorem8-10^(%blog-post-footer%)'
+  'article>h4{__DIGEST__}+p{__MESSAGE__}+(%blog-post-footer%)'
 ]);
 macroMap.set('blog-post-footer', [
   'footer>p>{Posted on}+(%time%)+{by __NAME__}'
@@ -527,6 +528,10 @@ function replaceText(specifier) {
     } else if (macro == 'NAME') {
       text = getLoremText('lorem2*5', 1, false, true);
       text = text.replace(/\?/, '');
+    } else if (macro == 'DIGEST') {
+      text = getLoremText('lorem6*5', 1, true, false);
+    } else if (macro == 'MESSAGE') {
+      text = getLoremText('lorem10*5', 1, true, false);
     } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
