@@ -513,25 +513,46 @@ function getLoremText(lorem, idx, punctuation, capitalize) {
   return text;
 }
 
+function fluctuation(base, delta) {
+  let r;
+  let d = 0;
+  for (; d < delta; d++) {
+    r = mt.random();
+    if (r > 0.25 && r <= 0.75) {
+      break;
+    }
+  }
+  r = mt.random();
+  if (r > 0.25 && r <= 0.75) {
+    d = -d;
+  }
+  base += d;
+  return (base < 0)? 0: base;
+}
+
 const seqMap = new Map();
 
 function replaceText(specifier) {
   let text = '';
+  let n;
   let re = /__([A-Z][A-Z_0-9]*)__/;
   let found = specifier.match(re);
   if (found) {
     const macro = found[1];
     if (macro == 'HEADING') {
-      text = getLoremText('lorem6*3', 1, false, true);
+      n = fluctuation(6, 2);
+      text = getLoremText(`lorem${n}*3`, 1, false, true);
     } else if (macro == 'PHRASE') {
       text = getLoremText('lorem2*5', 1, false, false);
     } else if (macro == 'NAME') {
       text = getLoremText('lorem2*5', 1, false, true);
       text = text.replace(/\?/, '');
     } else if (macro == 'DIGEST') {
-      text = getLoremText('lorem6*5', 1, true, false);
+      n = fluctuation(6, 2);
+      text = getLoremText(`lorem${n}*5`, 1, true, false);
     } else if (macro == 'MESSAGE') {
-      text = getLoremText('lorem10*5', 1, true, false);
+      n = fluctuation(12, 3);
+      text = getLoremText(`lorem${n}*5`, 1, true, false);
     } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
