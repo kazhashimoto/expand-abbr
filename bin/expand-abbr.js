@@ -325,6 +325,10 @@ function addClassNames() {
     [/^section/, 'section'],
     [/^list/, '(ul|ol|dl)', 'list'],
     [/^p(-long)?$/, 'p', 'text'],
+    [/^article/, 'article'],
+    [/^blog-post$/, 'article', 'blog-post'],
+    [/^blog-post-main/, 'section', 'blog-post-main'],
+    [/^blog-post-comment/, 'section', 'blog-post-comment'],
     [/^table/, 'table'],
     [/^grid/, 'div', 'grid'],
     [/^card/, 'div', 'card']
