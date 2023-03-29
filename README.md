@@ -142,7 +142,7 @@ expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーH
 
 Typeがimageの場合、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます。
 
-オプション```--picsum```を指定した場合、expand-abbrは、imageタイプのlt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込みます。
+オプション```--picsum```を指定した場合、expand-abbrは、imageタイプの&lt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込みます。
 ```
 % expand-abbr -h --picsum "%root%"
 ```
@@ -151,7 +151,7 @@ Typeがimageの場合、```alt```属性の値はダミーテキスト(Lorem Ipsu
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
 ```
 
-オプション```--svg```を指定した場合、expand-abbrは、iconタイプのlt;img>要素にbase64エンコードされたSVGデータを埋め込みます。
+オプション```--svg```を指定した場合、expand-abbrは、iconタイプの&lt;img>要素にbase64エンコードされたSVGデータを埋め込みます。
 ```
 $ expand-abbr.js -h --svg "%root%"
 ```
