@@ -1,7 +1,8 @@
 let iconNames = [];
 
-module.exports.getIconURL = function(random_gen) {
+module.exports.getIconURL = function(random_gen, encode) {
   let key;
+  let url;
   if (!iconNames.length) {
     iconNames = [...iconMap.keys()];
   }
@@ -11,18 +12,25 @@ module.exports.getIconURL = function(random_gen) {
   } else {
     key = iconNames[0];
   }
-  const value = iconMap.get(key);
-  let [svg, base64] = value;
-  const header = 'data:image/svg+xml;base64';
-  if (!base64) {
-    base64 = btoa(svg);
-    value.push(base64);
+  if (encode) {
+    const value = iconMap.get(key);
+    let [svg, base64] = value;
+    const header = 'data:image/svg+xml;base64';
+    if (!base64) {
+      base64 = btoa(svg);
+      value.push(base64);
+    }
+    url = `${header},${base64}`;
+  } else {
+    url = `${key}.svg`;
   }
-  const dataURL = `${header},${base64}`;
-  return dataURL;
+  return url;
 }
 
 const iconMap = new Map();
+/**
+ * SVG data are taken from https://heroicons.dev/
+ */
 iconMap.set('arrow-left', [
   `<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
   <path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"></path>

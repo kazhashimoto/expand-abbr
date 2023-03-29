@@ -21,6 +21,7 @@ program
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('--class [prefix]', 'add class starting with prefix to elements (default: _x)')
   .option('--picsum', 'embed a random image via picsum into the document')
+  .option('--svg', 'for svg icon images, embed a base64 encoded data directly into src attribute of img element via a data URL.')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add HTML comments to output')
   .option('-d', 'debug random numbers generated')
@@ -584,7 +585,7 @@ function replaceText(specifier) {
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
     } else if (macro == 'ICON') {
-      text = icons.getIconURL(() => mt.random_int());
+      text = icons.getIconURL(() => mt.random_int(), options.svg);
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
