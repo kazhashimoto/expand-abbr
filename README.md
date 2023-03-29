@@ -129,15 +129,55 @@ expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーH
 % expand-abbr -h '%root%' > index.html            
 % open index.html
 ```
-ダミーHTML文書に書き出される&lt;img>要素について、```src```属性の値は```photo```で始まるjpgファイル名、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます（デフォルトの場合）。
 
-引数```--picsum```を指定してダミーHTML文書を生成すると、&lt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込むことができます。
+### img要素のsrc属性
+ダミーHTML文書の中の&lt;img>要素について、```src```属性に設定されるURLの値はコマンドラインオプションによって次の4種類があります。
+
+| Type | URL | Options  |
+|:--|:--|:--|
+| image | photo*.jpg | default|
+| image | https://picsum.photos/ _width_ / _height_ ?random= _num_ | --picsum指定時 |
+| icon | _file_ .svg | default |
+| icon | data:image/svg+xml;base64 | --svg指定時 |
+
+Typeがimageの場合、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます。
+
+オプション```--picsum```を指定した場合、expand-abbrは、imageタイプのlt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込みます。
 ```
 % expand-abbr -h --picsum "%root%"
 ```
 出力例
 ```
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
+```
+
+オプション```--svg```を指定した場合、expand-abbrは、iconタイプのlt;img>要素にbase64エンコードされたSVGデータを埋め込みます。
+```
+$ expand-abbr.js -h --svg "%root%"
+```
+出力例
+```
+<img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj....jwvcGF0aD4KPC9zdmc+" alt="" width="24">
+```
+
+### class属性
+オプション```--class```を指定すると、expand-abbrは、一部のHTML要素に対してclass属性を設定します。class名の接頭辞をこのオプションの引数で与えます。
+```
+$ expand-abbr -h --class my "%root%"
+```
+出力例（一部）
+```
+<header class="my-header"> ...
+<nav class="my-nav"> ...
+```
+接頭辞のデフォルトは"_x-"です。```--class```に _prefix_ 引数を指定しないときは、コマンドラインで```--class```を最後のオプションに指定し、オプションの終わりを示すために```--```で区切らなければなりません。
+```
+$ expand-abbr -h --class -- "%root%"
+```
+出力例（一部）
+```
+<header class="_x-header"> ...
+<nav class="_x-nav"> ...
 ```
 
 ## Extended Syntax
