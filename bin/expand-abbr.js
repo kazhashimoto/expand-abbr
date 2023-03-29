@@ -6,6 +6,7 @@ const expand = emmet.default;
 const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
+const icons = require('./icons');
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -167,7 +168,8 @@ macroMap.set('pg-footer', [
 macroMap.set('pg-footer-content', [
   'footer%>div{1}%p{&copy;2023 Example}',
   'footer%>div{1}%nav>p%3,5%>a[href=page$.html]{page$}',
-  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+p{&copy;2023 Example}'
+  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+p{&copy;2023 Example}',
+  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%icon-list%)+p{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s$]{Section $}'
@@ -228,12 +230,14 @@ macroMap.set('thumbnail', [
 macroMap.set('anchor', [
   'div>a[href=page$.html]{__PHRASE__}',
   'div>a[href=page$.html]>span{__PHRASE__}',
-  'div>a[href=page$.html]>img[src=button.svg]',
+  'div>a[href=page$.html]>(%icon%)'
 ]);
 macroMap.set('list', [
   'ul>li%2,5%>lorem4-8',
   'ul>li%2,5%>lorem8-16',
   'ul>li*4>a[href=page$.html]{__PHRASE__}',
+  'ul>li*4>a[href=page$.html]>{__PHRASE__}+(%icon%)',
+  'ul>li*4>a[href=page$.html]>(%icon%)+{__PHRASE__}',
   'ul>li%2,5%>a[href=page$,html]>lorem4-8',
   'ol>li%4,6%{__PHRASE__}',
   'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
@@ -311,6 +315,14 @@ macroMap.set('card', [
   'div>(%thumbnail@1%)+div>(h3{__HEADING__}+p>lorem20^%anchor@0%)',
   'div>(%thumbnail@1%)+p>lorem10',
   'div>(%thumbnail@1%)+p>lorem20'
+]);
+macroMap.set('icon-list', [
+  'div>(%icon@0%)%+4%',
+  'div>(%icon@1%)%+3%'
+]);
+macroMap.set('icon', [
+  'span>img[src=__ICON__ width=20]',
+  'span>img[src=__ICON__ width=24]'
 ]);
 
 if (options.class) {
@@ -571,6 +583,8 @@ function replaceText(specifier) {
       let dim = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
+    } else if (macro == 'ICON') {
+      text = icons.getIconURL(() => mt.random_int());
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
