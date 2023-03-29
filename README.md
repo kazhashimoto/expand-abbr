@@ -35,7 +35,12 @@ Options:
   -h,--head              prepend html header
   -c,--css <stylesheet>  insert a link to an external stylesheet inside head
                          element (default: [])
+  --class [prefix]       add class starting with prefix to elements (default:
+                         _x)
   --picsum               embed a random image via picsum into the document
+  --svg                  for svg icon images, embed a base64 encoded data
+                         directly into src attribute of img element via a data
+                         URL.
   -w,--wrapper <parent>  wrap expanded elements with parent
   -x                     add HTML comments to output
   -d                     debug random numbers generated
