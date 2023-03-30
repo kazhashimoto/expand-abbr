@@ -24,9 +24,8 @@ program
   .option('--picsum', 'embed a random image via picsum into the document')
   .option('--svg', 'for svg icon images, embed a base64 encoded data directly into src attribute of img element via a data URL.')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
-  .option('-x', 'add HTML comments to output')
-  .option('-d', 'debug random numbers generated')
-  .option('--stat', 'print counters');
+  .option('-x', 'add compiled abbreviation as HTML comment to output')
+  .option('-d', 'print debug info.');
 
 program.parse(process.argv);
 const options = program.opts();
@@ -493,6 +492,4 @@ if (options.head || options.wrapper) {
 if (options.head) {
   console.log('</html>');
 }
-if (options.stat) {
-  console.log(statMap);
-}
+debug(statMap);
