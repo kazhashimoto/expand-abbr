@@ -24,10 +24,13 @@ macroMap.set('pg-footer', [
   'div%>div{1}%(%pg-footer-content%)'
 ]);
 macroMap.set('pg-footer-content', [
-  'footer%>div{1}%p{&copy;2023 Example}',
+  'footer%>div{1}%(%copyright%)',
   'footer%>div{1}%nav>p%3,5%>a[href=page$.html]{page$}',
-  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+p{&copy;2023 Example}',
-  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%icon-list%)+p{&copy;2023 Example}'
+  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%copyright%)',
+  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%icon-list%)+(%copyright%)'
+]);
+macroMap.set('copyright', [
+  'p{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s$]{Section $}'
