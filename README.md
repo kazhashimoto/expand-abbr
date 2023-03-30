@@ -42,9 +42,8 @@ Options:
                          directly into src attribute of img element via a data
                          URL.
   -w,--wrapper <parent>  wrap expanded elements with parent
-  -x                     add HTML comments to output
-  -d                     debug random numbers generated
-  --stat                 print counters
+  -x                     add compiled abbreviation as HTML comment to output
+  -d                     print debug info.
   --help                 display help for command
 ```
 
