@@ -8,6 +8,7 @@ const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
 const { macroMap } = require('./macros');
+const { getPresetStyles } = require('./preset-styles');
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -24,6 +25,7 @@ program
   .option('--open-props', 'include Open Props style')
   .option('--picsum', 'embed a random image via picsum into the document')
   .option('--svg', 'for svg icon images, embed a base64 encoded data directly into src attribute of img element via a data URL.')
+  .option('--style-default', 'insert default styles by using a <style> element in the <head> section')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
@@ -163,7 +165,8 @@ function addClassNames() {
     [/^blog-post-comment/, 'section', 'blog-post-comment'],
     [/^table/, 'table'],
     [/^grid/, 'div', 'grid'],
-    [/^card/, 'div', 'card']
+    [/^card/, 'div', 'card'],
+    [/^copyright/, 'p', 'copyright']
   ];
   const prefix = (options.class === true)? '_x': options.class;
   const addClass = (key, item) => {
@@ -453,6 +456,12 @@ function outputHTML(abbr) {
   console.log(html);
 }
 
+function embedStyles(specifier) {
+  // let text = '\ndiv { outline: 1px solid red; }\nul { display: flex; }\n';
+  let text = getPresetStyles();
+  return text;
+}
+
 if (options.head) {
   let str = expand('!');
   if (options.css) {
@@ -469,6 +478,9 @@ if (options.head) {
   }
   for (const p of options.css) {
     console.log('\t' + expand(`link[href=${p}]`));
+  }
+  if (options.styleDefault) {
+    console.log(expand('style>{__STYLE__}').replace(/__STYLE__/g, embedStyles));
   }
   console.log('</head>');
 }
