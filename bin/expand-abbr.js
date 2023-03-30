@@ -6,6 +6,7 @@ const expand = emmet.default;
 const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
+const icons = require('./icons');
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -13,12 +14,14 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.3')
+  .version('1.1.4')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
+  .option('--class [prefix]', 'add class starting with prefix to elements (default: _x)')
   .option('--picsum', 'embed a random image via picsum into the document')
+  .option('--svg', 'for svg icon images, embed a base64 encoded data directly into src attribute of img element via a data URL.')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add HTML comments to output')
   .option('-d', 'debug random numbers generated')
@@ -147,6 +150,7 @@ macroMap.set('root', [
 ]);
 macroMap.set('pg-main-content', [
   '(%section%)%+4,6%',
+  '(%blog-post%)%+4,6%'
 ]);
 macroMap.set('pg-header', [
   '%pg-header-content%',
@@ -165,7 +169,8 @@ macroMap.set('pg-footer', [
 macroMap.set('pg-footer-content', [
   'footer%>div{1}%p{&copy;2023 Example}',
   'footer%>div{1}%nav>p%3,5%>a[href=page$.html]{page$}',
-  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+p{&copy;2023 Example}'
+  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+p{&copy;2023 Example}',
+  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%icon-list%)+p{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s$]{Section $}'
@@ -210,23 +215,32 @@ macroMap.set('img', [
   'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
   'div%3%>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div%3%>img[src=photo16x9_$.jpg alt=__PHRASE__]'
+  'div%3%>img[src=photo16x9_$.jpg alt=__PHRASE__]',
+  '(%figure%)'
+]);
+macroMap.set('figure', [
+  'figure>figcaption>lorem8^img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'figure>img[src=photo4x3_$.jpg alt=__PHRASE__]+figcaption>lorem8'
 ]);
 macroMap.set('thumbnail', [
   'div>img[src=photo1x1_$.jpg alt=__PHRASE__]',
+  'div>img[src=photo2x2_$.jpg alt=__PHRASE__]',
   'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
 ]);
 macroMap.set('anchor', [
-  'div>a[href=#]{__PHRASE__}',
-  'div>a[href=#]>span{__PHRASE__}',
-  'div>a[href=#]>img[src=button.svg]',
+  'div>a[href=page$.html]{__PHRASE__}',
+  'div>a[href=page$.html]>span{__PHRASE__}',
+  'div>a[href=page$.html]>(%icon%)'
 ]);
 macroMap.set('list', [
   'ul>li%2,5%>lorem4-8',
   'ul>li%2,5%>lorem8-16',
   'ul>li*4>a[href=page$.html]{__PHRASE__}',
+  'ul>li*4>a[href=page$.html]>{__PHRASE__}+(%icon%)',
+  'ul>li*4>a[href=page$.html]>(%icon%)+{__PHRASE__}',
   'ul>li%2,5%>a[href=page$,html]>lorem4-8',
+  'ol>li%4,6%{__PHRASE__}',
   'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
 ]);
 macroMap.set('section', [
@@ -242,6 +256,7 @@ macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)+div>(%list%)',
   '(%section-heading%)+(%section-body%)+div>(%table%)',
   '(%section-heading%)+(%section-body%)+div>(%list%)^div>(%table%)',
+  '(%section-heading%)+(%section-body%)+(%grid%)',
 ]);
 macroMap.set('section-heading', [
   'h2{Section __SEQ_1__}',
@@ -261,10 +276,99 @@ macroMap.set('section-body-content', [
   '%thumbnail%+div>(%p-long%)',
   '%thumbnail%^div>(%p-long%)',
 ]);
+macroMap.set('article', [
+  'article>h1{__HEADING__}+(%article-item%)%+3,5%'
+]);
+macroMap.set('article-item', [
+  'article>h2{03 March 2023}+p{__PHRASE__}'
+]);
+macroMap.set('blog-post', [
+  'article>(%blog-post-header%)+(%blog-post-main%)+(%blog-post-comment%)+(%blog-post-footer%)'
+]);
+macroMap.set('blog-post-header', [
+  'h2{__HEADING__}'
+]);
+macroMap.set('blog-post-main', [
+  'section>h3{__HEADING__}+p{__MESSAGE__}',
+  'section>h3{__HEADING__}+p{__MESSAGE__}+(%img@0%)'
+]);
+macroMap.set('blog-post-comment', [
+  'section>h3{__HEADING__}+(%blog-post-comment-body%)%2,5%'
+]);
+macroMap.set('blog-post-comment-body', [
+  'article>h4{__DIGEST__}+p{__MESSAGE__}+(%blog-post-footer%)'
+]);
+macroMap.set('blog-post-footer', [
+  'footer>p>{Posted on}+(%time%)+{by __NAME__}'
+]);
+macroMap.set('time', [
+  'time[datetime=__DATETIME__]{__DATE__}',
+]);
 macroMap.set('table', [
   'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
   'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>{__PHRASE__}'
 ]);
+macroMap.set('grid', [
+  'div>(%card%)%4,8%'
+]);
+macroMap.set('card', [
+  'div>(%thumbnail@0%)+div>(h5{__PHRASE__}+h6{99.99})',
+  'div>(%thumbnail@1%)+div>(h3{__HEADING__}+p>lorem20^%anchor@0%)',
+  'div>(%thumbnail@1%)+p>lorem10',
+  'div>(%thumbnail@1%)+p>lorem20'
+]);
+macroMap.set('icon-list', [
+  'div>(%icon@0%)%+4%',
+  'div>(%icon@1%)%+3%'
+]);
+macroMap.set('icon', [
+  'span>img[src=__ICON__ width=20]',
+  'span>img[src=__ICON__ width=24]'
+]);
+
+if (options.class) {
+  addClassNames();
+}
+
+function addClassNames() {
+  const matches = [
+    [/^pg-header/, 'header'],
+    [/^pg-footer/, 'footer'],
+    [/^nav/, 'nav'],
+    [/^section/, 'section'],
+    [/^list/, '(ul|ol|dl)', 'list'],
+    [/^p(-long)?$/, 'p', 'text'],
+    [/^article/, 'article'],
+    [/^blog-post$/, 'article', 'blog-post'],
+    [/^blog-post-main/, 'section', 'blog-post-main'],
+    [/^blog-post-comment/, 'section', 'blog-post-comment'],
+    [/^table/, 'table'],
+    [/^grid/, 'div', 'grid'],
+    [/^card/, 'div', 'card']
+  ];
+  const prefix = (options.class === true)? '_x': options.class;
+  const addClass = (key, item) => {
+    for (const m of matches) {
+      const [re, tag] = m;
+      if (re.test(key)) {
+        const tagRe = new RegExp(`^${tag}[^a-z]`);
+        if (tagRe.test(item)) {
+          const name = m[2]? m[2]: tag;
+          return item.replace(new RegExp(`^${tag}`), `$&.${prefix}-${name}`)
+        }
+        return item;
+      }
+    }
+    return item;
+  }
+
+  for (const key of macroMap.keys()) {
+    const values = macroMap.get(key);
+    for (let i = 0; i < values.length; i++) {
+      values[i] = addClass(key, values[i]);
+    }
+  }
+}
 
 const statMap = new Map();
 const randGenMap = new Map();
@@ -328,7 +432,7 @@ function macro(specifier) {
       let c;
       if (item == 'thumbnail') {
         c = 15;
-        if (rx === 1) {
+        if (rx < 4) {
           c = 100;
         } else if (rx < 10) {
           c = 60;
@@ -426,18 +530,46 @@ function getLoremText(lorem, idx, punctuation, capitalize) {
   return text;
 }
 
+function fluctuation(base, delta) {
+  let r;
+  let d = 0;
+  for (; d < delta; d++) {
+    r = mt.random();
+    if (r > 0.25 && r <= 0.75) {
+      break;
+    }
+  }
+  r = mt.random();
+  if (r > 0.25 && r <= 0.75) {
+    d = -d;
+  }
+  base += d;
+  return (base < 0)? 0: base;
+}
+
 const seqMap = new Map();
 
 function replaceText(specifier) {
   let text = '';
+  let n;
   let re = /__([A-Z][A-Z_0-9]*)__/;
   let found = specifier.match(re);
   if (found) {
     const macro = found[1];
     if (macro == 'HEADING') {
-      text = getLoremText('lorem6*3', 1, false, true);
+      n = fluctuation(6, 2);
+      text = getLoremText(`lorem${n}*3`, 1, false, true);
     } else if (macro == 'PHRASE') {
       text = getLoremText('lorem2*5', 1, false, false);
+    } else if (macro == 'NAME') {
+      text = getLoremText('lorem2*5', 1, false, true);
+      text = text.replace(/\?/, '');
+    } else if (macro == 'DIGEST') {
+      n = fluctuation(6, 2);
+      text = getLoremText(`lorem${n}*5`, 1, true, false);
+    } else if (macro == 'MESSAGE') {
+      n = fluctuation(12, 3);
+      text = getLoremText(`lorem${n}*5`, 1, true, false);
     } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
@@ -452,13 +584,53 @@ function replaceText(specifier) {
       let dim = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
+    } else if (macro == 'ICON') {
+      text = icons.getIconURL(() => mt.random_int(), options.svg);
+    } else if (macro == 'DATETIME') {
+      text = getRandomTime();
+    } else if (macro == 'DATE') {
+      return specifier;
     }
   }
   return text;
 }
 
+function getRandomTime() {
+  const base = new Date();
+  const day = new Date();
+
+  let diff = mt.random_int() % 365;
+  day.setDate(base.getDate() - diff);
+  diff = mt.random_int() % (60 * 60 * 24);
+  day.setMinutes(day.getMinutes() - diff);
+  const found = day.toISOString().match(/^(\d{4}-\d{2}-\d{2})T(\d\d:\d\d)/);
+  return `${found[1]} ${found[2]}`;
+}
+
+function replaceDate(html) {
+  let re = /<time datetime="([0-9-: ]+)">(__DATE__)/;
+
+  const replacer = (tag) => {
+    const found = tag.match(re);
+    if (found) {
+      let iso = found[1].replace(' ', 'T').replace(/$/, ':00.000Z');
+      const day = new Date(iso);
+      const opt = {
+        month: 'short', day: 'numeric', year: 'numeric'
+      };
+      let str = new Intl.DateTimeFormat('en-US', opt).format(day);
+      tag = tag.replace(/__DATE__/, str);
+    }
+    return tag;
+  };
+
+  html = html.replace(new RegExp(re, 'g'), replacer);
+  return html;
+}
+
 function outputHTML(abbr) {
-  const html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
+  let html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
+  html = replaceDate(html);
   console.log(html);
 }
 

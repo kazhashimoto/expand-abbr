@@ -35,7 +35,12 @@ Options:
   -h,--head              prepend html header
   -c,--css <stylesheet>  insert a link to an external stylesheet inside head
                          element (default: [])
+  --class [prefix]       add class starting with prefix to elements (default:
+                         _x)
   --picsum               embed a random image via picsum into the document
+  --svg                  for svg icon images, embed a base64 encoded data
+                         directly into src attribute of img element via a data
+                         URL.
   -w,--wrapper <parent>  wrap expanded elements with parent
   -x                     add HTML comments to output
   -d                     debug random numbers generated
@@ -124,9 +129,20 @@ expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーH
 % expand-abbr -h '%root%' > index.html            
 % open index.html
 ```
-ダミーHTML文書に書き出される&lt;img>要素について、```src```属性の値は```photo```で始まるjpgファイル名、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます（デフォルトの場合）。
 
-引数```--picsum```を指定してダミーHTML文書を生成すると、&lt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込むことができます。
+### img要素のsrc属性
+ダミーHTML文書の中の&lt;img>要素について、```src```属性に設定されるURLの値はコマンドラインオプションによって次の4種類があります。
+
+| Type | URL | Options  |
+|:--|:--|:--|
+| image | photo*.jpg | default|
+| image | https://picsum.photos/ _width_ / _height_ ?random= _num_ | --picsum指定時 |
+| icon | _file_ .svg | default |
+| icon | data:image/svg+xml;base64 | --svg指定時 |
+
+Typeがimageの場合、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます。
+
+オプション```--picsum```を指定した場合、expand-abbrは、imageタイプの&lt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込みます。
 ```
 % expand-abbr -h --picsum "%root%"
 ```
@@ -135,12 +151,42 @@ expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーH
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
 ```
 
+オプション```--svg```を指定した場合、expand-abbrは、iconタイプの&lt;img>要素にbase64エンコードされたSVGデータを埋め込みます。
+```
+$ expand-abbr.js -h --svg "%root%"
+```
+出力例
+```
+<img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj....jwvcGF0aD4KPC9zdmc+" alt="" width="24">
+```
+
+### class属性
+オプション```--class```を指定すると、expand-abbrは、一部のHTML要素に対してclass属性を設定します。class名の接頭辞をこのオプションの引数で与えます。
+```
+$ expand-abbr -h --class my "%root%"
+```
+出力例（一部）
+```
+<header class="my-header"> ...
+<nav class="my-nav"> ...
+```
+接頭辞のデフォルトは"_x-"です。```--class```に _prefix_ 引数を指定しないときは、コマンドラインで```--class```を最後のオプションに指定し、オプションの終わりを示すために```--```で区切らなければなりません。
+```
+$ expand-abbr -h --class -- "%root%"
+```
+出力例（一部）
+```
+<header class="_x-header"> ...
+<nav class="_x-nav"> ...
+```
+
 ## Extended Syntax
 expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの省略記法に対して独自に拡張した構文をサポートしています。
 
 - ダミーテキストの表記調整: \_\_ _keyword_ \_\_
 - グローバルなスコープをもつ順序番号: \_\_ SEQ \_\_
-- picsumイメージの埋め込み: \_\_ _IMAGE_ \_\_
+- picsumイメージの埋め込み: \_\_ IMAGE \_\_
+- 日付や日時表記の埋め込み: \_\_ DATETIME \_\_, \_\_ DATE \_\_
 - ランダムな繰り返し回数の指定: %オペレーター
 
 ### ダミーテキストの表記調整: \_\_ _keyword_ \_\_
@@ -153,7 +199,7 @@ expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの
 これらの機能は、見出しやリンクの文字列など短いダミーテキストを埋め込むのに役立ちます。
 
 **\_\_HEADING\_\_**  
-```__HEADING__```変数は、見出しに適した長さのダミーテキストに置き換えます。返されるダミーテキストは単語の先頭が大文字で、文中にコンマ"."やピリオド"."を含みません。
+```__HEADING__```変数は、見出しに適した長さのダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
 
 例
 ```
@@ -178,6 +224,42 @@ $ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
   <li><a href="#">Laborum non</a></li>
   <li><a href="#">Enim obcaecati</a></li>
 </ul>
+```
+
+**\_\_NAME\_\_**  
+```__NAME__```変数は、人名のような２語からなるダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
+
+例
+```
+$ expand-abbr 'span{__NAME__}'
+```
+結果
+```
+<span>Dolores Porro</span>
+```
+
+**\_\_DIGEST\_\_**  
+```__DIGEST__```変数は、短い文のダミーテキストに置き換えます。
+
+例
+```
+$ expand-abbr 'p{__DIGEST__}'
+```
+結果
+```
+<p>Quis quidem nobis nisi hic aspernatur?</p>
+```
+
+**\_\_MESSAGE\_\_**  
+```__MESSAGE__```変数は、ブログのコメントのような短い文のダミーテキストに置き換えます。
+
+例
+```
+$ expand-abbr 'p{__MESSAGE__}'
+```
+結果
+```
+<p>Optio architecto nihil porro atque eius est animi quod ipsum.</p>
 ```
 
 ### グローバルなスコープをもつ順序番号: \_\_ SEQ \_\_  
@@ -250,6 +332,20 @@ $ expand-abbr 'img[src=__IMAGE800X600__]'
 結果
 ```
 <img src="https://picsum.photos/800/600?random=230" alt="">
+```
+
+### 日付や日時表記の埋め込み: \_\_ DATETIME \_\_, \_\_ DATE \_\_  
+```__DATETIME__```変数は、ランダムな日時を"YYYY-MM-DD HH:mm"形式の文字列で置き換えます。値となる日時は、実行時に現在の日時を基点として約1年前までの期間の中からランダムに生成されます。```__DATETIME__```変数は、&lt;time>要素の```datetime```属性の値として使用します。
+
+```__DATE__```変数は、&lt;time>要素のコンテントとして使用し、```datetime```属性の値から日付表現に変換した文字列で置き換えます。日付の書式はen-USロケールで表記され、```datetime```属性の値をローカルタイムゾーンで解釈したものを表す文字列です。
+
+例
+```
+$ expand-abbr 'time[datetime=__DATETIME__]{__DATE__}'
+```
+結果
+```
+<time datetime="2022-03-15 12:52">Mar 15, 2022</time>
 ```
 
 ### ランダムな繰り返し回数の指定: %オペレーター  
