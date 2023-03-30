@@ -21,6 +21,7 @@ program
   .option('-h,--head', 'prepend html header')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('--class [prefix]', 'add class starting with prefix to elements (default: _x)')
+  .option('--open-props', 'include Open Props style')
   .option('--picsum', 'embed a random image via picsum into the document')
   .option('--svg', 'for svg icon images, embed a base64 encoded data directly into src attribute of img element via a data URL.')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
@@ -460,12 +461,16 @@ if (options.head) {
     str = str.replace(/<body>[^]*<\/html>/, '');
   }
   process.stdout.write(str);
-  if (options.css) {
-    for (const p of options.css) {
-      console.log('\t' + expand(`link[href=${p}]`));
-    }
-    console.log('</head>');
+  if (options.openProps) {
+    options.css.unshift(
+      'https://unpkg.com/open-props',
+      'https://unpkg.com/open-props/normalize.min.css'
+    );
   }
+  for (const p of options.css) {
+    console.log('\t' + expand(`link[href=${p}]`));
+  }
+  console.log('</head>');
 }
 if (options.head || options.wrapper) {
   let root = '';
