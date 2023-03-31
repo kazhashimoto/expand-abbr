@@ -23,15 +23,15 @@ program
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('--class [prefix]', 'add class starting with prefix to elements (default: _x)')
   .option('--open-props', 'include Open Props style')
-  .option('--picsum', 'embed a random image via picsum into the document')
-  .option('--svg', 'for svg icon images, embed a base64 encoded data directly into src attribute of img element via a data URL.')
   .option('--style-default', 'insert default styles by using a <style> element in the <head> section')
+  .option('--local', 'use local path for the src attribute of <img> elements')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
 
 program.parse(process.argv);
 const options = program.opts();
+console.log(options);
 
 let debug = () => {};
 if (options.d) {
@@ -273,7 +273,7 @@ function macro(specifier) {
       const attr = `width=${width} height=${height}`;
       abbr = abbr.replace(re, `$& ${attr}`);
     }
-    if (options.picsum) {
+    if (!options.local) {
       found = abbr.match(re);
       if (found) {
         abbr = abbr.replace(re, `$1__IMAGE${width}X${height}__`);
@@ -407,7 +407,7 @@ function replaceText(specifier) {
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
     } else if (macro == 'ICON') {
-      text = icons.getIconURL(() => mt.random_int(), options.svg);
+      text = icons.getIconURL(() => mt.random_int(), !options.local);
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
