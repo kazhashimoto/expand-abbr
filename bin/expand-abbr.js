@@ -21,7 +21,7 @@ program
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
-  .option('--class [prefix]', 'add class starting with prefix to elements (default: _x)')
+  .option('--class', 'add class attribute to the primary elements')
   .option('--open-props', 'include Open Props style')
   .option('--style-default', 'insert default styles by using a <style> element in the <head> section')
   .option('--local', 'use local path for the src attribute of <img> elements')
@@ -31,7 +31,6 @@ program
 
 program.parse(process.argv);
 const options = program.opts();
-console.log(options);
 
 let debug = () => {};
 if (options.d) {
@@ -168,8 +167,8 @@ function addClassNames() {
     [/^card/, 'div', 'card'],
     [/^copyright/, 'p', 'copyright']
   ];
-  const prefix = (options.class === true)? '_x': options.class;
   const addClass = (key, item) => {
+    const prefix = '_x';
     for (const m of matches) {
       const [re, tag] = m;
       if (re.test(key)) {
