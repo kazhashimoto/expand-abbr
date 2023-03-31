@@ -22,8 +22,7 @@ program
   .option('-h,--head', 'prepend html header')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('--class', 'add class attribute to the primary elements')
-  .option('--open-props', 'include Open Props style')
-  .option('--style-default', 'insert default styles by using a <style> element in the <head> section')
+  .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
   .option('--local', 'use local path for the src attribute of <img> elements')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
@@ -31,6 +30,9 @@ program
 
 program.parse(process.argv);
 const options = program.opts();
+if (options.addStyle) {
+  options.class = true;
+}
 
 let debug = () => {};
 if (options.d) {
@@ -469,7 +471,7 @@ if (options.head) {
     str = str.replace(/<body>[^]*<\/html>/, '');
   }
   process.stdout.write(str);
-  if (options.openProps) {
+  if (options.addStyle) {
     options.css.unshift(
       'https://unpkg.com/open-props',
       'https://unpkg.com/open-props/normalize.min.css'
@@ -478,7 +480,7 @@ if (options.head) {
   for (const p of options.css) {
     console.log('\t' + expand(`link[href=${p}]`));
   }
-  if (options.styleDefault) {
+  if (options.addStyle) {
     console.log(expand('style>{__STYLE__}').replace(/__STYLE__/g, embedStyles));
   }
   console.log('</head>');
