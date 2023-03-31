@@ -1,9 +1,8 @@
 const styleMap = new Map();
-module.exports.getPresetStyles = function(prefix) {
+module.exports.getPresetStyles = function() {
   let text = '\n';
   for (const [selector, value] of styleMap) {
     const decl = value.join('; ');
-    // let selector = `.${key}`;
     const rules = `${selector} {${decl}}\n`;
     text += rules;
   }
