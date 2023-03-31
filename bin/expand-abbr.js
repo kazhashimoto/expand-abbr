@@ -40,7 +40,6 @@ if (options.path) {
   }
   options.local = true;
 }
-console.log(options);
 
 let debug = () => {};
 if (options.d) {
@@ -463,9 +462,12 @@ function replaceLocalPath(html) {
   if (!options.path) {
     return html;
   }
-  let re = /<img src="/;
+  let re = /(<img src=")([^"]+")/;
   const replacer = (tag) => {
-    tag = tag.replace(re, `$&${options.path}`);
+    const f = tag.match(re);
+    if (!/^(http|[./])/.test(f[2])) {
+      tag = tag.replace(re, `$1${options.path}$2`);
+    }
     return tag;
   };
 
