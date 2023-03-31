@@ -24,6 +24,7 @@ program
   .option('--class', 'add class attribute to the primary elements')
   .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
   .option('--local', 'use local path for the src attribute of <img> elements')
+  .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
@@ -33,6 +34,13 @@ const options = program.opts();
 if (options.addStyle) {
   options.class = true;
 }
+if (options.path) {
+  if (/[^\/]$/.test(options.path)) {
+    options.path += '/';
+  }
+  options.local = true;
+}
+console.log(options);
 
 let debug = () => {};
 if (options.d) {
@@ -451,14 +459,28 @@ function replaceDate(html) {
   return html;
 }
 
+function replaceLocalPath(html) {
+  if (!options.path) {
+    return html;
+  }
+  let re = /<img src="/;
+  const replacer = (tag) => {
+    tag = tag.replace(re, `$&${options.path}`);
+    return tag;
+  };
+
+  html = html.replace(new RegExp(re, 'g'), replacer);
+  return html;
+}
+
 function outputHTML(abbr) {
   let html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
+  html = replaceLocalPath(html);
   html = replaceDate(html);
   console.log(html);
 }
 
-function embedStyles(specifier) {
-  // let text = '\ndiv { outline: 1px solid red; }\nul { display: flex; }\n';
+function embedStyles(/* specifier */) {
   let text = getPresetStyles();
   return text;
 }
