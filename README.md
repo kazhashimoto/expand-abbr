@@ -35,12 +35,12 @@ Options:
   -h,--head              prepend html header
   -c,--css <stylesheet>  insert a link to an external stylesheet inside head
                          element (default: [])
-  --class [prefix]       add class starting with prefix to elements (default:
-                         _x)
-  --picsum               embed a random image via picsum into the document
-  --svg                  for svg icon images, embed a base64 encoded data
-                         directly into src attribute of img element via a data
-                         URL.
+  --class                add class attribute to the primary elements
+  --add-style            insert default styles by using a <style> element in
+                         the <head> section
+  --local                use local path for the src attribute of <img> elements
+  --path <prefix>        set the src attribute of img elements to a pathname
+                         starting with prefix
   -w,--wrapper <parent>  wrap expanded elements with parent
   -x                     add compiled abbreviation as HTML comment to output
   -d                     print debug info.
@@ -130,54 +130,84 @@ expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーH
 ```
 
 ### img要素のsrc属性
-ダミーHTML文書の中の&lt;img>要素について、```src```属性に設定されるURLの値はコマンドラインオプションによって次の4種類があります。
+expand-abbrが生成するダミーHTML文書では、&lt;img>要素の```src```属性に設定されるリソースは次の４種類があります。
 
 | Type | URL | Options  |
 |:--|:--|:--|
-| image | photo*.jpg | default|
-| image | https://picsum.photos/ _width_ / _height_ ?random= _num_ | --picsum指定時 |
-| icon | _file_ .svg | default |
-| icon | data:image/svg+xml;base64 | --svg指定時 |
+| image | photo*.jpg | --local, --path |
+| image | https://picsum.photos/ _width_ / _height_ ?random= _num_ | (default) |
+| icon | _file_ .svg | --local, --path |
+| icon | data:image/svg+xml;base64 | (default) |
 
-Typeがimageの場合、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます。
+デフォルトの場合、imageタイプの&lt;img>要素には[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLが設定されます。
 
-オプション```--picsum```を指定した場合、expand-abbrは、imageタイプの&lt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込みます。
-```
-% expand-abbr -h --picsum "%root%"
-```
 出力例
 ```
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
 ```
-
-オプション```--svg```を指定した場合、expand-abbrは、iconタイプの&lt;img>要素にbase64エンコードされたSVGデータを埋め込みます。
-```
-$ expand-abbr.js -h --svg "%root%"
-```
-出力例
+一方、iconタイプの&lt;img>要素にはbase64エンコードされたSVGデータが埋め込まれます。
 ```
 <img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj....jwvcGF0aD4KPC9zdmc+" alt="" width="24">
 ```
 
-### class属性
-オプション```--class```を指定すると、expand-abbrは、一部のHTML要素に対してclass属性を設定します。class名の接頭辞をこのオプションの引数で与えます。
+```--local```オプションを指定すると、&lt;img>要素の```src```属性の値は既定のファイル名が設定されます。
 ```
-$ expand-abbr -h --class my "%root%"
+$ expand-abbr --local '%root%'
 ```
 出力例（一部）
 ```
-<header class="my-header"> ...
-<nav class="my-nav"> ...
+<img src="photo4x3_1.jpg" alt="Alias ducimus?" width="600" height="450">
+<img src="arrow-left.svg" alt="" width="24">
 ```
-接頭辞のデフォルトは"_x-"です。```--class```に _prefix_ 引数を指定しないときは、コマンドラインで```--class```を最後のオプションに指定し、オプションの終わりを示すために```--```で区切らなければなりません。
+
+
+```--path```オプションを使って、```src```属性に設定するローカルファイルのパス名を指定することができます。
 ```
-$ expand-abbr -h --class -- "%root%"
+$ expand-abbr --path /path/to  "img[src=foo.jpg]"
+<img src="/path/to/foo.jpg" alt="">
+```
+```--path```を指定すると、```--local```オプションも暗黙に有効になります。
+```
+$ expand-abbr --path /path/to  '%root%' > index.html
+$ grep "img src" index.html
+<img src="/path/to/photo4x3_1.jpg" alt="Odit excepturi" width="240" height="180">
+....
+```
+
+いずれの場合もimageタイプの要素には、```alt```属性にダミーテキスト(Lorem Ipsum)が設定されます。
+
+### class属性
+```--class```オプションを指定すると、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞"_x-"が付きます。
+```
+$ expand-abbr -h --class "%root%"
 ```
 出力例（一部）
 ```
 <header class="_x-header"> ...
 <nav class="_x-nav"> ...
 ```
+
+### ダミーHTML文書のスタイルシート
+```--add-style```オプションを指定すると、expand-abbrは出力されるHTML文書の&lt;head>セクションに&lt;style>要素を挿入しスタイルシートを埋め込みます。このオプションは```-h```オプションも指定しないと効果がありません。
+
+```
+$ expand-abbr --add-style -h '%root%'  
+```
+出力例（一部）
+```
+<style>
+._x-header {width: 100%; background: #000; color: #fff}
+._x-footer {box-sizing: border-box; width: 100%; padding: 20px 4%; margin-top: 50px; background: #000; color: #fff}
+.......
+</style>
+```
+既定のスタイルには[Open Props](https://open-props.style/)のCSSカスタムプロパティが使用されるため、次の外部スタイルシートを参照する&lt;link>要素がlt;head>セクションに挿入されます。
+```
+<link rel="stylesheet" href="https://unpkg.com/open-props">
+<link rel="stylesheet" href="https://unpkg.com/open-props/normalize.min.css">
+```
+
+```--add-style```を指定すると、```--class```オプションも暗黙に有効になります。
 
 ## Extended Syntax
 expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの省略記法に対して独自に拡張した構文をサポートしています。

@@ -8,6 +8,7 @@ const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
 const { macroMap } = require('./macros');
+const { getPresetStyles } = require('./preset-styles');
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -20,16 +21,25 @@ program
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
-  .option('--class [prefix]', 'add class starting with prefix to elements (default: _x)')
-  .option('--open-props', 'include Open Props style')
-  .option('--picsum', 'embed a random image via picsum into the document')
-  .option('--svg', 'for svg icon images, embed a base64 encoded data directly into src attribute of img element via a data URL.')
+  .option('--class', 'add class attribute to the primary elements')
+  .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
+  .option('--local', 'use local path for the src attribute of <img> elements')
+  .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
 
 program.parse(process.argv);
 const options = program.opts();
+if (options.addStyle) {
+  options.class = true;
+}
+if (options.path) {
+  if (/[^\/]$/.test(options.path)) {
+    options.path += '/';
+  }
+  options.local = true;
+}
 
 let debug = () => {};
 if (options.d) {
@@ -163,10 +173,11 @@ function addClassNames() {
     [/^blog-post-comment/, 'section', 'blog-post-comment'],
     [/^table/, 'table'],
     [/^grid/, 'div', 'grid'],
-    [/^card/, 'div', 'card']
+    [/^card/, 'div', 'card'],
+    [/^copyright/, 'p', 'copyright']
   ];
-  const prefix = (options.class === true)? '_x': options.class;
   const addClass = (key, item) => {
+    const prefix = '_x';
     for (const m of matches) {
       const [re, tag] = m;
       if (re.test(key)) {
@@ -270,7 +281,7 @@ function macro(specifier) {
       const attr = `width=${width} height=${height}`;
       abbr = abbr.replace(re, `$& ${attr}`);
     }
-    if (options.picsum) {
+    if (!options.local) {
       found = abbr.match(re);
       if (found) {
         abbr = abbr.replace(re, `$1__IMAGE${width}X${height}__`);
@@ -404,7 +415,7 @@ function replaceText(specifier) {
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
     } else if (macro == 'ICON') {
-      text = icons.getIconURL(() => mt.random_int(), options.svg);
+      text = icons.getIconURL(() => mt.random_int(), !options.local);
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
@@ -447,10 +458,33 @@ function replaceDate(html) {
   return html;
 }
 
+function replaceLocalPath(html) {
+  if (!options.path) {
+    return html;
+  }
+  let re = /(<img src=")([^"]+")/;
+  const replacer = (tag) => {
+    const f = tag.match(re);
+    if (!/^(http|[./])/.test(f[2])) {
+      tag = tag.replace(re, `$1${options.path}$2`);
+    }
+    return tag;
+  };
+
+  html = html.replace(new RegExp(re, 'g'), replacer);
+  return html;
+}
+
 function outputHTML(abbr) {
   let html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
+  html = replaceLocalPath(html);
   html = replaceDate(html);
   console.log(html);
+}
+
+function embedStyles(/* specifier */) {
+  let text = getPresetStyles();
+  return text;
 }
 
 if (options.head) {
@@ -461,7 +495,7 @@ if (options.head) {
     str = str.replace(/<body>[^]*<\/html>/, '');
   }
   process.stdout.write(str);
-  if (options.openProps) {
+  if (options.addStyle) {
     options.css.unshift(
       'https://unpkg.com/open-props',
       'https://unpkg.com/open-props/normalize.min.css'
@@ -469,6 +503,9 @@ if (options.head) {
   }
   for (const p of options.css) {
     console.log('\t' + expand(`link[href=${p}]`));
+  }
+  if (options.addStyle) {
+    console.log(expand('style>{__STYLE__}').replace(/__STYLE__/g, embedStyles));
   }
   console.log('</head>');
 }
