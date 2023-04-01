@@ -188,7 +188,7 @@ $ expand-abbr -h --class "%root%"
 ```
 
 ### ダミーHTML文書のスタイルシート
-```--add-style```オプションを指定すると、expand-abbrは出力されるHTML文書の&lt;head>セクションに&lt;style>要素を挿入しスタイルシートを埋め込みます。このオプションは```-h```オプションも指定しないと効果がありません。
+```--add-style```オプションを指定すると、expand-abbrは出力されるHTML文書の&lt;head>セクションに&lt;style>要素を挿入し既定のスタイルシートを埋め込みます。このオプションは```-h```オプションも指定しないと効果がありません。
 
 ```
 $ expand-abbr --add-style -h '%root%'  
@@ -201,7 +201,7 @@ $ expand-abbr --add-style -h '%root%'
 .......
 </style>
 ```
-既定のスタイルには[Open Props](https://open-props.style/)のCSSカスタムプロパティが使用されるため、次の外部スタイルシートを参照する&lt;link>要素がlt;head>セクションに挿入されます。
+既定のスタイルには[Open Props](https://open-props.style/)のCSSカスタムプロパティが使用されるため、次の外部スタイルシートを参照する&lt;link>要素が&lt;head>セクションに挿入されます。
 ```
 <link rel="stylesheet" href="https://unpkg.com/open-props">
 <link rel="stylesheet" href="https://unpkg.com/open-props/normalize.min.css">
@@ -217,6 +217,28 @@ expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの
 - picsumイメージの埋め込み: \_\_ IMAGE \_\_
 - 日付や日時表記の埋め込み: \_\_ DATETIME \_\_, \_\_ DATE \_\_
 - ランダムな繰り返し回数の指定: %オペレーター
+
+**マクロ**  
+
+| マクロ | 説明 |
+|:--|:--|
+| `__HEADING__` | aa|
+| `__PHRASE__` | aa |
+| `__NAME__` | aaa |
+| `__DIGEST__` | aaa |
+| `__MESSAGE__` | aaa |
+| `__SEQ__` | aaa |
+| `__IMAGE__` | aaa |
+| `__DATETIME__` | aaaa |
+| `__DATE__` | aaa |
+
+**繰り返し(%)オペレーター**
+
+| 式 | 説明
+|:-- |:--|
+| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | aaa |
+| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | bbb |
+
 
 ### ダミーテキストの表記調整: \_\_ _keyword_ \_\_
 \_\_ _keyword_ \_\_変数は、EmmetのLorem Ipsumジェネレーターを使って取得したダミーテキストに対して、次の方法を組み合わせて表記を調整した内容に書き換えます。これらの変数は、Emmetの構文で通常のテキストを埋め込める箇所で使用できます。（例: {...}の内側, タグの属性[attr]表記に指定する値）
@@ -394,6 +416,7 @@ $ expand-abbr '(div>p)%+3%'
 (div>p)+(div>p)
 (div>p)+(div>p)+(div>p)
 ```
+例
 ```
 $ expand-abbr '(div>p)%+2,4%'
 ```
