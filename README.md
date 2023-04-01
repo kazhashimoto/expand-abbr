@@ -219,32 +219,9 @@ expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの
 - ランダムな繰り返し回数の指定: %オペレーター
 
 **マクロ**  
+expand-abbrはテキスト中の`__`<em>keyword</em>`__`という書式の文字列をマクロとして解釈し、その部分を別の文字列で置換した結果のテキストを出力します。マクロは、Emmetの構文において通常のテキストを埋め込める箇所で使用できます。（例: {...}の内側, タグの属性[attr]表記に指定する値など）
 
-| マクロ | 説明 |
-|:--|:--|
-| `__HEADING__` | aa|
-| `__PHRASE__` | aa |
-| `__NAME__` | aaa |
-| `__DIGEST__` | aaa |
-| `__MESSAGE__` | aaa |
-| `__SEQ__` | aaa |
-| `__IMAGE__` | aaa |
-| `__DATETIME__` | aaaa |
-| `__DATE__` | aaa |
-
-**繰り返し(%)オペレーター**
-
-| 式 | 説明
-|:-- |:--|
-| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | aaa |
-| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | bbb |
-| _parentTag_`%>`_tag_`{`_maxDepth_`}`| aaa |
-| _parentTag_ `%>` _tag_ `{` _maxDepth_ `}`| aaa |
-| <em>parentTag</em>`%>`<em>tag</em>`{`<em>maxDepth</em>`}`| aaa |
-
-
-### ダミーテキストの表記調整: \_\_ _keyword_ \_\_
-\_\_ _keyword_ \_\_変数は、EmmetのLorem Ipsumジェネレーターを使って取得したダミーテキストに対して、次の方法を組み合わせて表記を調整した内容に書き換えます。これらの変数は、Emmetの構文で通常のテキストを埋め込める箇所で使用できます。（例: {...}の内側, タグの属性[attr]表記に指定する値）
+マクロのうち次のものは、EmmetのLorem Ipsumジェネレーターにより生成したダミーテキストに対して次の方法を組み合わせて表記を調整した文字列を返します。
 
 - 単語の先頭を大文字にする(capitalize)
 - 文字列からコンマ"."やピリオド"."を取り除く
@@ -252,26 +229,45 @@ expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの
 
 これらの機能は、見出しやリンクの文字列など短いダミーテキストを埋め込むのに役立ちます。
 
-**\_\_HEADING\_\_**  
-`__HEADING__`変数は、見出しに適した長さのダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
+| マクロ | 置換される内容 |
+|:--|:--|
+| `__HEADING__` | 見出しに適した長さのダミーテキスト |
+| `__PHRASE__` | リンクのテキストなどに適した２語からなるダミーテキスト |
+| `__NAME__` | 人名のような２語からなるダミーテキスト |
+| `__DIGEST__` | 短い文のダミーテキスト |
+| `__MESSAGE__` | ブログのコメントのような短い文のダミーテキスト |
 
-例
+| マクロ | 置換される内容 |
+|:--|:--|
+| `__SEQ__`<br>`__SEQ`<em>id</em>`__` | 順序番号(1,2,...) |
+| `__IMAGE`<em>width</em>`X`<em>height</em>`__` | [Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURL |
+| `__DATETIME__` | "YYYY-MM-DD HH:mm"形式の文字列で表されたランダムな日時 |
+| `__DATE__` | `<time>`要素の`datetime`属性の値から日付表現に変換した文字列 |
+
+**繰り返し(%)オペレーター**
+
+| 式 | 説明
+|:-- |:--|
+| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | aaa |
+| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | bbb |
+| <em>parentTag</em>`%>`<em>tag</em>`{`<em>maxDepth</em>`}`| aaa |
+
+
+### マクロの使用例
+`__HEADING__`マクロは、見出しに適した長さのダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
 ```
 $ expand-abbr 'h1{__HEADING__}'
 ```
-結果
+出力例
 ```   
 <h1>Sint Et Possimus Officia Magni Hic</h1>
 ```
 
-**\_\_PHRASE\_\_**  
-`__PHRASE__`変数は、リンクのテキストなどに適した２語からなるダミーテキストに置き換えます。返されるダミーテキストはコンマ"."やピリオド"."を含みません。
-
-例
+`__PHRASE__`マクロは、リンクのテキストなどに適した２語からなるダミーテキストに置き換えます。返されるダミーテキストはコンマ"."やピリオド"."を含みません。
 ```
 $ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
 ```
-結果
+出力例
 ```
 <ul>
   <li><a href="#">Culpa amet</a></li>
@@ -280,50 +276,39 @@ $ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
 </ul>
 ```
 
-**\_\_NAME\_\_**  
-`__NAME__`変数は、人名のような２語からなるダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
-
-例
+`__NAME__`マクロは、人名のような２語からなるダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
 ```
 $ expand-abbr 'span{__NAME__}'
 ```
-結果
+出力例
 ```
 <span>Dolores Porro</span>
 ```
 
-**\_\_DIGEST\_\_**  
-`__DIGEST__`変数は、短い文のダミーテキストに置き換えます。
-
-例
+`__DIGEST__`マクロは、短い文のダミーテキストに置き換えます。
 ```
 $ expand-abbr 'p{__DIGEST__}'
 ```
-結果
+出力例
 ```
 <p>Quis quidem nobis nisi hic aspernatur?</p>
 ```
 
-**\_\_MESSAGE\_\_**  
-`__MESSAGE__`変数は、ブログのコメントのような短い文のダミーテキストに置き換えます。
-
-例
+`__MESSAGE__`マクロは、ブログのコメントのような短い文のダミーテキストに置き換えます。
 ```
 $ expand-abbr 'p{__MESSAGE__}'
 ```
-結果
+出力例
 ```
 <p>Optio architecto nihil porro atque eius est animi quod ipsum.</p>
 ```
 
-### グローバルなスコープをもつ順序番号: \_\_ SEQ \_\_  
-`__SEQ__`変数は、1から始まる番号で置き換えます。Emmetの```$```オペレータとの違いは、```*```オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。
-
+`__SEQ__`マクロは、1から始まる番号で置き換えます。Emmetの```$```オペレータとの違いは、```*```オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。
 例
 ```
 $ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
 ```
-結果
+出力
 ```
 <ul>
   <li>item 1</li>
@@ -336,11 +321,12 @@ $ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
   <li>item 6</li>
 </ul>
 ```
+
 例
 ```
-% bin/expand-abbr.js 'a[href=page__SEQ__.html]*3{click}'
+$ expand-abbr 'a[href=page__SEQ__.html]*3{click}'
 ```
-結果
+出力
 ```
 <a href="page1.html">click</a>
 <a href="page2.html">click</a>
@@ -348,13 +334,11 @@ $ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
 ```
 接頭辞`SEQ`の後に任意の名前を付けることにより、順序番号を発生させる"レジスター"を必要なだけ複数個定義することができます。名前に使用できる文字は、英大文字・数字・アンダースコアです。
 
-次の例では、&lt;a>要素のテキストに現れる番号と、&lt;img>要素の画像ファイル名に含まれる番号とを異なる連番で割り当てています。
-
-例
+次の例では、`<a>`要素のテキストに現れる番号と、`<img>`要素の画像ファイル名に含まれる番号とを異なる連番で割り当てています。
 ```
 $ expand-abbr 'a{page__SEQ1__}' 'div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2__.jpg]' 'a{page__SEQ1__}'
 ```
-結果
+出力
 ```
 <a href="">page1</a>
 <div>
@@ -375,34 +359,27 @@ $ expand-abbr 'a{page__SEQ1__}' 'div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2
 <a href="">page5</a>
 ```
 
-### picsumイメージの埋め込み: \_\_ _IMAGE_ \_\_
-**\_\_IMAGE** _width_ **X** _height_ **\_\_**  
-`__IMAGE__`変数は、[Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURLに置き換えます。画像のサイズは、`IMAGE`の後ろに<em>width</em>`X` <em>height</em>で指定します。
-
-例
+`__IMAGE`<em>width</em>`X`<em>height</em>`__`マクロは、[Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURLに置き換えます。画像の寸法は<em>width</em>と<em>height</em>で指定します。
 ```
 $ expand-abbr 'img[src=__IMAGE800X600__]'
 ```
-結果
+出力例
 ```
 <img src="https://picsum.photos/800/600?random=230" alt="">
 ```
 
-### 日付や日時表記の埋め込み: \_\_ DATETIME \_\_, \_\_ DATE \_\_  
-`__DATETIME__`変数は、ランダムな日時を"YYYY-MM-DD HH:mm"形式の文字列で置き換えます。値となる日時は、実行時に現在の日時を基点として約1年前までの期間の中からランダムに生成されます。`__DATETIME__`変数は、&lt;time>要素の`datetime`属性の値として使用します。
+`__DATETIME__`マクロは、ランダムな日時を"YYYY-MM-DD HH:mm"形式の文字列で置き換えます。値となる日時は、実行時に現在の日時を基点として約1年前までの期間の中からランダムに生成されます。`__DATETIME__`マクロは`<time>`要素の`datetime`属性の値として使用します。
 
-`__DATE__`変数は、&lt;time>要素のコンテントとして使用し、`datetime`属性の値から日付表現に変換した文字列で置き換えます。日付の書式はen-USロケールで表記され、`datetime`属性の値をローカルタイムゾーンで解釈したものを表す文字列です。
-
-例
+`__DATE__`マクロは、`<time>`要素のコンテントとして使用し、`datetime`属性の値から日付表現に変換した文字列で置き換えます。日付の書式はen-USロケールで表記され、`datetime`属性の値をローカルタイムゾーンで解釈したものを表す文字列です。
 ```
 $ expand-abbr 'time[datetime=__DATETIME__]{__DATE__}'
 ```
-結果
+出力例
 ```
 <time datetime="2022-03-15 12:52">Mar 15, 2022</time>
 ```
 
-### ランダムな繰り返し回数の指定: %オペレーター  
+### %オペレーターの使用例
 `%`で囲んだ表記は、Emmetの省略記法の項目や式の後ろに付けると、直前の式に対するランダムな回数の繰り返しを表します。
 
 **(** _expression_ **)%+** _max_ **%**  
@@ -458,7 +435,7 @@ $ expand-abbr '((div>p)%+3%+(p>span))%+2,2%'
 
 _element_ **%\*** _max_ **%**  
 _element_ **%\*** _min, max_ **%**  
-`%*`オペレーターは、Emmetの`*`オペレーターに変換され、要素 _element_ を最大 _max_ 個繰り返します。繰り返しの回数は _min_ 〜 _max_ 以下の乱数です。 _min_ 省略時の値は1です。
+`%*`オペレーターは、Emmetの`*`オペレーターに変換され、要素<em>element</em>を最大<em>max</em>個繰り返します。繰り返しの回数は<em>min</em>〜<em>max</em>以下の乱数です。<em>min</em>省略時の値は1です。
 
 例
 ```
@@ -494,7 +471,7 @@ $ expand-abbr '(p>span{item $})%2,4%'
 ```
 
 _parentTag_ **%>** _tag_ **{** _maxDepth_ **}**  
-`%>`オペレーターは、 _tag_ 要素を最大 _maxDepth_ 階層入れ子にした構造を、親要素 _parentTag_ の子として挿入します。挿入される階層の個数は、0〜 _maxDepth_ の乱数です。
+`%>`オペレーターは、 <em>tag</em>要素を最大<em>maxDepth</em>階層入れ子にした構造を、親要素<em>parentTag</em>の子として挿入します。挿入される階層の個数は、0〜<em>maxDepth<//em>の乱数です。
 
 例
 ```
