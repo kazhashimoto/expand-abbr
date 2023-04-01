@@ -70,21 +70,20 @@ $ expand-abbr -w .wrapper 'div>p' 'ul>li*2>a'
 </div>
 ```
 
-展開した要素全体をさらに`<html>`, `<head>`, `<body>`要素で包んでHTML文書にするには、`-h`オプションを指定します。`-h`オプションは`-w`オプションと一緒に使用できます。`<html>`要素の内容は、emmetの省略記法`!`を使って生成したテンプレートが使用されます。
+`-h`オプションを指定すると、出力は`<head>`セクションを含んだ1つのHTMLページ(HTML文書)になります。つまり、展開した要素全体は`<body>`タグと`<html>`で囲まれて出力されます。`<head>`セクションの内容は、emmetの省略記法`!`を使って生成したテンプレートが使用されます。
 ```
 $ expand-abbr -h '(div>dl>(dt+dd)*3)+footer>p'
 ```
 
-出力されるコードのインデントはtabです。タブをスペースに置き換えるにはコードフォーマッターを使って整形することができます。次の例では、expand-abbrの出力を[js-beautify](https://github.com/beautify-web/js-beautify)の標準入力を通じてタブをスペース2個に置き換えています。
+出力される行のインデントはtabです。タブをスペースに置き換えるにはコードフォーマッターを使って整形することができます。次の例では、expand-abbrの出力を[js-beautify](https://github.com/beautify-web/js-beautify)の標準入力を通じてタブをスペース2個に置き換えています。
 ```
 $ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
 ```
 
-外部スタイルシートへのリンクを`<head>`セクションに挿入するには、-cオプションを指定します。コマンドラインに複数の`-c`オプションを指定した場合、コマンドラインに現れた順序でexpand-abbrはlink要素を書き出します。
+外部スタイルシートへのリンクを`<head>`セクションに挿入するには、`-c`オプションを指定します。`-c`オプションはコマンドラインで複数回指定できます。その場合、expand-abbrは、引数に現れた順序で`<link>`要素を追加します。
 ```
-$ expand-abbr -h -c "reset.css" -c "https://www.example.com/style.css" 'div>p'
+$ expand-abbr -h -c "reset.css" -c "https://www.example.com/style.css" ”div>p”
 ```
-
 ```
 <head>
   .....
@@ -130,27 +129,27 @@ expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーH
 ```
 
 ### img要素のsrc属性
-expand-abbrが生成するダミーHTML文書では`<img>``要素の`src`属性に設定されるリソースは次の４種類があります。
+expand-abbrが生成するダミーHTML文書では`<img>`要素の`src`属性に設定されるリソースは次の４種類があります。
 
 | Type | URL | Options  |
 |:--|:--|:--|
-| image | photo*.jpg | --local, --path |
-| image | https://picsum.photos/ _width_ / _height_ ?random= _num_ | (default) |
-| icon | _file_ .svg | --local, --path |
-| icon | data:image/svg+xml;base64 | (default) |
+| image | photo*.jpg | `--local`, `--path` |
+| image | `https://picsum.photos/`<em>width</em>`/`<em>height</em>`?random=`<em>num</em> | (default) |
+| icon | <em>file</em>.svg | `--local`, `--path` |
+| icon | `data:image/svg+xml;base64`... | (default) |
 
-デフォルトの場合、imageタイプの&lt;img>要素には[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLが設定されます。
+デフォルトの場合、imageタイプの`<img>`要素には[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLが設定されます。
 
 出力例
 ```
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
 ```
-一方、iconタイプの&lt;img>要素にはbase64エンコードされたSVGデータが埋め込まれます。
+一方、iconタイプの`<img>`要素にはbase64エンコードされたSVGデータが埋め込まれます。
 ```
 <img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj....jwvcGF0aD4KPC9zdmc+" alt="" width="24">
 ```
 
-`--local`オプションを指定すると、&lt;img>要素の`src`属性の値は既定のファイル名が設定されます。
+`--local`オプションを指定すると、`<img>`要素の`src`属性の値は既定のファイル名が設定されます。
 ```
 $ expand-abbr --local '%root%'
 ```
@@ -177,7 +176,7 @@ $ grep "img src" index.html
 いずれの場合もimageタイプの要素には、`alt`属性にダミーテキスト(Lorem Ipsum)が設定されます。
 
 ### class属性
-`--class`オプションを指定すると、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞"_x-"が付きます。
+`--class`オプションを指定すると、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞`_x-`が付きます。
 ```
 $ expand-abbr -h --class "%root%"
 ```
@@ -188,7 +187,7 @@ $ expand-abbr -h --class "%root%"
 ```
 
 ### ダミーHTML文書のスタイルシート
-`--add-style`オプションを指定すると、expand-abbrは出力されるHTML文書の&lt;head>セクションに&lt;style>要素を挿入し既定のスタイルシートを埋め込みます。このオプションは`-h`オプションも指定しないと効果がありません。
+`--add-style`オプションを指定すると、expand-abbrは出力されるHTML文書の`<head>`セクションに`<style>`要素を挿入し既定のスタイルシートを埋め込みます。このオプションは`-h`オプションも指定しないと効果がありません。
 
 ```
 $ expand-abbr --add-style -h '%root%'  
@@ -201,7 +200,7 @@ $ expand-abbr --add-style -h '%root%'
 .......
 </style>
 ```
-既定のスタイルには[Open Props](https://open-props.style/)のCSSカスタムプロパティが使用されるため、次の外部スタイルシートを参照する&lt;link>要素が&lt;head>セクションに挿入されます。
+既定のスタイルには[Open Props](https://open-props.style/)のCSSカスタムプロパティが使用されるため、次の外部スタイルシートを参照する`<link>`要素が`<head>`セクションに挿入されます。
 ```
 <link rel="stylesheet" href="https://unpkg.com/open-props">
 <link rel="stylesheet" href="https://unpkg.com/open-props/normalize.min.css">
@@ -217,7 +216,7 @@ expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの
 `%root%`
 
 ### Textマクロ
-Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、その文字列はEmmet省略記法の展開時もしくはHTML文書の出力時に別の文字列に置き換わります。Textマクロは、Emmetの構文において通常のテキストを埋め込める箇所で使用できます。（例: {...}の内側, タグの属性[attr]表記に指定する値など）
+Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、その文字列はEmmet省略記法の展開時もしくはHTML文書の出力時に別の文字列に置き換わります。Textマクロは、Emmetの構文において通常のテキストを埋め込める箇所で使用できます。（例: `{...}`の内側, タグの属性`[`<em>attr</em>`]`表記に指定する値など）
 
 - 単語の先頭を大文字にする(capitalize)
 - 文字列からコンマ"."やピリオド"."を取り除く
@@ -300,7 +299,7 @@ $ expand-abbr 'p{__MESSAGE__}'
 <p>Optio architecto nihil porro atque eius est animi quod ipsum.</p>
 ```
 
-`__SEQ__`マクロは、1から始まる番号で置き換えます。Emmetの```$```オペレータとの違いは、```*```オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。
+`__SEQ__`マクロは、1から始まる番号で置き換えます。Emmetの`$`オペレータとの違いは、`*`オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。
 例
 ```
 $ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
