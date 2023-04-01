@@ -238,6 +238,9 @@ expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの
 |:-- |:--|
 | `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | aaa |
 | <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | bbb |
+| _parentTag_`%>`_tag_`{`_maxDepth_`}`| aaa |
+| _parentTag_ `%>` _tag_ `{` _maxDepth_ `}`| aaa |
+| <em>parentTag</em>`%>`<em>tag</em>`{`<em>maxDepth</em>`}`| aaa |
 
 
 ### ダミーテキストの表記調整: \_\_ _keyword_ \_\_
