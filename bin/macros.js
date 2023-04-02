@@ -182,6 +182,6 @@ macroMap.set('icon-list', [
   'div>(%icon@1%)%+3%'
 ]);
 macroMap.set('icon', [
-  'span>img[src=__ICON__ width=20]',
-  'span>img[src=__ICON__ width=24]'
+  'span>img[src=__ICON__ width=20 alt=__PHRASE__]',
+  'span>img[src=__ICON__ width=24 alt=__PHRASE__]'
 ]);
