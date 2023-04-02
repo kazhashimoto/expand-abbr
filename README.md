@@ -246,7 +246,17 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 | `__DIGEST__` | 短い文のダミーテキスト | 4〜8 | あり | 最初の語 |
 | `__MESSAGE__` | ブログのコメントのような短い文のダミーテキスト | 9〜15 | あり | 最初の語 |
 
-**例** `__HEADING__`  
+ダミーテキスト以外の文字列を生成するTextマクロには次のものがあります。
+
+| Textマクロ | 置換される内容 |
+|:--|:--|
+| `__SEQ__`<br>`__SEQ`<em>id</em>`__` | 順序番号(1,2,...) |
+| `__IMAGE`<em>width</em>`X`<em>height</em>`__` | [Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURL |
+| `__DATETIME__` | "YYYY-MM-DD HH:mm"形式の文字列で表されたランダムな日時 |
+| `__DATE__` | `<time>`要素の`datetime`属性の値から日付表現に変換した文字列 |
+
+#### Textマクロの使用例
+例
 ```
 $ expand-abbr 'h1{__HEADING__}'
 ```
@@ -254,7 +264,7 @@ $ expand-abbr 'h1{__HEADING__}'
 <h1>Sint Et Possimus Officia Magni Hic</h1>
 ```
 
-**例** `__PHRASE__`  
+例
 ```
 $ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
 ```
@@ -266,7 +276,7 @@ $ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
 </ul>
 ```
 
-**例** `__NAME__`  
+例  
 ```
 $ expand-abbr 'span{__NAME__}'
 ```
@@ -274,7 +284,7 @@ $ expand-abbr 'span{__NAME__}'
 <span>Dolores Porro</span>
 ```
 
-**例**  `__DIGEST__`
+例
 ```
 $ expand-abbr 'p{__DIGEST__}'
 ```
@@ -282,7 +292,7 @@ $ expand-abbr 'p{__DIGEST__}'
 <p>Quis quidem nobis nisi hic aspernatur?</p>
 ```
 
-**例** `__MESSAGE__`
+例
 ```
 $ expand-abbr 'p{__MESSAGE__}'
 ```
@@ -290,37 +300,12 @@ $ expand-abbr 'p{__MESSAGE__}'
 <p>Optio architecto nihil porro atque eius est animi quod ipsum.</p>
 ```
 
-ダミーテキスト以外の文字列を生成するTextマクロには次のものがあります。
-
-| Textマクロ | 置換される内容 |
-|:--|:--|
-| `__SEQ__`<br>`__SEQ`<em>id</em>`__` | 順序番号(1,2,...) |
-| `__IMAGE`<em>width</em>`X`<em>height</em>`__` | [Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURL |
-| `__DATETIME__` | "YYYY-MM-DD HH:mm"形式の文字列で表されたランダムな日時 |
-| `__DATE__` | `<time>`要素の`datetime`属性の値から日付表現に変換した文字列 |
-
-### 繰り返し(%)オペレーター
-
-| 式 | 説明
-|:-- |:--|
-| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | 式を`+`オペレーターで<em>N</em>個結合<br>_min_ &le; _N_ &le; _max_ |
-| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | 要素を`*`オペレーターで<em>N</em>個繰り返し<br>_min_ &le; _N_ &le; _max_ |
-| <em>parentTag</em>`%>`<em>tag</em>`{`<em>maxDepth</em>`}`| 親要素と子要素の間にタグを<em>N</em>階層繰り返し挿入<br>0 &le; _N_ &le; _maxDepth_ |
-
-
-### マクロの使用例
-
-
-
-
-
-
 `__SEQ__`マクロは、1から始まる番号で置き換えます。Emmetの`$`オペレータとの違いは、`*`オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。
+
 例
 ```
 $ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
 ```
-出力
 ```
 <ul>
   <li>item 1</li>
@@ -338,19 +323,18 @@ $ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
 ```
 $ expand-abbr 'a[href=page__SEQ__.html]*3{click}'
 ```
-出力
 ```
 <a href="page1.html">click</a>
 <a href="page2.html">click</a>
 <a href="page3.html">click</a>
 ```
+
 接頭辞`SEQ`の後に任意の名前を付けることにより、順序番号を発生させる"レジスター"を必要なだけ複数個定義することができます。名前に使用できる文字は、英大文字・数字・アンダースコアです。
 
 次の例では、`<a>`要素のテキストに現れる番号と、`<img>`要素の画像ファイル名に含まれる番号とを異なる連番で割り当てています。
 ```
 $ expand-abbr 'a{page__SEQ1__}' 'div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2__.jpg]' 'a{page__SEQ1__}'
 ```
-出力
 ```
 <a href="">page1</a>
 <div>
@@ -375,7 +359,6 @@ $ expand-abbr 'a{page__SEQ1__}' 'div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2
 ```
 $ expand-abbr 'img[src=__IMAGE800X600__]'
 ```
-出力例
 ```
 <img src="https://picsum.photos/800/600?random=230" alt="">
 ```
@@ -386,18 +369,21 @@ $ expand-abbr 'img[src=__IMAGE800X600__]'
 ```
 $ expand-abbr 'time[datetime=__DATETIME__]{__DATE__}'
 ```
-出力例
 ```
 <time datetime="2022-03-15 12:52">Mar 15, 2022</time>
 ```
 
-### %オペレーターの使用例
-`%`で囲んだ表記は、Emmetの省略記法の項目や式の後ろに付けると、直前の式に対するランダムな回数の繰り返しを表します。
+### 繰り返し(%)オペレーター
+繰り返しオペレーターは、Emmet省略記法の構文の式や項の後ろに`%`<em>specifier</em>`%`の書式で指定される文字列です。<em>specifier</em>は、繰り返しの対象と回数を表します。
 
-**(** _expression_ **)%+** _max_ **%**  
-**(** _expression_ **)%+** _min, max_ **%**  
-式```(```_expression_```)```をEmmetの```+```オペレーターで最大 _max_ 個結合します。結合する式の個数は _min_ 〜 _max_ の乱数です。 _min_ の省略時の値は1です。
+| 式 | 説明 |
+|:-- |:--|
+| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | 式<em>expression</em>を`+`オペレーターで<em>N</em>個結合した式に展開<br>_min_ &le; _N_ &le; _max_<br>default: _min_ = 1 |
+| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | 要素<em>element</em>を`*`オペレーターで<em>N</em>個繰り返した式に展開<br>_min_ &le; _N_ &le; _max_<br>default: _min_ = 1 |
+| <em>parentTag</em>`%>`<em>tag</em>`{`<em>maxDepth</em>`}`| 親要素<em>parentTag</em>と子要素の間にタグ<em>tag</em>を<em>N</em>階層入れ子で挿入する式に展開<br>0 &le; _N_ &le; _maxDepth_ |
 
+
+#### %オペレーターの使用例
 例
 ```
 $ expand-abbr '(div>p)%+3%'
@@ -445,10 +431,6 @@ $ expand-abbr '((div>p)%+3%+(p>span))%+2,2%'
  ...
 ```
 
-_element_ **%\*** _max_ **%**  
-_element_ **%\*** _min, max_ **%**  
-`%*`オペレーターは、Emmetの`*`オペレーターに変換され、要素<em>element</em>を最大<em>max</em>個繰り返します。繰り返しの回数は<em>min</em>〜<em>max</em>以下の乱数です。<em>min</em>省略時の値は1です。
-
 例
 ```
 $ expand-abbr 'p%3%>span{item $}'
@@ -481,9 +463,6 @@ $ expand-abbr '(p>span{item $})%2,4%'
 (p>span{item $})*3
 (p>span{item $})*4
 ```
-
-_parentTag_ **%>** _tag_ **{** _maxDepth_ **}**  
-`%>`オペレーターは、 <em>tag</em>要素を最大<em>maxDepth</em>階層入れ子にした構造を、親要素<em>parentTag</em>の子として挿入します。挿入される階層の個数は、0〜<em>maxDepth<//em>の乱数です。
 
 例
 ```
