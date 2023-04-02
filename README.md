@@ -262,9 +262,9 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 
 | 式 | 説明
 |:-- |:--|
-| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | aaa |
-| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | bbb |
-| <em>parentTag</em>`%>`<em>tag</em>`{`<em>maxDepth</em>`}`| aaa |
+| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | 式を`+`オペレーターで<em>N</em>個結合<br>_min_ &le; _N_ &le; _max_ |
+| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | 要素を`*`オペレーターで<em>N</em>個繰り返し<br>_min_ &le; _N_ &le; _max_ |
+| <em>parentTag</em>`%>`<em>tag</em>`{`<em>maxDepth</em>`}`| 親要素と子要素の間にタグを<em>N</em>階層繰り返し挿入<br>0 &le; _N_ &le; _maxDepth_ |
 
 
 ### マクロの使用例
