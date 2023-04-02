@@ -229,25 +229,66 @@ $ expand-abbr --add-style -h '%root%'
 expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの構文を独自に拡張した次の機能をサポートしています： Elementマクロ, Textマクロ、繰り返し(`%`)オペレーター。
 
 ### Elementマクロ
-Elementマクロは`%`<em>name</em>`%`という書式の文字列であり、<em>name</em>は別のElementマクロおよびEmmet省略記法を含む式<em>expression</em>への参照です。expand-abbrはElementマクロを再起的に式に展開し、最終的に1つのEmmet構文に置き換えます。Elementマクロの一覧は(macros.js)[https://github.com/kazhashimoto/expand-abbr/blob/main/bin/macros.js]に記述されています。
+Elementマクロは`%`<em>name</em>`%`という書式の文字列であり、<em>name</em>は別のElementマクロおよびEmmet省略記法を含む式<em>expression</em>への参照です。expand-abbrはElementマクロを再起的に式に展開し、最終的に1つのEmmet構文に置き換えます。Elementマクロの一覧は[macros.js](https://github.com/kazhashimoto/expand-abbr/blob/main/bin/macros.js)に記述されています。
 
 Elementマクロ`%root%`は、展開されるとダミーHTML文書の`<body>`要素のコンテンツを表すEmmet構文に置き換わります。
 
 ### Textマクロ
 Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、その文字列はEmmet省略記法の展開時もしくはHTML文書の出力時に別の文字列に置き換わります。Textマクロは、Emmetの構文において通常のテキストを埋め込める箇所で使用できます。（例: `{...}`の内側, タグの属性`[`<em>attr</em>`]`表記に指定する値など）
 
-- 単語の先頭を大文字にする(capitalize)
-- 文字列からコンマ"."やピリオド"."を取り除く
-
 ダミーテキストを生成するTextマクロ。これらは、見出しやリンクの文字列など短いダミーテキストを埋め込むのに役立ちます。このマクロが返すダミーテキストはEmmetのLorem Ipsumジェネレーターを使って生成されますが、書き出しが"lorem ipsum"以外の文字列も返されるように調整されています。
 
 | Textマクロ | 置換される内容 | ワード数 | コンマとピリオド | Capitalize |
 |:--|:--|---|:--|:--|
-| `__HEADING__` | 見出しに適した長さのダミーテキストで | 4〜8 | なし | 各単語 |
+| `__HEADING__` | 見出しに適した長さのダミーテキスト | 4〜8 | なし | 各単語 |
 | `__PHRASE__` | リンクのテキストなどに適した２語からなるダミーテキスト | 2 | なし | 最初の語 |
 | `__NAME__` | 人名のような２語からなるダミーテキスト | 2 | なし | 各単語 |
 | `__DIGEST__` | 短い文のダミーテキスト | 4〜8 | あり | 最初の語 |
 | `__MESSAGE__` | ブログのコメントのような短い文のダミーテキスト | 9〜15 | あり | 最初の語 |
+
+**例** `__HEADING__`  
+```
+$ expand-abbr 'h1{__HEADING__}'
+```
+```   
+<h1>Sint Et Possimus Officia Magni Hic</h1>
+```
+
+**例** `__PHRASE__`  
+```
+$ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
+```
+```
+<ul>
+  <li><a href="#">Culpa amet</a></li>
+  <li><a href="#">Laborum non</a></li>
+  <li><a href="#">Enim obcaecati</a></li>
+</ul>
+```
+
+**例** `__NAME__`  
+```
+$ expand-abbr 'span{__NAME__}'
+```
+```
+<span>Dolores Porro</span>
+```
+
+**例**  `__DIGEST__`
+```
+$ expand-abbr 'p{__DIGEST__}'
+```
+```
+<p>Quis quidem nobis nisi hic aspernatur?</p>
+```
+
+**例** `__MESSAGE__`
+```
+$ expand-abbr 'p{__MESSAGE__}'
+```
+```
+<p>Optio architecto nihil porro atque eius est animi quod ipsum.</p>
+```
 
 ダミーテキスト以外の文字列を生成するTextマクロには次のものがあります。
 
@@ -268,54 +309,11 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 
 
 ### マクロの使用例
-`__HEADING__`マクロは、見出しに適した長さのダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
-```
-$ expand-abbr 'h1{__HEADING__}'
-```
-出力例
-```   
-<h1>Sint Et Possimus Officia Magni Hic</h1>
-```
 
-`__PHRASE__`マクロは、リンクのテキストなどに適した２語からなるダミーテキストに置き換えます。返されるダミーテキストはコンマ"."やピリオド"."を含みません。
-```
-$ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
-```
-出力例
-```
-<ul>
-  <li><a href="#">Culpa amet</a></li>
-  <li><a href="#">Laborum non</a></li>
-  <li><a href="#">Enim obcaecati</a></li>
-</ul>
-```
 
-`__NAME__`マクロは、人名のような２語からなるダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
-```
-$ expand-abbr 'span{__NAME__}'
-```
-出力例
-```
-<span>Dolores Porro</span>
-```
 
-`__DIGEST__`マクロは、短い文のダミーテキストに置き換えます。
-```
-$ expand-abbr 'p{__DIGEST__}'
-```
-出力例
-```
-<p>Quis quidem nobis nisi hic aspernatur?</p>
-```
 
-`__MESSAGE__`マクロは、ブログのコメントのような短い文のダミーテキストに置き換えます。
-```
-$ expand-abbr 'p{__MESSAGE__}'
-```
-出力例
-```
-<p>Optio architecto nihil porro atque eius est animi quod ipsum.</p>
-```
+
 
 `__SEQ__`マクロは、1から始まる番号で置き換えます。Emmetの`$`オペレータとの違いは、`*`オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。
 例
