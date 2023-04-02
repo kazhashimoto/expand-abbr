@@ -1,5 +1,5 @@
 # expand-abbr
-expand-abbrは、[Emmet](https://docs.emmet.io/)のシンタックスで記述した省略記法の文字列をHTML要素に展開して標準出力に書き出すコマンドラインインターフェイスです。
+expand-abbrは、[Emmet](https://docs.emmet.io/)の構文で記述した省略記法の文字列をHTML要素に展開して標準出力に書き出すコマンドラインインターフェイスです。
 
 ## Installation
 ```
@@ -75,11 +75,6 @@ $ expand-abbr -w .wrapper 'div>p' 'ul>li*2>a'
 $ expand-abbr -h '(div>dl>(dt+dd)*3)+footer>p'
 ```
 
-出力される行のインデントはtabです。タブをスペースに置き換えるにはコードフォーマッターを使って整形することができます。次の例では、expand-abbrの出力を[js-beautify](https://github.com/beautify-web/js-beautify)の標準入力を通じてタブをスペース2個に置き換えています。
-```
-$ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
-```
-
 外部スタイルシートへのリンクを`<head>`セクションに挿入するには、`-c`オプションを指定します。`-c`オプションはコマンドラインで複数回指定できます。その場合、expand-abbrは、引数に現れた順序で`<link>`要素を追加します。
 ```
 $ expand-abbr -h -c "reset.css" -c "https://www.example.com/style.css" ”div>p”
@@ -92,10 +87,15 @@ $ expand-abbr -h -c "reset.css" -c "https://www.example.com/style.css" ”div>p�
 </head>
 ```
 
+出力される行のインデントはtabです。タブをスペースに置き換えるにはコードフォーマッターを使って整形することができます。次の例では、expand-abbrの出力を[js-beautify](https://github.com/beautify-web/js-beautify)の標準入力を通じてタブをスペース2個に置き換えています。
+```
+$ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
+```
+
 ## Examples
 デモのソースコードはこちら： https://github.com/kazhashimoto/expand-abbr-demo
 
-次のシェルスクリプト`demo1.sh`は、5個のセクションとそれぞれの見出しへのナビゲーションリンクから成るページを出力します。
+次のシェルスクリプト`demo1.sh`は、5個のセクションとそれぞれの見出しへのナビゲーションリンクから成るHTMLページを出力します。
 ```
 #!/bin/bash
 
@@ -109,9 +109,6 @@ INDENT="js-beautify --type html -s 2 -n"
 
 expand-abbr -h -c "$css" "$header" "$main" "$footer" | $INDENT
 ```
-
-Emmetの構文からなる文字列をシェルの変数に設定するときは、文字列中に含まれる`$`記号をシェルが変数展開しないように文字列全体をシングルクォート（'）で囲みます。また、これらの変数をexpand-abbrの引数に指定するときは、１つの省略記法として扱うためにダブルクォート(")で囲みます（例：`"$footer"`）。
-
 このスクリプトの出力をindex.htmlファイルに保存すれば、ブラウザーで開くことができます(macOSでの例)。
 ```
 $ cd demo1
@@ -119,6 +116,29 @@ $ chmod +x demo1.sh
 $ ./demo1.sh > index.html
 $ open index.html
 ```
+
+`demo1.sh`での変数`header`などのように、Emmetの構文で書かれた文字列をシェルの変数に代入するときは、文字列中の`$`記号をシェルが変数展開するのを防ぐため、文字列全体をシングルクォート（'）で囲みます。
+
+変数をexpand-abbrの引数に指定するときは、ひとまとまりの省略記法として扱われるようにダブルクォート(")で囲みます（例：`"$footer"`）。これは、変数の値が空白を含む文字列の場合、コマンドラインに指定したダブルクォートなしの`$`変数の解釈がシェルによって異なるためです。
+
+例:  
+bashの場合、テキスト中の空白文字で2つの引数に分割されてしまい、Emmetが文法エラーになります。
+```
+bash$ foo='p{hello world}'
+bash$ expand-abbr $foo
+<p>hello</p>
+...
+Error: Unexpected character at 5
+```
+
+zshの場合、ダブルクォートがなくても1つの引数として解釈されます。
+```
+zsh% foo='p{hello world}'
+zsh% expand-abbr $foo
+<p>hello world</p>
+```
+
+
 
 ## ダミーHTML文書の生成
 expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーHTML文書**を生成することができます。
@@ -159,13 +179,12 @@ $ expand-abbr --local '%root%'
 <img src="arrow-left.svg" alt="" width="24">
 ```
 
-
-`--path`オプションを使って、`src`属性に設定するローカルファイルのパス名を指定することができます。
+`src`属性の値を`/` を含んだパス名にするには、`--path`オプションの引数にディレクトリのパス名を指定します。
 ```
 $ expand-abbr --path /path/to  "img[src=foo.jpg]"
 <img src="/path/to/foo.jpg" alt="">
 ```
-`--path`を指定すると、`--local`オプションも暗黙に有効になります。
+コマンドラインに`--path`が与えられた場合、`--local`オプションも暗黙に有効になります。
 ```
 $ expand-abbr --path /path/to  '%root%' > index.html
 $ grep "img src" index.html
@@ -206,7 +225,7 @@ $ expand-abbr --add-style -h '%root%'
 <link rel="stylesheet" href="https://unpkg.com/open-props/normalize.min.css">
 ```
 
-`--add-style`を指定すると、`--class`オプションも暗黙に有効になります。
+コマンドラインに`--add-style`が与えられた場合、`--class`オプションも暗黙に有効になります。
 
 ## Extended Syntax
 expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの省略記法を独自に拡張した次の構文をサポートしています： Elementマクロ, Textマクロ、繰り返し(`%`)オペレーター。
