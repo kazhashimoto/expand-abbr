@@ -164,7 +164,7 @@ expand-abbrが生成するダミーHTML文書では`<img>`要素の`src`属性�
 ```
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
 ```
-一方、iconタイプの`<img>`要素にはbase64エンコードされたSVGデータが埋め込まれます。
+一方、iconタイプの`<img>`要素にはbase64エンコードされた組み込みのSVGデータが埋め込まれます([icons.js](https://github.com/kazhashimoto/expand-abbr/blob/main/bin/icons.js))。
 ```
 <img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj....jwvcGF0aD4KPC9zdmc+" alt="" width="24">
 ```
@@ -191,8 +191,6 @@ $ grep "img src" index.html
 <img src="/path/to/photo4x3_1.jpg" alt="Odit excepturi" width="240" height="180">
 ....
 ```
-
-いずれの場合もimageタイプの要素には、`alt`属性にダミーテキスト(Lorem Ipsum)が設定されます。
 
 ### class属性
 `--class`オプションを指定すると、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞`_x-`が付きます。
@@ -228,11 +226,12 @@ $ expand-abbr --add-style -h '%root%'
 コマンドラインに`--add-style`が与えられた場合、`--class`オプションも暗黙に有効になります。
 
 ## Extended Syntax
-expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの省略記法を独自に拡張した次の構文をサポートしています： Elementマクロ, Textマクロ、繰り返し(`%`)オペレーター。
+expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの構文を独自に拡張した次の機能をサポートしています： Elementマクロ, Textマクロ、繰り返し(`%`)オペレーター。
 
 ### Elementマクロ
+Elementマクロは`%`<em>name</em>`%`という書式の文字列であり、<em>name</em>は別のElementマクロおよびEmmet省略記法を含む式<em>expression</em>への参照です。expand-abbrはElementマクロを再起的に式に展開し、最終的に1つのEmmet構文に置き換えます。Elementマクロの一覧は(macros.js)[https://github.com/kazhashimoto/expand-abbr/blob/main/bin/macros.js]に記述されています。
 
-`%root%`
+Elementマクロ`%root%`は、展開されるとダミーHTML文書の`<body>`要素のコンテンツを表すEmmet構文に置き換わります。
 
 ### Textマクロ
 Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、その文字列はEmmet省略記法の展開時もしくはHTML文書の出力時に別の文字列に置き換わります。Textマクロは、Emmetの構文において通常のテキストを埋め込める箇所で使用できます。（例: `{...}`の内側, タグの属性`[`<em>attr</em>`]`表記に指定する値など）
