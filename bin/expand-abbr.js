@@ -24,6 +24,7 @@ program
   .option('--class', 'add class attribute to the primary elements')
   .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
   .option('--local', 'use local path for the src attribute of <img> elements')
+  .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
@@ -40,10 +41,31 @@ if (options.path) {
   }
   options.local = true;
 }
+console.log(options);
 
 let debug = () => {};
 if (options.d) {
   debug = (...args) => { console.log(...args); }
+}
+
+if (options.macro) {
+  addMacros(options.macro);
+}
+
+function addMacros(defs) {
+  for (const entry of defs) {
+    const [key, value] = entry.split(':');
+    if (!value) {
+      console.error(`${entry}: is not valid macro format [key:value].`);
+      process.exit(1);
+    }
+    if (macroMap.has(key)) {
+      macroMap.get(key).push(value);
+    } else {
+      macroMap.set(key, [ value ]);
+    }
+  }
+  console.log(macroMap);
 }
 
 function concat(abbr_list) {
