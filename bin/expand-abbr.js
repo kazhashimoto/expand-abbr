@@ -7,6 +7,8 @@ const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
+const { macroMap } = require('./macros');
+const { getPresetStyles } = require('./preset-styles');
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -14,21 +16,30 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.4')
+  .version('1.1.5')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
-  .option('--class [prefix]', 'add class starting with prefix to elements (default: _x)')
-  .option('--picsum', 'embed a random image via picsum into the document')
-  .option('--svg', 'for svg icon images, embed a base64 encoded data directly into src attribute of img element via a data URL.')
+  .option('--class', 'add class attribute to the primary elements')
+  .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
+  .option('--local', 'use local path for the src attribute of <img> elements')
+  .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
   .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
-  .option('-x', 'add HTML comments to output')
-  .option('-d', 'debug random numbers generated')
-  .option('--stat', 'print counters');
+  .option('-x', 'add compiled abbreviation as HTML comment to output')
+  .option('-d', 'print debug info.');
 
 program.parse(process.argv);
 const options = program.opts();
+if (options.addStyle) {
+  options.class = true;
+}
+if (options.path) {
+  if (/[^/]$/.test(options.path)) {
+    options.path += '/';
+  }
+  options.local = true;
+}
 
 let debug = () => {};
 if (options.d) {
@@ -144,188 +155,6 @@ function splitText(str, left, right) {
   return arr;
 }
 
-const macroMap = new Map();
-macroMap.set('root', [
-  '(%pg-header%)+(%pg-main-content%)+(%pg-footer%)'
-]);
-macroMap.set('pg-main-content', [
-  '(%section%)%+4,6%',
-  '(%blog-post%)%+4,6%'
-]);
-macroMap.set('pg-header', [
-  '%pg-header-content%',
-  'div%>div{1}%(%pg-header-content%)'
-]);
-macroMap.set('pg-header-content', [
-  'header%>div{1}%(%nav%)',
-  'header%>div{1}%(h1{__HEADING__}+(%nav%))',
-  'header%>div{1}%div>(h1{__HEADING__}+h2{__HEADING__})^(%nav%)',
-  'header%>div{1}%h1{__HEADING__}+div>(%nav%)',
-]);
-macroMap.set('pg-footer', [
-  '%pg-footer-content%',
-  'div%>div{1}%(%pg-footer-content%)'
-]);
-macroMap.set('pg-footer-content', [
-  'footer%>div{1}%p{&copy;2023 Example}',
-  'footer%>div{1}%nav>p%3,5%>a[href=page$.html]{page$}',
-  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+p{&copy;2023 Example}',
-  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%icon-list%)+p{&copy;2023 Example}'
-]);
-macroMap.set('nav', [
-  'nav>ul>li%3,6%>a[href=#s$]{Section $}'
-]);
-macroMap.set('block-content', [
-  '%p%',
-  'div>(%p%)^(div>(%p%))',
-  'div>(%p%)+div>(%p%)',
-  'div>(%p%)^(%anchor%)',
-  'div>(%p%)+(%anchor%)',
-  'div>(%p%)^(%img%)',
-  'div>(%p%)+(%img%)',
-  '(%img%)+(div>(%p%))',
-  '%img%+(div>(%p%))',
-  'div>(%p%)^(%img%)^(%anchor%)',
-  '(div>(%p%)+(%img%))^(%anchor%)',
-  'div>(%p%)^(%img%+%anchor%)',
-  'div>((%p%)+%img%+%anchor%)',
-  '(%img%)+(div>(%p%))+(%anchor%)',
-  '(%img%+(div>(%p%))+(%anchor%)',
-  '%img%+(div>(%p%)+(%anchor%))',
-  '(div>(%p%))+(%anchor%)+(%img%)',
-  'div>(%p%)+(%anchor%)+(%img%)'
-]);
-macroMap.set('p', [
-  'p%2,5%>lorem10',
-  'p%5%>span>lorem2^lorem8',
-  'p%5%>lorem8+span>lorem2',
-  'p%5%>a[href=page$.html]{__PHRASE__}+lorem8',
-  'p%5%>a[href=page$.html]>{__PHRASE__}+span>{__PHRASE__}',
-  'p%5%>lorem8+a[href=page$.html]{__PHRASE__}',
-  "p%5%>lorem6+a[href=page$.html]>{__PHRASE__}+span{__PHRASE__}"
-]);
-macroMap.set('p-long', [
-  'p>lorem100',
-  'p*2>lorem50',
-  'p*3>lorem33',
-  'p*4>lorem25',
-  'p*5>lorem20'
-]);
-macroMap.set('img', [
-  'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
-  'div%3%>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div%3%>img[src=photo16x9_$.jpg alt=__PHRASE__]',
-  '(%figure%)'
-]);
-macroMap.set('figure', [
-  'figure>figcaption>lorem8^img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'figure>img[src=photo4x3_$.jpg alt=__PHRASE__]+figcaption>lorem8'
-]);
-macroMap.set('thumbnail', [
-  'div>img[src=photo1x1_$.jpg alt=__PHRASE__]',
-  'div>img[src=photo2x2_$.jpg alt=__PHRASE__]',
-  'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
-]);
-macroMap.set('anchor', [
-  'div>a[href=page$.html]{__PHRASE__}',
-  'div>a[href=page$.html]>span{__PHRASE__}',
-  'div>a[href=page$.html]>(%icon%)'
-]);
-macroMap.set('list', [
-  'ul>li%2,5%>lorem4-8',
-  'ul>li%2,5%>lorem8-16',
-  'ul>li*4>a[href=page$.html]{__PHRASE__}',
-  'ul>li*4>a[href=page$.html]>{__PHRASE__}+(%icon%)',
-  'ul>li*4>a[href=page$.html]>(%icon%)+{__PHRASE__}',
-  'ul>li%2,5%>a[href=page$,html]>lorem4-8',
-  'ol>li%4,6%{__PHRASE__}',
-  'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
-]);
-macroMap.set('section', [
-  '%section-content%',
-  'div%>div{1}%(%section-content%)'
-]);
-macroMap.set('section-content', [
-  'section[id=s__SEQ_ID__]>(%section-inner%)',
-  'section[id=s__SEQ_ID__]%>div{1}%(%section-inner%)',
-]);
-macroMap.set('section-inner', [
-  '(%section-heading%)+(%section-body%)',
-  '(%section-heading%)+(%section-body%)+div>(%list%)',
-  '(%section-heading%)+(%section-body%)+div>(%table%)',
-  '(%section-heading%)+(%section-body%)+div>(%list%)^div>(%table%)',
-  '(%section-heading%)+(%section-body%)+(%grid%)',
-]);
-macroMap.set('section-heading', [
-  'h2{Section __SEQ_1__}',
-  'div>h2{Section __SEQ_1__}'
-]);
-macroMap.set('section-body', [
-  '(%section-body-content%)%3%',
-  '((%section-body-content%)+(%block-content%))%3%'
-]);
-macroMap.set('section-body-content', [
-  'div>(%p-long%)+(%img%)',
-  'div>(%p-long%)^(%img%)',
-  'div>(%p-long%)+(%thumbnail%)',
-  'div>(%p-long%)^(%thumbnail%)',
-  '%img%+div>(%p-long%)',
-  '%img%^div>(%p-long%)',
-  '%thumbnail%+div>(%p-long%)',
-  '%thumbnail%^div>(%p-long%)',
-]);
-macroMap.set('article', [
-  'article>h1{__HEADING__}+(%article-item%)%+3,5%'
-]);
-macroMap.set('article-item', [
-  'article>h2{03 March 2023}+p{__PHRASE__}'
-]);
-macroMap.set('blog-post', [
-  'article>(%blog-post-header%)+(%blog-post-main%)+(%blog-post-comment%)+(%blog-post-footer%)'
-]);
-macroMap.set('blog-post-header', [
-  'h2{__HEADING__}'
-]);
-macroMap.set('blog-post-main', [
-  'section>h3{__HEADING__}+p{__MESSAGE__}',
-  'section>h3{__HEADING__}+p{__MESSAGE__}+(%img@0%)'
-]);
-macroMap.set('blog-post-comment', [
-  'section>h3{__HEADING__}+(%blog-post-comment-body%)%2,5%'
-]);
-macroMap.set('blog-post-comment-body', [
-  'article>h4{__DIGEST__}+p{__MESSAGE__}+(%blog-post-footer%)'
-]);
-macroMap.set('blog-post-footer', [
-  'footer>p>{Posted on}+(%time%)+{by __NAME__}'
-]);
-macroMap.set('time', [
-  'time[datetime=__DATETIME__]{__DATE__}',
-]);
-macroMap.set('table', [
-  'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
-  'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>{__PHRASE__}'
-]);
-macroMap.set('grid', [
-  'div>(%card%)%4,8%'
-]);
-macroMap.set('card', [
-  'div>(%thumbnail@0%)+div>(h5{__PHRASE__}+h6{99.99})',
-  'div>(%thumbnail@1%)+div>(h3{__HEADING__}+p>lorem20^%anchor@0%)',
-  'div>(%thumbnail@1%)+p>lorem10',
-  'div>(%thumbnail@1%)+p>lorem20'
-]);
-macroMap.set('icon-list', [
-  'div>(%icon@0%)%+4%',
-  'div>(%icon@1%)%+3%'
-]);
-macroMap.set('icon', [
-  'span>img[src=__ICON__ width=20]',
-  'span>img[src=__ICON__ width=24]'
-]);
-
 if (options.class) {
   addClassNames();
 }
@@ -344,10 +173,11 @@ function addClassNames() {
     [/^blog-post-comment/, 'section', 'blog-post-comment'],
     [/^table/, 'table'],
     [/^grid/, 'div', 'grid'],
-    [/^card/, 'div', 'card']
+    [/^card/, 'div', 'card'],
+    [/^copyright/, 'p', 'copyright']
   ];
-  const prefix = (options.class === true)? '_x': options.class;
   const addClass = (key, item) => {
+    const prefix = '_x';
     for (const m of matches) {
       const [re, tag] = m;
       if (re.test(key)) {
@@ -451,7 +281,7 @@ function macro(specifier) {
       const attr = `width=${width} height=${height}`;
       abbr = abbr.replace(re, `$& ${attr}`);
     }
-    if (options.picsum) {
+    if (!options.local) {
       found = abbr.match(re);
       if (found) {
         abbr = abbr.replace(re, `$1__IMAGE${width}X${height}__`);
@@ -585,7 +415,7 @@ function replaceText(specifier) {
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
     } else if (macro == 'ICON') {
-      text = icons.getIconURL(() => mt.random_int(), options.svg);
+      text = icons.getIconURL(() => mt.random_int(), !options.local);
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
@@ -628,10 +458,33 @@ function replaceDate(html) {
   return html;
 }
 
+function replaceLocalPath(html) {
+  if (!options.path) {
+    return html;
+  }
+  let re = /(<img src=")([^"]+")/;
+  const replacer = (tag) => {
+    const f = tag.match(re);
+    if (!/^(http|[./])/.test(f[2])) {
+      tag = tag.replace(re, `$1${options.path}$2`);
+    }
+    return tag;
+  };
+
+  html = html.replace(new RegExp(re, 'g'), replacer);
+  return html;
+}
+
 function outputHTML(abbr) {
   let html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
+  html = replaceLocalPath(html);
   html = replaceDate(html);
   console.log(html);
+}
+
+function embedStyles(/* specifier */) {
+  let text = getPresetStyles();
+  return text;
 }
 
 if (options.head) {
@@ -642,12 +495,19 @@ if (options.head) {
     str = str.replace(/<body>[^]*<\/html>/, '');
   }
   process.stdout.write(str);
-  if (options.css) {
-    for (const p of options.css) {
-      console.log('\t' + expand(`link[href=${p}]`));
-    }
-    console.log('</head>');
+  if (options.addStyle) {
+    options.css.unshift(
+      'https://unpkg.com/open-props',
+      'https://unpkg.com/open-props/normalize.min.css'
+    );
   }
+  for (const p of options.css) {
+    console.log('\t' + expand(`link[href=${p}]`));
+  }
+  if (options.addStyle) {
+    console.log(expand('style>{__STYLE__}').replace(/__STYLE__/g, embedStyles));
+  }
+  console.log('</head>');
 }
 if (options.head || options.wrapper) {
   let root = '';
@@ -674,6 +534,4 @@ if (options.head || options.wrapper) {
 if (options.head) {
   console.log('</html>');
 }
-if (options.stat) {
-  console.log(statMap);
-}
+debug(statMap);

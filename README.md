@@ -1,5 +1,5 @@
 # expand-abbr
-expand-abbrは、[Emmet](https://docs.emmet.io/)のシンタックスで記述した省略記法の文字列をHTML要素に展開して標準出力に書き出すコマンドラインインターフェイスです。
+expand-abbrは、[Emmet](https://docs.emmet.io/)の構文で記述した省略記法の文字列をHTML要素に展開して標準出力に書き出すコマンドラインインターフェイスです。
 
 ## Installation
 ```
@@ -9,7 +9,7 @@ $ npm init -y
 $ echo "@kazhashimoto:registry=https://npm.pkg.github.com" > .npmrc
 ```
 
-```.npmrc```に自分のPersonal access tokenを追加します。このtokenは、scopeにread:packages権限を有効にしたものを[Developer settings](https://github.com/settings/apps)ページを通じて取得する必要があります。
+`.npmrc`に自分のPersonal access tokenを追加します。このtokenは、scopeにread:packages権限を有効にしたものを[Developer settings](https://github.com/settings/apps)ページを通じて取得する必要があります。
 
 ```
 @kazhashimoto:registry=https://npm.pkg.github.com/
@@ -35,27 +35,26 @@ Options:
   -h,--head              prepend html header
   -c,--css <stylesheet>  insert a link to an external stylesheet inside head
                          element (default: [])
-  --class [prefix]       add class starting with prefix to elements (default:
-                         _x)
-  --picsum               embed a random image via picsum into the document
-  --svg                  for svg icon images, embed a base64 encoded data
-                         directly into src attribute of img element via a data
-                         URL.
+  --class                add class attribute to the primary elements
+  --add-style            insert default styles by using a <style> element in
+                         the <head> section
+  --local                use local path for the src attribute of <img> elements
+  --path <prefix>        set the src attribute of img elements to a pathname
+                         starting with prefix
   -w,--wrapper <parent>  wrap expanded elements with parent
-  -x                     add HTML comments to output
-  -d                     debug random numbers generated
-  --stat                 print counters
+  -x                     add compiled abbreviation as HTML comment to output
+  -d                     print debug info.
   --help                 display help for command
 ```
 
-expand-abbrは、引数```abbreviation```ごとにHTML要素のツリーに展開し、展開した結果を順に連結して出力します。
+expand-abbrは、引数`abbreviation`ごとにHTML要素のツリーに展開し、展開した結果を順に連結して出力します。
 ```
 $ expand-abbr 'ul>li>a'
 $ expand-abbr 'header>div' 'dl>(dt+dd)*3' 'footer>p'
 $ expand-abbr '(header>ul>li*2>a)+footer>p'
 ```
 
--wオプションを指定すると、展開した要素全体を```<div>```要素のラッパーで包んだ1つのツリーとして出力します。
+`-w`オプションを指定すると、展開した要素全体を`<div>`要素のラッパーで包んだ1つのツリーとして出力します。
 ```
 $ expand-abbr -w .wrapper 'div>p' 'ul>li*2>a'
 ```
@@ -71,21 +70,15 @@ $ expand-abbr -w .wrapper 'div>p' 'ul>li*2>a'
 </div>
 ```
 
-展開した要素全体をさらに```<html>```, ```<head>```, ```<body>```要素で包んでHTML文書にするには、-hオプションを指定します。-hオプションは-wと一緒に使用できます。```<html>```要素の内容は、emmetの省略記法```!```を使って生成したテンプレートが使用されます。
+`-h`オプションを指定すると、出力は`<head>`セクションを含んだ1つのHTMLページ(HTML文書)になります。つまり、展開した要素全体は`<body>`タグと`<html>`で囲まれて出力されます。`<head>`セクションの内容は、emmetの省略記法`!`を使って生成したテンプレートが使用されます。
 ```
 $ expand-abbr -h '(div>dl>(dt+dd)*3)+footer>p'
 ```
 
-出力されるコードのインデントはtabです。タブをスペースに置き換えるにはコードフォーマッターを使って整形することができます。次の例では、expand-abbrの出力を[js-beautify](https://github.com/beautify-web/js-beautify)の標準入力を通じてタブをスペース2個に置き換えています。
+外部スタイルシートへのリンクを`<head>`セクションに挿入するには、`-c`オプションを指定します。`-c`オプションはコマンドラインで複数回指定できます。その場合、expand-abbrは、引数に現れた順序で`<link>`要素を追加します。
 ```
-$ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
+$ expand-abbr -h -c "reset.css" -c "https://www.example.com/style.css" ”div>p”
 ```
-
-外部スタイルシートへのリンクを```<head>```要素に挿入するには、-cオプションを指定します。コマンドラインに複数の-cオプションを指定した場合、コマンドラインに現れた順序でexpand-abbrはlink要素を書き出します。
-```
-$ expand-abbr -h -c "reset.css" -c "https://www.example.com/style.css" 'div>p'
-```
-
 ```
 <head>
   .....
@@ -94,10 +87,15 @@ $ expand-abbr -h -c "reset.css" -c "https://www.example.com/style.css" 'div>p'
 </head>
 ```
 
+出力される行のインデントはtabです。タブをスペースに置き換えるにはコードフォーマッターを使って整形することができます。次の例では、expand-abbrの出力を[js-beautify](https://github.com/beautify-web/js-beautify)の標準入力を通じてタブをスペース2個に置き換えています。
+```
+$ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
+```
+
 ## Examples
 デモのソースコードはこちら： https://github.com/kazhashimoto/expand-abbr-demo
 
-次のシェルスクリプト```demo1.sh```は、5個のセクションとそれぞれの見出しへのナビゲーションリンクから成るページを出力します。
+次のシェルスクリプト`demo1.sh`は、5個のセクションとそれぞれの見出しへのナビゲーションリンクから成るHTMLページを出力します。
 ```
 #!/bin/bash
 
@@ -111,9 +109,6 @@ INDENT="js-beautify --type html -s 2 -n"
 
 expand-abbr -h -c "$css" "$header" "$main" "$footer" | $INDENT
 ```
-
-シェルの変数にEmmet省略記法を値として設定するときは、```$```記号による変数展開を防ぐために、文字列全体をシングルクォート（'）で囲みます。また、これらの変数をexpand-abbrの引数に指定するときは、１つの省略記法として扱うために、ダブルクォート(")で囲みます（例：```"$footer"```）。
-
 このスクリプトの出力をindex.htmlファイルに保存すれば、ブラウザーで開くことができます(macOSでの例)。
 ```
 $ cd demo1
@@ -122,57 +117,85 @@ $ ./demo1.sh > index.html
 $ open index.html
 ```
 
+`demo1.sh`での変数`header`などのように、Emmetの構文で書かれた文字列をシェルの変数に代入するときは、文字列中の`$`記号をシェルが変数展開するのを防ぐため、文字列全体をシングルクォート（'）で囲みます。
+
+変数をexpand-abbrの引数に指定するときは、ひとまとまりの省略記法として扱われるようにダブルクォート(")で囲みます（例：`"$footer"`）。これは、変数の値が空白を含む文字列の場合、コマンドラインに指定したダブルクォートなしの`$`変数の解釈がシェルによって異なるためです。
+
+例:  
+bashの場合、テキスト中の空白文字で2つの引数に分割されてしまい、Emmetが文法エラーになります。
+```
+bash$ foo='p{hello world}'
+bash$ expand-abbr $foo
+<p>hello</p>
+...
+Error: Unexpected character at 5
+```
+
+zshの場合、ダブルクォートがなくても1つの引数として解釈されます。
+```
+zsh% foo='p{hello world}'
+zsh% expand-abbr $foo
+<p>hello world</p>
+```
+
+
+
 ## ダミーHTML文書の生成
 expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーHTML文書**を生成することができます。
-引数にキーワード```%root%```を指定すると、expand-abbrはHTML要素をランダムに組み合わせたツリーを出力します。ランダムとはいえ、Emmetを使ってツリーに展開しているため、出力されるHTML文書は文法的に正しいものが得られます。
+引数にキーワード`%root%`を指定すると、expand-abbrはHTML要素をランダムに組み合わせたツリーを出力します。ランダムとはいえ、Emmetを使ってツリーに展開しているため、出力されるHTML文書は文法的に正しいものが得られます。
 ```
-% expand-abbr -h '%root%' > index.html            
-% open index.html
+$ expand-abbr -h '%root%' > index.html            
+$ open index.html
 ```
 
 ### img要素のsrc属性
-ダミーHTML文書の中の&lt;img>要素について、```src```属性に設定されるURLの値はコマンドラインオプションによって次の4種類があります。
+expand-abbrが生成するダミーHTML文書では`<img>`要素の`src`属性に設定されるリソースは次の４種類があります。
 
 | Type | URL | Options  |
 |:--|:--|:--|
-| image | photo*.jpg | default|
-| image | https://picsum.photos/ _width_ / _height_ ?random= _num_ | --picsum指定時 |
-| icon | _file_ .svg | default |
-| icon | data:image/svg+xml;base64 | --svg指定時 |
+| image | photo*.jpg | `--local`, `--path` |
+| image | `https://picsum.photos/`<em>width</em>`/`<em>height</em>`?random=`<em>num</em> | (default) |
+| icon | <em>file</em>.svg | `--local`, `--path` |
+| icon | `data:image/svg+xml;base64`... | (default) |
 
-Typeがimageの場合、```alt```属性の値はダミーテキスト(Lorem Ipsum)が設定されます。
+デフォルトの場合、imageタイプの`<img>`要素には[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLが設定されます。
 
-オプション```--picsum```を指定した場合、expand-abbrは、imageタイプの&lt;img>要素に[Lorem Picsum](https://picsum.photos/)からのランダムな画像を埋め込みます。
-```
-% expand-abbr -h --picsum "%root%"
-```
 出力例
 ```
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
 ```
-
-オプション```--svg```を指定した場合、expand-abbrは、iconタイプの&lt;img>要素にbase64エンコードされたSVGデータを埋め込みます。
-```
-$ expand-abbr.js -h --svg "%root%"
-```
-出力例
+一方、iconタイプの`<img>`要素にはbase64エンコードされた組み込みのSVGデータが埋め込まれます([icons.js](https://github.com/kazhashimoto/expand-abbr/blob/main/bin/icons.js))。
 ```
 <img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj....jwvcGF0aD4KPC9zdmc+" alt="" width="24">
 ```
 
-### class属性
-オプション```--class```を指定すると、expand-abbrは、一部のHTML要素に対してclass属性を設定します。class名の接頭辞をこのオプションの引数で与えます。
+`--local`オプションを指定すると、`<img>`要素の`src`属性の値は既定のファイル名が設定されます。
 ```
-$ expand-abbr -h --class my "%root%"
+$ expand-abbr --local '%root%'
 ```
 出力例（一部）
 ```
-<header class="my-header"> ...
-<nav class="my-nav"> ...
+<img src="photo4x3_1.jpg" alt="Alias ducimus?" width="600" height="450">
+<img src="arrow-left.svg" alt="" width="24">
 ```
-接頭辞のデフォルトは"_x-"です。```--class```に _prefix_ 引数を指定しないときは、コマンドラインで```--class```を最後のオプションに指定し、オプションの終わりを示すために```--```で区切らなければなりません。
+
+`src`属性の値を`/` を含んだパス名にするには、`--path`オプションの引数にディレクトリのパス名を指定します。
 ```
-$ expand-abbr -h --class -- "%root%"
+$ expand-abbr --path /path/to  "img[src=foo.jpg]"
+<img src="/path/to/foo.jpg" alt="">
+```
+コマンドラインに`--path`が与えられた場合、`--local`オプションも暗黙に有効になります。
+```
+$ expand-abbr --path /path/to  '%root%' > index.html
+$ grep "img src" index.html
+<img src="/path/to/photo4x3_1.jpg" alt="Odit excepturi" width="240" height="180">
+....
+```
+
+### class属性
+`--class`オプションを指定すると、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞`_x-`が付きます。
+```
+$ expand-abbr -h --class "%root%"
 ```
 出力例（一部）
 ```
@@ -180,44 +203,71 @@ $ expand-abbr -h --class -- "%root%"
 <nav class="_x-nav"> ...
 ```
 
+### ダミーHTML文書のスタイルシート
+`--add-style`オプションを指定すると、expand-abbrは出力されるHTML文書の`<head>`セクションに`<style>`要素を挿入し既定のスタイルシートを埋め込みます。このオプションは`-h`オプションも指定しないと効果がありません。
+
+```
+$ expand-abbr --add-style -h '%root%'  
+```
+出力例（一部）
+```
+<style>
+._x-header {width: 100%; background: #000; color: #fff}
+._x-footer {box-sizing: border-box; width: 100%; padding: 20px 4%; margin-top: 50px; background: #000; color: #fff}
+.......
+</style>
+```
+既定のスタイルには[Open Props](https://open-props.style/)のCSSカスタムプロパティが使用されるため、次の外部スタイルシートを参照する`<link>`要素が`<head>`セクションに挿入されます。
+```
+<link rel="stylesheet" href="https://unpkg.com/open-props">
+<link rel="stylesheet" href="https://unpkg.com/open-props/normalize.min.css">
+```
+
+コマンドラインに`--add-style`が与えられた場合、`--class`オプションも暗黙に有効になります。
+
 ## Extended Syntax
-expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの省略記法に対して独自に拡張した構文をサポートしています。
+expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの構文を独自に拡張した次の機能をサポートしています： Elementマクロ, Textマクロ、繰り返し(`%`)オペレーター。
 
-- ダミーテキストの表記調整: \_\_ _keyword_ \_\_
-- グローバルなスコープをもつ順序番号: \_\_ SEQ \_\_
-- picsumイメージの埋め込み: \_\_ IMAGE \_\_
-- 日付や日時表記の埋め込み: \_\_ DATETIME \_\_, \_\_ DATE \_\_
-- ランダムな繰り返し回数の指定: %オペレーター
+### Elementマクロ
+Elementマクロは`%`<em>name</em>`%`という書式の文字列であり、<em>name</em>は別のElementマクロおよびEmmet省略記法を含む式<em>expression</em>への参照です。expand-abbrはElementマクロを再起的に式に展開し、最終的に1つのEmmet構文に置き換えます。Elementマクロの一覧は[macros.js](https://github.com/kazhashimoto/expand-abbr/blob/main/bin/macros.js)に記述されています。
 
-### ダミーテキストの表記調整: \_\_ _keyword_ \_\_
-\_\_ _keyword_ \_\_変数は、EmmetのLorem Ipsumジェネレーターを使って取得したダミーテキストに対して、次の方法を組み合わせて表記を調整した内容に書き換えます。これらの変数は、Emmetの構文で通常のテキストを埋め込める箇所で使用できます。（例: {...}の内側, タグの属性[attr]表記に指定する値）
+Elementマクロ`%root%`は、展開されるとダミーHTML文書の`<body>`要素のコンテンツを表すEmmet構文に置き換わります。
 
-- 単語の先頭を大文字にする(capitalize)
-- 文字列からコンマ"."やピリオド"."を取り除く
-- 書き出しが"lorem ipsum"以外の文字列も選ばれるようにする
+### Textマクロ
+Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、その文字列はEmmet省略記法の展開時もしくはHTML文書の出力時に別の文字列に置き換わります。Textマクロは、Emmetの構文において通常のテキストを埋め込める箇所で使用できます。（例: `{...}`の内側, タグの属性`[`<em>attr</em>`]`表記に指定する値など）
 
-これらの機能は、見出しやリンクの文字列など短いダミーテキストを埋め込むのに役立ちます。
+ダミーテキストを生成するTextマクロ。これらは、見出しやリンクの文字列など短いダミーテキストを埋め込むのに役立ちます。このマクロが返すダミーテキストはEmmetのLorem Ipsumジェネレーターを使って生成されますが、書き出しが"lorem ipsum"以外の文字列も返されるように調整されています。
 
-**\_\_HEADING\_\_**  
-```__HEADING__```変数は、見出しに適した長さのダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
+| Textマクロ | 置換される内容 | ワード数 | コンマとピリオド | Capitalize |
+|:--|:--|---|:--|:--|
+| `__HEADING__` | 見出しに適した長さのダミーテキスト | 4〜8 | なし | 各単語 |
+| `__PHRASE__` | リンクのテキストなどに適した２語からなるダミーテキスト | 2 | なし | 最初の語 |
+| `__NAME__` | 人名のような２語からなるダミーテキスト | 2 | なし | 各単語 |
+| `__DIGEST__` | 短い文のダミーテキスト | 4〜8 | あり | 最初の語 |
+| `__MESSAGE__` | ブログのコメントのような短い文のダミーテキスト | 9〜15 | あり | 最初の語 |
 
+ダミーテキスト以外の文字列を生成するTextマクロには次のものがあります。
+
+| Textマクロ | 置換される内容 |
+|:--|:--|
+| `__SEQ__`<br>`__SEQ`<em>id</em>`__` | 順序番号(1,2,...) |
+| `__IMAGE`<em>width</em>`X`<em>height</em>`__` | [Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURL |
+| `__DATETIME__` | "YYYY-MM-DD HH:mm"形式の文字列で表されたランダムな日時 |
+| `__DATE__` | `<time>`要素の`datetime`属性の値から日付表現に変換した文字列 |
+
+#### Textマクロの使用例
 例
 ```
 $ expand-abbr 'h1{__HEADING__}'
 ```
-結果
 ```   
 <h1>Sint Et Possimus Officia Magni Hic</h1>
 ```
-
-**\_\_PHRASE\_\_**  
-```__PHRASE__```変数は、リンクのテキストなどに適した２語からなるダミーテキストに置き換えます。返されるダミーテキストはコンマ"."やピリオド"."を含みません。
 
 例
 ```
 $ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
 ```
-結果
 ```
 <ul>
   <li><a href="#">Culpa amet</a></li>
@@ -226,50 +276,36 @@ $ expand-abbr 'ul>li*3>a[href=#]{__PHRASE__}'
 </ul>
 ```
 
-**\_\_NAME\_\_**  
-```__NAME__```変数は、人名のような２語からなるダミーテキストに置き換えます。返されるダミーテキストは文中にコンマ"."やピリオド"."を含まず、単語の先頭が大文字になります。
-
-例
+例  
 ```
 $ expand-abbr 'span{__NAME__}'
 ```
-結果
 ```
 <span>Dolores Porro</span>
 ```
-
-**\_\_DIGEST\_\_**  
-```__DIGEST__```変数は、短い文のダミーテキストに置き換えます。
 
 例
 ```
 $ expand-abbr 'p{__DIGEST__}'
 ```
-結果
 ```
 <p>Quis quidem nobis nisi hic aspernatur?</p>
 ```
-
-**\_\_MESSAGE\_\_**  
-```__MESSAGE__```変数は、ブログのコメントのような短い文のダミーテキストに置き換えます。
 
 例
 ```
 $ expand-abbr 'p{__MESSAGE__}'
 ```
-結果
 ```
 <p>Optio architecto nihil porro atque eius est animi quod ipsum.</p>
 ```
 
-### グローバルなスコープをもつ順序番号: \_\_ SEQ \_\_  
-```__SEQ__```変数は、1から始まる番号で置き換えます。Emmetの```$```オペレータとの違いは、```*```オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。
+`__SEQ__`マクロは、1から始まる番号で置き換えます。Emmetの`$`オペレータとの違いは、`*`オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。
 
 例
 ```
 $ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
 ```
-結果
 ```
 <ul>
   <li>item 1</li>
@@ -282,25 +318,23 @@ $ expand-abbr 'ul>li*3>{item __SEQ__}' 'ul>li*3>{item __SEQ__}'
   <li>item 6</li>
 </ul>
 ```
+
 例
 ```
-% bin/expand-abbr.js 'a[href=page__SEQ__.html]*3{click}'
+$ expand-abbr 'a[href=page__SEQ__.html]*3{click}'
 ```
-結果
 ```
 <a href="page1.html">click</a>
 <a href="page2.html">click</a>
 <a href="page3.html">click</a>
 ```
-接頭辞```SEQ```の後に任意の名前を付けることにより、順序番号を発生させる"レジスター"を必要なだけ複数個定義することができます。名前に使用できる文字は、英大文字・数字・アンダースコアです。
 
-次の例では、&lt;a>要素のテキストに現れる番号と、&lt;img>要素の画像ファイル名に含まれる番号とを異なる連番で割り当てています。
+接頭辞`SEQ`の後に任意の名前を付けることにより、順序番号を発生させる"レジスター"を必要なだけ複数個定義することができます。名前に使用できる文字は、英大文字・数字・アンダースコアです。
 
-例
+次の例では、`<a>`要素のテキストに現れる番号と、`<img>`要素の画像ファイル名に含まれる番号とを異なる連番で割り当てています。
 ```
 $ expand-abbr 'a{page__SEQ1__}' 'div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2__.jpg]' 'a{page__SEQ1__}'
 ```
-結果
 ```
 <a href="">page1</a>
 <div>
@@ -321,40 +355,35 @@ $ expand-abbr 'a{page__SEQ1__}' 'div*3>a{page__SEQ1__}+div*2>img[src=photo__SEQ2
 <a href="">page5</a>
 ```
 
-### picsumイメージの埋め込み: \_\_ _IMAGE_ \_\_
-**\_\_IMAGE** _width_ **X** _height_ **\_\_**  
-```__IMAGE__```変数は、[Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURLに置き換えます。画像のサイズは、```IMAGE```の後ろに _width_ ```X``` _height_ で指定します。
-
-例
+`__IMAGE`<em>width</em>`X`<em>height</em>`__`マクロは、[Lorem Picsum](https://picsum.photos/)が提供するランダム画像のURLに置き換えます。画像の寸法は<em>width</em>と<em>height</em>で指定します。
 ```
 $ expand-abbr 'img[src=__IMAGE800X600__]'
 ```
-結果
 ```
 <img src="https://picsum.photos/800/600?random=230" alt="">
 ```
 
-### 日付や日時表記の埋め込み: \_\_ DATETIME \_\_, \_\_ DATE \_\_  
-```__DATETIME__```変数は、ランダムな日時を"YYYY-MM-DD HH:mm"形式の文字列で置き換えます。値となる日時は、実行時に現在の日時を基点として約1年前までの期間の中からランダムに生成されます。```__DATETIME__```変数は、&lt;time>要素の```datetime```属性の値として使用します。
+`__DATETIME__`マクロは、ランダムな日時を"YYYY-MM-DD HH:mm"形式の文字列で置き換えます。値となる日時は、実行時に現在の日時を基点として約1年前までの期間の中からランダムに生成されます。`__DATETIME__`マクロは`<time>`要素の`datetime`属性の値として使用します。
 
-```__DATE__```変数は、&lt;time>要素のコンテントとして使用し、```datetime```属性の値から日付表現に変換した文字列で置き換えます。日付の書式はen-USロケールで表記され、```datetime```属性の値をローカルタイムゾーンで解釈したものを表す文字列です。
-
-例
+`__DATE__`マクロは、`<time>`要素のコンテントとして使用し、`datetime`属性の値から日付表現に変換した文字列で置き換えます。日付の書式はen-USロケールで表記され、`datetime`属性の値をローカルタイムゾーンで解釈したものを表す文字列です。
 ```
 $ expand-abbr 'time[datetime=__DATETIME__]{__DATE__}'
 ```
-結果
 ```
 <time datetime="2022-03-15 12:52">Mar 15, 2022</time>
 ```
 
-### ランダムな繰り返し回数の指定: %オペレーター  
-```%```で囲んだ表記は、Emmetの省略記法の項目や式の後ろに付けると、直前の式に対するランダムな回数の繰り返しを表します。
+### 繰り返し(%)オペレーター
+繰り返しオペレーターは、Emmet省略記法の構文の式や項の後ろに`%`<em>specifier</em>`%`の書式で指定される文字列です。<em>specifier</em>は、繰り返しの対象と回数を表します。
 
-**(** _expression_ **)%+** _max_ **%**  
-**(** _expression_ **)%+** _min, max_ **%**  
-式```(```_expression_```)```をEmmetの```+```オペレーターで最大 _max_ 個結合します。結合する式の個数は _min_ 〜 _max_ の乱数です。 _min_ の省略時の値は1です。
+| 式 | 説明 |
+|:-- |:--|
+| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | 式<em>expression</em>を`+`オペレーターで<em>N</em>個結合した式に展開<br>_min_ &le; _N_ &le; _max_<br>default: _min_ = 1 |
+| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | 要素<em>element</em>を`*`オペレーターで<em>N</em>個繰り返した式に展開<br>_min_ &le; _N_ &le; _max_<br>default: _min_ = 1 |
+| <em>parentTag</em>`%>`<em>tag</em>`{`<em>maxDepth</em>`}`| 親要素<em>parentTag</em>と子要素の間にタグ<em>tag</em>を<em>N</em>階層入れ子で挿入する式に展開<br>0 &le; _N_ &le; _maxDepth_ |
 
+
+#### %オペレーターの使用例
 例
 ```
 $ expand-abbr '(div>p)%+3%'
@@ -365,6 +394,7 @@ $ expand-abbr '(div>p)%+3%'
 (div>p)+(div>p)
 (div>p)+(div>p)+(div>p)
 ```
+例
 ```
 $ expand-abbr '(div>p)%+2,4%'
 ```
@@ -386,7 +416,7 @@ $ expand-abbr '(div>p)%+3%+(p>span)%+2,2%'
 (div>p)+(div>p)+(div>p)+(p>span)+(p>span)
 ```
 
-```%+```オペレーターが修飾する式の中にさらに```%+```を指定することもできます。
+`%+`オペレーターが修飾する式の中にさらに`%+`を指定することもできます。
 
 例
 ```
@@ -400,10 +430,6 @@ $ expand-abbr '((div>p)%+3%+(p>span))%+2,2%'
  ((div>p)+(div>p)+(div>p)+(p>span))+((div>p)+(div>p)+(p>span))
  ...
 ```
-
-_element_ **%\*** _max_ **%**  
-_element_ **%\*** _min, max_ **%**  
-```%*```オペレーターは、Emmetの```*```オペレーターに変換され、要素 _element_ を最大 _max_ 個繰り返します。繰り返しの回数は _min_ 〜 _max_ 以下の乱数です。 _min_ 省略時の値は1です。
 
 例
 ```
@@ -437,9 +463,6 @@ $ expand-abbr '(p>span{item $})%2,4%'
 (p>span{item $})*3
 (p>span{item $})*4
 ```
-
-_parentTag_ **%>** _tag_ **{** _maxDepth_ **}**  
-```%>```オペレーターは、 _tag_ 要素を最大 _maxDepth_ 階層入れ子にした構造を、親要素 _parentTag_ の子として挿入します。挿入される階層の個数は、0〜 _maxDepth_ の乱数です。
 
 例
 ```
