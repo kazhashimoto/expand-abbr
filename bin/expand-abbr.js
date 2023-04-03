@@ -75,19 +75,17 @@ function addMacros(defs) {
   }
 }
 
-function loadMacros(path) {
+function loadMacros(local_path) {
   let obj;
+  const path = require('node:path');
+
+  if (!path.isAbsolute(local_path)) {
+    local_path = path.join(process.cwd(), local_path);
+  }
   try {
-    if (!/^\//.test(path)) {
-      let cwd = process.cwd();
-      if (!/\/$/.test(cwd)) {
-        cwd += '/';
-      }
-      path = `${cwd}${path}`;
-    }
-    obj = require(path);
-  } catch(error) {
-    console.error(error.message);
+    obj = require(local_path);
+  } catch(err) {
+    console.error(err.message);
     process.exit(1);
   }
 
