@@ -35,7 +35,7 @@ if (options.addStyle) {
   options.class = true;
 }
 if (options.path) {
-  if (/[^\/]$/.test(options.path)) {
+  if (/[^/]$/.test(options.path)) {
     options.path += '/';
   }
   options.local = true;
