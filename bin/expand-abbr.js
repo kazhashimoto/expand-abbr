@@ -23,6 +23,8 @@ program
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('--class', 'add class attribute to the primary elements')
   .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
+  .option('-f,--load-macros <js_file>', 'load user defined macros from js file')
+  .option('-l,--list-macros', 'list Element macros')
   .option('--local', 'use local path for the src attribute of <img> elements')
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
@@ -41,7 +43,6 @@ if (options.path) {
   }
   options.local = true;
 }
-console.log(options);
 
 let debug = () => {};
 if (options.d) {
@@ -50,6 +51,13 @@ if (options.d) {
 
 if (options.macro) {
   addMacros(options.macro);
+}
+if (options.loadMacros) {
+  loadMacros(options.loadMacros);
+}
+if (options.listMacros) {
+  console.log(macroMap);
+  process.exit(0);
 }
 
 function addMacros(defs) {
@@ -65,7 +73,36 @@ function addMacros(defs) {
       macroMap.set(key, [ value ]);
     }
   }
-  console.log(macroMap);
+}
+
+function loadMacros(path) {
+  let obj;
+  try {
+    if (!/^\//.test(path)) {
+      let cwd = process.cwd();
+      if (!/\/$/.test(cwd)) {
+        cwd += '/';
+      }
+      path = `${cwd}${path}`;
+    }
+    obj = require(path);
+  } catch(error) {
+    console.error(error.message);
+    process.exit(1);
+  }
+
+  const copyValues = (target, src) => {
+    for (const e of src) {
+      target.push(e);
+    }
+  };
+  for (const [key, value] of obj.macroMap) {
+    if (macroMap.has(key)) {
+      copyValues(macroMap.get(key), value);
+    } else {
+      macroMap.set(key, value);
+    }
+  }
 }
 
 function concat(abbr_list) {
