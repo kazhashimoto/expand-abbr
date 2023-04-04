@@ -16,16 +16,20 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.5')
+  .version('1.1.6')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
+  .option('-w,--wrapper <parent>', 'wrap expanded elements with div.parent')
+  .option('--local', 'use local path for the src attribute of <img> elements')
+  .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('--class', 'add class attribute to the primary elements')
   .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
-  .option('--local', 'use local path for the src attribute of <img> elements')
-  .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
-  .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
+  .option('-f,--load-macros <module>', 'load user defined macros from <module>')
+  .option('-l,--list-macros', 'list Element macros')
+  .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
+  .option('-q,--query <key>', 'print Element macro that matches <key>')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
 
@@ -44,6 +48,67 @@ if (options.path) {
 let debug = () => {};
 if (options.d) {
   debug = (...args) => { console.log(...args); }
+}
+
+if (options.macro) {
+  addMacros(options.macro);
+}
+if (options.loadMacros) {
+  loadMacros(options.loadMacros);
+}
+if (options.listMacros) {
+  console.log(macroMap);
+  process.exit(0);
+}
+if (options.query) {
+  const value = macroMap.get(options.query);
+  if (value) {
+    console.log(value);
+  }
+  process.exit(0);
+}
+
+function addMacros(defs) {
+  for (const entry of defs) {
+    const [key, value] = entry.split(':');
+    if (!value) {
+      console.error(`${entry}: is not valid macro format [key:value].`);
+      process.exit(1);
+    }
+    if (macroMap.has(key)) {
+      macroMap.get(key).push(value);
+    } else {
+      macroMap.set(key, [ value ]);
+    }
+  }
+}
+
+function loadMacros(local_path) {
+  let obj;
+  const path = require('node:path');
+
+  if (!path.isAbsolute(local_path)) {
+    local_path = path.join(process.cwd(), local_path);
+  }
+  try {
+    obj = require(local_path);
+  } catch(err) {
+    console.error(err.message);
+    process.exit(1);
+  }
+
+  const copyValues = (target, src) => {
+    for (const e of src) {
+      target.push(e);
+    }
+  };
+  for (const [key, value] of obj.macroMap) {
+    if (macroMap.has(key)) {
+      copyValues(macroMap.get(key), value);
+    } else {
+      macroMap.set(key, value);
+    }
+  }
 }
 
 function concat(abbr_list) {
