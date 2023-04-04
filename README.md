@@ -273,7 +273,7 @@ $ expand-abbr -m 'root:div>p' -q root
 const macroMap = new Map();
 module.exports.macroMap = macroMap;
 ```
-そして、マクロ名を<em>key</em>として、`macroMap`オブジェクトの`set`メソッドで<em>value</em>の配列を値として登録します。<em>
+そして、マクロ名を<em>key</em>として、`macroMap`オブジェクトの`set`メソッドで<em>value</em>の配列を値として登録します。
 ```
 macroMap.set('key', [ value, ... ]);
 ```
@@ -297,6 +297,18 @@ macroMap.set('my-content', [
 オプションの引数に指定するモジュールのパス名は、カレントディレクトリからの相対もしくは絶対パスです。ファイルの検索順序に関して、Node.jsの`node_modules`ディレクトリは関係ありません。
 ```
 $ expand-abbr -f my-macro.js -h '%my-root%'
+```
+
+#### マクロの値のインデックス指定
+マクロ`%`<em>name</em>`%`が与えられた時、expand-abbrは、キー値<em>name</em>を持つ`macroMap`の値の配列の中から1個をランダムに選び、その文字列でマクロを置換します。
+配列の中で、置換に使用される値を固定するには、書式`%`<em>name</em>`@`<em>index</em>`%`により配列のインデックスを指定します。
+```
+$ expand-abbr -m 'box:div{1}' -m 'box:div{2}' -m 'box:div{3}' -q box   
+[ 'div{1}', 'div{2}', 'div{3}' ]
+```
+```
+$ expand-abbr -m 'box:div{1}' -m 'box:div{2}' -m 'box:div{3}' '%box@2%'
+<div>3</div>
 ```
 
 ### Textマクロ
