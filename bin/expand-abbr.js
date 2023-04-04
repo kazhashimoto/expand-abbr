@@ -20,15 +20,16 @@ program
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
+  .option('-w,--wrapper <parent>', 'wrap expanded elements with div.parent')
+  .option('--local', 'use local path for the src attribute of <img> elements')
+  .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
   .option('--class', 'add class attribute to the primary elements')
   .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
-  .option('-f,--load-macros <js_file>', 'load user defined macros from js file')
+  .option('-f,--load-macros <module>', 'load user defined macros from <module>')
   .option('-l,--list-macros', 'list Element macros')
-  .option('--local', 'use local path for the src attribute of <img> elements')
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
-  .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
-  .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
+  .option('-q,--query <key>', 'print Element macro that matches <key>')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
 
@@ -57,6 +58,13 @@ if (options.loadMacros) {
 }
 if (options.listMacros) {
   console.log(macroMap);
+  process.exit(0);
+}
+if (options.query) {
+  const value = macroMap.get(options.query);
+  if (value) {
+    console.log(value);
+  }
   process.exit(0);
 }
 
