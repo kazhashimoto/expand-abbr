@@ -299,6 +299,18 @@ macroMap.set('my-content', [
 $ expand-abbr -f my-macro.js -h '%my-root%'
 ```
 
+#### マクロの値のインデックス指定
+マクロ`%`<em>name</em>`%`が与えられた時、expand-abbrは、キー値<em>name</em>を持つ`macroMap`の値の配列の中から1個をランダムに選び、その文字列でマクロを置換します。
+配列の中で、置換に使用される値を固定するには、書式`%`<em>name</em>`@`<em>index</em>`%`により配列のインデックスを指定します。
+```
+$ expand-abbr -m 'box:div{1}' -m 'box:div{2}' -m 'box:div{3}' -q box   
+[ 'div{1}', 'div{2}', 'div{3}' ]
+```
+```
+$ expand-abbr -m 'box:div{1}' -m 'box:div{2}' -m 'box:div{3}' '%box@2%'
+<div>3</div>
+```
+
 ### Textマクロ
 Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、その文字列はEmmet省略記法の展開時もしくはHTML文書の出力時に別の文字列に置き換わります。Textマクロは、Emmetの構文において通常のテキストを埋め込める箇所で使用できます。（例: `{...}`の内側, タグの属性`[`<em>attr</em>`]`表記に指定する値など）
 
