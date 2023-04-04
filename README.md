@@ -273,7 +273,7 @@ $ expand-abbr -m 'root:div>p' -q root
 const macroMap = new Map();
 module.exports.macroMap = macroMap;
 ```
-そして、マクロ名を<em>key</em>として、`macroMap`オブジェクトの`set`メソッドで<em>value</em>の配列を値として登録します。<em>
+そして、マクロ名を<em>key</em>として、`macroMap`オブジェクトの`set`メソッドで<em>value</em>の配列を値として登録します。
 ```
 macroMap.set('key', [ value, ... ]);
 ```
