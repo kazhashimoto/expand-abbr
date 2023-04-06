@@ -52,6 +52,21 @@ styleMap.set('pg-footer', {
     return map;
   }
 });
+styleMap.set('card', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'padding: 10px',
+      'box-shadow: var(--shadow-2)'
+    ]);
+    map.set(`${key} p`, [
+      'font-size: var(--font-size-1)'
+    ]);
+    return map;
+  }
+});
 
 const elements = [
   /* sections */

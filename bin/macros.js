@@ -146,17 +146,17 @@ macroMap.set('blog-post', [
   'article>(%blog-post-header%)+(%blog-post-main%)+(%blog-post-comment%)+(%blog-post-footer%)'
 ]);
 macroMap.set('blog-post-header', [
-  'h2{__HEADING__}'
+  'h3{__HEADING__}'
 ]);
 macroMap.set('blog-post-main', [
-  'section>h3{__HEADING__}+p{__MESSAGE__}',
-  'section>h3{__HEADING__}+p{__MESSAGE__}+(%img@0%)'
+  'section>h4{__HEADING__}+p{__MESSAGE__}',
+  'section>h4{__HEADING__}+p{__MESSAGE__}+(%img@0%)'
 ]);
 macroMap.set('blog-post-comment', [
-  'section>h3{__HEADING__}+(%blog-post-comment-body%)%2,5%'
+  'section>h5{__HEADING__}+(%blog-post-comment-body%)%2,5%'
 ]);
 macroMap.set('blog-post-comment-body', [
-  'article>h4{__DIGEST__}+p{__MESSAGE__}+(%blog-post-footer%)'
+  'article>h5{__DIGEST__}+p{__MESSAGE__}+(%blog-post-footer%)'
 ]);
 macroMap.set('blog-post-footer', [
   'footer>p>{Posted on}+(%time%)+{by __NAME__}'
@@ -172,8 +172,8 @@ macroMap.set('grid', [
   'div>(%card%)%4,8%'
 ]);
 macroMap.set('card', [
-  'div>(%thumbnail@0%)+div>(h5{__PHRASE__}+h6{99.99})',
-  'div>(%thumbnail@1%)+div>(h3{__HEADING__}+p>lorem20^%anchor@0%)',
+  'div>(%thumbnail@0%)+div>(h6{__PHRASE__}+p{__DIGEST__}+p{&dollar;99.99})',
+  'div>(%thumbnail@1%)+div>(h5{__HEADING__}+p>lorem20^%anchor@0%)',
   'div>(%thumbnail@1%)+p>lorem10',
   'div>(%thumbnail@1%)+p>lorem20'
 ]);
