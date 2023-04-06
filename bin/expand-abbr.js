@@ -8,7 +8,8 @@ const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
 const { macroMap } = require('./macros');
-const { getPresetStyles } = require('./preset-styles');
+const presetStyles = require('./preset-styles');
+const styleRules = [];
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -241,7 +242,14 @@ function addClassNames() {
     }
     const tag = found[1];
     if (elements.includes(tag)) {
-      let str = found[0].replace(tag, `${tag}.${prefix}-${key}_${tag}`);
+      const cls = `${prefix}-${key}_${tag}`;
+      let str = found[0].replace(tag, `${tag}.${cls}`);
+      let obj = presetStyles.getPresetStyles(cls);
+      if (obj && !obj.checked) {
+        obj.checked = true;
+        obj.class = cls;
+        styleRules.push(obj);
+      }
       return item.replace(re, str);
     }
     return item;
@@ -537,7 +545,20 @@ function outputHTML(abbr) {
 }
 
 function embedStyles(/* specifier */) {
-  let text = getPresetStyles();
+  const ruleText = (selector, props) => {
+    const decl = props.join('; ');
+    const rules = `${selector} {${decl}}\n`;
+    return rules;
+  };
+  let text = '\n';
+  for (const o of styleRules) {
+    const map = o.getStyleRule(o.class);
+    for (const [key, value] of map) {
+      text += ruleText(key, value);
+    }
+  }
+  // let text = getPresetStyles();
+  // let text = presetStyles.getPresetStyles();
   return text;
 }
 
