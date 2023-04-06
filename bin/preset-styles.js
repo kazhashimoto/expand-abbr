@@ -1,7 +1,7 @@
 const styleMap = new Map();
 
 styleMap.set('pg-header', {
-  accept: ['header', 'div'],
+  accept: ['header'],
   getStyleRule: (cls) => {
     const key = `.${cls}`;
     const map = new Map();
@@ -14,7 +14,7 @@ styleMap.set('pg-header', {
   }
 });
 styleMap.set('nav', {
-  accept: ['nav', 'div'],
+  accept: ['nav'],
   getStyleRule: (cls) => {
     const key = `.${cls}`;
     const map = new Map();
@@ -27,7 +27,7 @@ styleMap.set('nav', {
 });
 
 styleMap.set('pg-footer', {
-  accept: ['footer', 'div'],
+  accept: ['footer'],
   getStyleRule: (cls) => {
     const key = `.${cls}`;
     const map = new Map();
@@ -42,6 +42,11 @@ styleMap.set('pg-footer', {
     map.set(`${key} nav`, [
       'display: flex',
       'gap: 10px',
+    ]);
+    map.set(`${key} nav p`, [
+      'font-size: var(--font-size-1)'
+    ]);
+    map.set(`${key} .copyright`, [
       'font-size: var(--font-size-0)'
     ]);
     return map;
