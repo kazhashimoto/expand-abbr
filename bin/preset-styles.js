@@ -1,4 +1,5 @@
 const styleMap = new Map();
+module.exports.styleMap = styleMap;
 
 styleMap.set('pg-header', {
   accept: ['header'],
@@ -76,41 +77,3 @@ const elements = [
   /* tabular data */
   'table'
 ];
-
-module.exports.getPresetStyles = function(cls) {
-  let tag;
-  let str = cls;
-  let re = /_([a-z]+)$/;
-  let found = cls.match(re);
-  if (found) {
-    tag = found[1];
-    str = cls.replace(re, '');
-  }
-  const words = str.split('-');
-  return bestMatch(words, tag);
-};
-
-function bestMatch(words, tag) {
-  let matches;
-  let best = undefined;
-  for (const [key, obj] of styleMap) {
-    if (obj.accept.includes(tag)) {
-      if (!obj._key_words) {
-        obj._key_words = key.split('-');
-      }
-      matches = true;
-      for (const w of obj._key_words) {
-        if (!words.includes(w)) {
-          matches = false;
-          break;
-        }
-      }
-      if (matches) {
-        if (!best ||(obj._key_words.length > best._key_words.length)) {
-          best = obj;
-        }
-      }
-    }
-  }
-  return best;
-}

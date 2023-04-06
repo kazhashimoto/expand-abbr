@@ -8,8 +8,16 @@ const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
 const { macroMap } = require('./macros');
-const presetStyles = require('./preset-styles');
+const { styleMap } = require('./preset-styles');
 const styleRules = [];
+const elements = [
+  /* sections */
+  'article', 'section', 'nav', 'aside', 'header', 'footer',
+  /* grouping content */
+  'ol', 'ul', 'dl', 'figure', 'figcaption', 'main', 'div',
+  /* tabular data */
+  'table'
+];
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -225,14 +233,6 @@ function splitText(str, left, right) {
 }
 
 function addClassNames() {
-  const elements = [
-    /* sections */
-    'article', 'section', 'nav', 'aside', 'header', 'footer',
-    /* grouping content */
-    'ol', 'ul', 'dl', 'figure', 'figcaption', 'main', 'div',
-    /* tabular data */
-    'table'
-  ];
   let re =  /^\(*([a-z]+)[^a-z]/;
   const addClass = (key, item) => {
     const prefix = '_x';
@@ -244,7 +244,7 @@ function addClassNames() {
     if (elements.includes(tag)) {
       const cls = `${prefix}-${key}_${tag}`;
       let str = found[0].replace(tag, `${tag}.${cls}`);
-      let obj = presetStyles.getPresetStyles(cls);
+      let obj = getPresetStyles(cls);
       if (obj && !obj.checked) {
         obj.checked = true;
         obj.class = cls;
@@ -261,6 +261,45 @@ function addClassNames() {
     }
   }
 }
+
+function getPresetStyles(cls) {
+  let tag;
+  let str = cls;
+  let re = /_([a-z]+)$/;
+  let found = cls.match(re);
+  if (found) {
+    tag = found[1];
+    str = cls.replace(re, '');
+  }
+  const words = str.split('-');
+  return bestMatch(words, tag);
+};
+
+function bestMatch(words, tag) {
+  let matches;
+  let best = undefined;
+  for (const [key, obj] of styleMap) {
+    if (obj.accept.includes(tag)) {
+      if (!obj._key_words) {
+        obj._key_words = key.split('-');
+      }
+      matches = true;
+      for (const w of obj._key_words) {
+        if (!words.includes(w)) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches) {
+        if (!best ||(obj._key_words.length > best._key_words.length)) {
+          best = obj;
+        }
+      }
+    }
+  }
+  return best;
+}
+
 
 const statMap = new Map();
 const randGenMap = new Map();
