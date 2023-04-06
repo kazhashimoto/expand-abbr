@@ -69,6 +69,17 @@ styleMap.set('section-content', {
     return map;
   }
 });
+styleMap.set('img', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 10px'
+    ]);
+    return map;
+  }
+});
 styleMap.set('blog-article', {
   accept: ['article'],
   getStyleRule: (cls) => {
@@ -83,6 +94,28 @@ styleMap.set('blog-article', {
     ]);
     map.set(`${key} + ${key}`, [
       'margin-top: 10px'
+    ]);
+    return map;
+  }
+});
+styleMap.set('blog-comment', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 50px'
+    ]);
+    return map;
+  }
+});
+styleMap.set('blog-comment-item', {
+  accept: ['article'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 20px'
     ]);
     return map;
   }
