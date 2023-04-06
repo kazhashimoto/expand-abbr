@@ -7,7 +7,7 @@ macroMap.set('root', [
 ]);
 macroMap.set('pg-main-content', [
   '(%section%)%+4,6%',
-  '(%blog-post%)%+4,6%'
+  '(%blog-article%)%+4,6%'
 ]);
 macroMap.set('pg-header', [
   '%pg-header-content%',
@@ -142,23 +142,23 @@ macroMap.set('article', [
 macroMap.set('article-item', [
   'article>h2{03 March 2023}+p{__PHRASE__}'
 ]);
-macroMap.set('blog-post', [
-  'article>(%blog-post-header%)+(%blog-post-main%)+(%blog-post-comment%)+(%blog-post-footer%)'
+macroMap.set('blog-article', [
+  'article>(%blog-header%)+(%blog-post%)+(%blog-comment%)+(%blog-footer%)'
 ]);
-macroMap.set('blog-post-header', [
+macroMap.set('blog-header', [
   'h3{__HEADING__}'
 ]);
-macroMap.set('blog-post-main', [
+macroMap.set('blog-post', [
   'section>h4{__HEADING__}+p{__MESSAGE__}',
   'section>h4{__HEADING__}+p{__MESSAGE__}+(%img@0%)'
 ]);
-macroMap.set('blog-post-comment', [
-  'section>h5{__HEADING__}+(%blog-post-comment-body%)%2,5%'
+macroMap.set('blog-comment', [
+  'section>h5{__HEADING__}+(%blog-comment-body%)%2,5%'
 ]);
-macroMap.set('blog-post-comment-body', [
-  'article>h5{__DIGEST__}+p{__MESSAGE__}+(%blog-post-footer%)'
+macroMap.set('blog-comment-body', [
+  'article>h5{__DIGEST__}+p{__MESSAGE__}+(%blog-footer%)'
 ]);
-macroMap.set('blog-post-footer', [
+macroMap.set('blog-footer', [
   'footer>p>{Posted on}+(%time%)+{by __NAME__}'
 ]);
 macroMap.set('time', [
