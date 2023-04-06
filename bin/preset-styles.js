@@ -53,6 +53,68 @@ styleMap.set('pg-footer', {
     return map;
   }
 });
+styleMap.set('section-content', {
+  accept: ['section'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'width: 92%',
+      'max-width: 960px',
+      'margin: 0 auto'
+    ]);
+    map.set(`${key} + ${key}`, [
+      'margin-top: 50px'
+    ]);
+    return map;
+  }
+});
+styleMap.set('blog-article', {
+  accept: ['article'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'width: 92%',
+      'max-width: 960px',
+      'margin: 0 auto',
+      'padding: 20px',
+      'box-shadow: var(--shadow-4)'
+    ]);
+    map.set(`${key} + ${key}`, [
+      'margin-top: 10px'
+    ]);
+    return map;
+  }
+});
+styleMap.set('blog-footer', {
+  accept: ['footer'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'display: flex',
+      'justify-content: flex-end'
+    ]);
+    map.set(`${key} p`, [
+      'font-size: var(--font-size-0)'
+    ]);
+    return map;
+  }
+});
+styleMap.set('grid', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'display: grid',
+      'grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))',
+      'gap: 10px'
+    ]);
+    return map;
+  }
+});
 styleMap.set('card', {
   accept: ['div'],
   getStyleRule: (cls) => {
