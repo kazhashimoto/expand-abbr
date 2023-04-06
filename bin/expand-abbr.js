@@ -8,7 +8,8 @@ const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
 const { macroMap } = require('./macros');
-const { getPresetStyles } = require('./preset-styles');
+const presetStyles = require('./preset-styles');
+const styleRules = [];
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -55,6 +56,9 @@ if (options.macro) {
 }
 if (options.loadMacros) {
   loadMacros(options.loadMacros);
+}
+if (options.class) {
+  addClassNames();
 }
 if (options.listMacros) {
   console.log(macroMap);
@@ -220,43 +224,36 @@ function splitText(str, left, right) {
   return arr;
 }
 
-if (options.class) {
-  addClassNames();
-}
-
 function addClassNames() {
-  const matches = [
-    [/^pg-header/, 'header'],
-    [/^pg-footer/, 'footer'],
-    [/^nav/, 'nav'],
-    [/^section/, 'section'],
-    [/^list/, '(ul|ol|dl)', 'list'],
-    [/^p(-long)?$/, 'p', 'text'],
-    [/^article/, 'article'],
-    [/^blog-post$/, 'article', 'blog-post'],
-    [/^blog-post-main/, 'section', 'blog-post-main'],
-    [/^blog-post-comment/, 'section', 'blog-post-comment'],
-    [/^table/, 'table'],
-    [/^grid/, 'div', 'grid'],
-    [/^card/, 'div', 'card'],
-    [/^copyright/, 'p', 'copyright']
+  const elements = [
+    /* sections */
+    'article', 'section', 'nav', 'aside', 'header', 'footer',
+    /* grouping content */
+    'ol', 'ul', 'dl', 'figure', 'figcaption', 'main', 'div',
+    /* tabular data */
+    'table'
   ];
+  let re =  /^\(*([a-z]+)[^a-z]/;
   const addClass = (key, item) => {
     const prefix = '_x';
-    for (const m of matches) {
-      const [re, tag] = m;
-      if (re.test(key)) {
-        const tagRe = new RegExp(`^${tag}[^a-z]`);
-        if (tagRe.test(item)) {
-          const name = m[2]? m[2]: tag;
-          return item.replace(new RegExp(`^${tag}`), `$&.${prefix}-${name}`)
-        }
-        return item;
+    const found = item.match(re);
+    if (!found) {
+      return item;
+    }
+    const tag = found[1];
+    if (elements.includes(tag)) {
+      const cls = `${prefix}-${key}_${tag}`;
+      let str = found[0].replace(tag, `${tag}.${cls}`);
+      let obj = presetStyles.getPresetStyles(cls);
+      if (obj && !obj.checked) {
+        obj.checked = true;
+        obj.class = cls;
+        styleRules.push(obj);
       }
+      return item.replace(re, str);
     }
     return item;
   }
-
   for (const key of macroMap.keys()) {
     const values = macroMap.get(key);
     for (let i = 0; i < values.length; i++) {
@@ -548,7 +545,20 @@ function outputHTML(abbr) {
 }
 
 function embedStyles(/* specifier */) {
-  let text = getPresetStyles();
+  const ruleText = (selector, props) => {
+    const decl = props.join('; ');
+    const rules = `${selector} {${decl}}\n`;
+    return rules;
+  };
+  let text = '\n';
+  for (const o of styleRules) {
+    const map = o.getStyleRule(o.class);
+    for (const [key, value] of map) {
+      text += ruleText(key, value);
+    }
+  }
+  // let text = getPresetStyles();
+  // let text = presetStyles.getPresetStyles();
   return text;
 }
 

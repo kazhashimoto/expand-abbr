@@ -30,7 +30,7 @@ macroMap.set('pg-footer-content', [
   'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%icon-list%)+(%copyright%)'
 ]);
 macroMap.set('copyright', [
-  'p{&copy;2023 Example}'
+  'p.copyright{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s$]{Section $}'
