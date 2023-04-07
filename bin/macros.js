@@ -3,10 +3,13 @@ const macroMap = new Map();
 module.exports.macroMap = macroMap;
 
 macroMap.set('root', [
-  '(%pg-header%)+(%pg-main-content%)+(%pg-footer%)'
+  '(%pg-header%)+(%pg-main-content%)+(%pg-footer%)',
+  '(%pg-header%)+(%pg-blog-content%)+(%pg-footer%)'
 ]);
 macroMap.set('pg-main-content', [
-  // '(%section%)%+4,6%',
+  '(%section%)%+4,6%'
+]);
+macroMap.set('pg-blog-content', [
   '(%blog-article%)%+4,6%'
 ]);
 macroMap.set('pg-header', [
