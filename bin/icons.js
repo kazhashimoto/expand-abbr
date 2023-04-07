@@ -6,9 +6,11 @@ module.exports.getIconURL = function(random_gen, encode) {
   if (!iconNames.length) {
     iconNames = [...iconMap.keys()];
   }
-  if (random_gen) {
+  if (typeof random_gen == 'function') {
     let idx = random_gen() % iconNames.length;
     key = iconNames[idx];
+  } else if (typeof random_gen == 'string') {
+    key = random_gen;
   } else {
     key = iconNames[0];
   }
