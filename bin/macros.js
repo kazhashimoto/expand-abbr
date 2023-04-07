@@ -143,8 +143,10 @@ macroMap.set('article-item', [
   'article>h2{03 March 2023}+p{__PHRASE__}'
 ]);
 macroMap.set('blog-article', [
-  // 'article>(%blog-header%)+(%blog-post%)+(%blog-comment%)+(%blog-footer%)'
-  'article>(%blog-header%)+(%blog-post%)+(%blog-footer%)+(%blog-comment%)+'
+  'article>(%blog-header%)+(%blog-post%)+(%blog-share%)+(%blog-footer%)+(%blog-comment%)+'
+]);
+macroMap.set('blog-share', [
+  'div>(%icon@2%)'
 ]);
 macroMap.set('blog-header', [
   'h3{__HEADING__}'
@@ -154,7 +156,6 @@ macroMap.set('blog-post', [
   'section>h4{__HEADING__}+p{__MESSAGE__}+(%img@0%)'
 ]);
 macroMap.set('blog-comment', [
-  // 'section>h5{__HEADING__}+(%blog-comment-item%)%2,5%'
   'div>(%blog-comment-item%)%2,5%'
 ]);
 macroMap.set('blog-comment-item', [
@@ -185,5 +186,6 @@ macroMap.set('icon-list', [
 ]);
 macroMap.set('icon', [
   'span>img[src=__ICON__ width=20 alt=__PHRASE__]',
-  'span>img[src=__ICON__ width=24 alt=__PHRASE__]'
+  'span>img[src=__ICON__ width=24 alt=__PHRASE__]',
+  'span>img[src=__ICON_CHAT__ width=20 alt=__PHRASE__]',
 ]);

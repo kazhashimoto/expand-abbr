@@ -517,6 +517,8 @@ function replaceText(specifier) {
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
     } else if (macro == 'ICON') {
       text = icons.getIconURL(() => mt.random_int(), !options.local);
+    } else if (macro == 'ICON_CHAT') {
+      text = icons.getIconURL('chat-bubble-left', !options.local);
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
