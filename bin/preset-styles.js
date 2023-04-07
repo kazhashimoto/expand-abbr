@@ -9,8 +9,6 @@ styleMap.set('pg-header', {
     map.set(key, [
       'box-sizing: border-box',
       'width: 100%',
-      'background: #000',
-      'color: #fff',
       'padding: 10px 4%'
     ]);
     return map;
@@ -40,9 +38,7 @@ styleMap.set('pg-footer', {
       'box-sizing: border-box',
       'width: 100%',
       'padding: 20px 4%',
-      'margin-top: 50px',
-      'background: #000',
-      'color: #fff'
+      'margin-top: 50px'
     ]);
     map.set(`${key} nav`, [
       'display: flex',
@@ -65,10 +61,7 @@ styleMap.set('section-content', {
     map.set(key, [
       'width: 92%',
       'max-width: 960px',
-      'margin: 0 auto'
-    ]);
-    map.set(`${key} + ${key}`, [
-      'margin-top: 50px'
+      'margin: 50px auto 0'
     ]);
     return map;
   }
