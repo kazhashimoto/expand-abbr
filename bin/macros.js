@@ -148,9 +148,6 @@ macroMap.set('article-item', [
 macroMap.set('blog-article', [
   'article>(%blog-header%)+(%blog-post%)+(%sns-icon-list%)+(%blog-footer%)+(%blog-comment%)+'
 ]);
-macroMap.set('blog-share', [
-  'div>(%icon@2%)'
-]);
 macroMap.set('blog-header', [
   'h3{__HEADING__}'
 ]);

@@ -596,13 +596,11 @@ function embedStyles(/* specifier */) {
   };
   let text = '\n';
   for (const o of styleRules) {
-    const map = o.getStyleRule(o.class);
+    const map = o.getStyleRule(o.class, options.theme);
     for (const [key, value] of map) {
       text += ruleText(key, value);
     }
   }
-  // let text = getPresetStyles();
-  // let text = presetStyles.getPresetStyles();
   return text;
 }
 

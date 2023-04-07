@@ -173,12 +173,19 @@ styleMap.set('card', {
     return map;
   }
 });
-
-const elements = [
-  /* sections */
-  'article', 'section', 'nav', 'aside', 'header', 'footer',
-  /* grouping content */
-  'ol', 'ul', 'dl', 'figure', 'figcaption', 'main', 'div',
-  /* tabular data */
-  'table'
-];
+styleMap.set('sns-icon', {
+  accept: ['div'],
+  getStyleRule: (cls, theme) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    if (theme == 'dark') {
+      map.set(key, [
+        'filter: brightness(0) invert(1)'
+      ]);
+      map.set('span > img', [
+        'filter: brightness(0) invert(1)'
+      ]);
+    }
+    return map;
+  }
+})
