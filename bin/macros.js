@@ -143,7 +143,7 @@ macroMap.set('article-item', [
   'article>h2{03 March 2023}+p{__PHRASE__}'
 ]);
 macroMap.set('blog-article', [
-  'article>(%blog-header%)+(%blog-post%)+(%blog-share%)+(%blog-footer%)+(%blog-comment%)+'
+  'article>(%blog-header%)+(%blog-post%)+(%sns-icon-list%)+(%blog-footer%)+(%blog-comment%)+'
 ]);
 macroMap.set('blog-share', [
   'div>(%icon@2%)'
@@ -152,8 +152,8 @@ macroMap.set('blog-header', [
   'h3{__HEADING__}'
 ]);
 macroMap.set('blog-post', [
-  'section>h4{__HEADING__}+p{__MESSAGE__}',
-  'section>h4{__HEADING__}+p{__MESSAGE__}+(%img@0%)'
+  'section>h4{__HEADING__}+p{__MESSAGE__}+(%img@0%)',
+  'section>h4{__HEADING__}+p%2,4%{__MESSAGE__}+(%img@0%)'
 ]);
 macroMap.set('blog-comment', [
   'div>(%blog-comment-item%)%2,5%'
@@ -187,5 +187,11 @@ macroMap.set('icon-list', [
 macroMap.set('icon', [
   'span>img[src=__ICON__ width=20 alt=__PHRASE__]',
   'span>img[src=__ICON__ width=24 alt=__PHRASE__]',
-  'span>img[src=__ICON_CHAT__ width=20 alt=__PHRASE__]',
+]);
+macroMap.set('sns-icon-list', [
+  'div>(%sns-icon@0%)+(%sns-icon@1%)'
+]);
+macroMap.set('sns-icon', [
+  'div>img[src=__ICON_LIKE__ width=20 alt=Like]',
+  'div>img[src=__ICON_CHAT__ width=20 alt=Comment]',
 ]);

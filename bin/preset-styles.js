@@ -135,6 +135,19 @@ styleMap.set('blog-footer', {
     return map;
   }
 });
+styleMap.set('sns-icon-list', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'display: flex',
+      'gap: 10px',
+      'margin-top: 10px'
+    ]);
+    return map;
+  }
+});
 styleMap.set('grid', {
   accept: ['div'],
   getStyleRule: (cls) => {
