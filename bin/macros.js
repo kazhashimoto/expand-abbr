@@ -159,10 +159,12 @@ macroMap.set('blog-post', [
   'section>h4{__HEADING__}+p%2,4%{__MESSAGE__}+(%img@0%)'
 ]);
 macroMap.set('blog-comment', [
-  'div>(%blog-comment-item%)%2,5%'
+  'div>(%blog-comment-item%)%+2,5%'
 ]);
 macroMap.set('blog-comment-item', [
-  'article>h6{__DIGEST__}+p{__MESSAGE__}+(%blog-footer%)'
+  'article>h6{__DIGEST__}+p{__MESSAGE__}+(%blog-footer%)',
+  'article>h6{__DIGEST__}+p%2,4%{__MESSAGE__}+(%blog-footer%)',
+  'article>h6{__DIGEST__}+p{__MESSAGE__}+(%img@0%)+(%blog-footer%)'
 ]);
 macroMap.set('blog-footer', [
   'footer>p>{Posted on}+(%time%)+{by __NAME__}'
