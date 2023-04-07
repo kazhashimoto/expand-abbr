@@ -7,9 +7,11 @@ styleMap.set('pg-header', {
     const key = `.${cls}`;
     const map = new Map();
     map.set(key, [
+      'box-sizing: border-box',
       'width: 100%',
       'background: #000',
-      'color: #fff'
+      'color: #fff',
+      'padding: 10px 4%'
     ]);
     return map;
   }
@@ -21,7 +23,9 @@ styleMap.set('nav', {
     const map = new Map();
     map.set(`${key} ul`, [
       'display: flex',
-      'list-style: none'
+      'list-style: none',
+      'justify-content: flex-end',
+      'gap: 1rem'
     ]);
     return map;
   }

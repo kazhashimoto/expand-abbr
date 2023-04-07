@@ -36,7 +36,7 @@ macroMap.set('copyright', [
   'p.copyright{&copy;2023 Example}'
 ]);
 macroMap.set('nav', [
-  'nav>ul>li%3,6%>a[href=#s$]{Section $}'
+  'nav>ul>li%3,6%>a[href=#s$]{$}'
 ]);
 macroMap.set('block-content', [
   '%p%',
