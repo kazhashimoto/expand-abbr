@@ -8,7 +8,7 @@ const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
 const { macroMap } = require('./macros');
-const { styleMap } = require('./preset-styles');
+const { styleMap, styleMapOptions } = require('./preset-styles');
 const styleRules = [];
 const elements = [
   /* Sections */
@@ -20,6 +20,8 @@ const elements = [
   /* Tabular data */
   'table'
 ];
+
+styleMapOptions.getIconURL = icons.getIconURL;
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -41,7 +43,6 @@ program
   .option('-l,--list-macros', 'list Element macros')
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('-q,--query <key>', 'print Element macro that matches <key>')
-  // .option('--theme <type>', 'apply "dark" or "light" theme on the generated page')
   .option('--dark', 'apply dark theme on the generated page')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
