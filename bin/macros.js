@@ -100,8 +100,8 @@ macroMap.set('list', [
   // 'ul>li%2,5%>lorem4-8',
   // 'ul>li%2,5%>lorem8-16',
   // 'ul>li*4>a[href=page$.html]{__PHRASE__}',
-  // 'ul>li*4>a[href=page$.html]>{__PHRASE__}+(%icon%)',
-  'ul>li*4>a[href=page$.html]>(%icon%)+{__PHRASE__}',
+  'ul>li*4>a[href=page$.html]>{__PHRASE__}+(%icon@1%)',
+  // 'ul>li*4>a[href=page$.html]>(%icon%)+{__PHRASE__}',
   // 'ul>li%2,5%>a[href=page$,html]>lorem4-8',
   // 'ol>li%4,6%{__PHRASE__}',
   // 'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
@@ -188,7 +188,7 @@ macroMap.set('icon-list', [
 ]);
 macroMap.set('icon', [
   'span>img[src=__ICON__ width=20 alt=__PHRASE__]',
-  'span>img[src=__ICON__ width=24 alt=__PHRASE__]',
+  'span>img[src=__ICON_XLINK__ width=18 alt=__PHRASE__]',
 ]);
 macroMap.set('sns-icon-list', [
   'div>(%sns-icon@0%)+(%sns-icon@1%)'

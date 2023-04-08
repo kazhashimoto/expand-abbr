@@ -522,13 +522,22 @@ function replaceText(specifier) {
       let dim = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
-    } else if (macro == 'ICON') {
-      text = icons.getIconURL(() => mt.random_int(), !options.local);
-    } else if (macro == 'ICON_CHAT') {
-      text = icons.getIconURL('chat-bubble-left', !options.local);
-    } else if (macro == 'ICON_LIKE') {
-      text = icons.getIconURL('hand-thumb-up', !options.local);
-    } else if (macro == 'DATETIME') {
+    } else if (/^ICON/.test(macro)) {
+      found = macro.match(/^ICON_([A-Z]+)/);
+      if (found) {
+        text = icons.getIconURL(found[1], !options.local);
+      } else {
+        text = icons.getIconURL(() => mt.random_int(), !options.local);
+      }
+    }
+    // else if (macro == 'ICON') {
+    //   text = icons.getIconURL(() => mt.random_int(), !options.local);
+    // } else if (macro == 'ICON_CHAT') {
+    //   text = icons.getIconURL('chat-bubble-left', !options.local);
+    // } else if (macro == 'ICON_LIKE') {
+    //   text = icons.getIconURL('hand-thumb-up', !options.local);
+    // }
+    else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
       return specifier;
