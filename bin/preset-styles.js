@@ -132,19 +132,6 @@ styleMap.set('blog-footer', {
     return map;
   }
 });
-styleMap.set('sns-icon-list', {
-  accept: ['div'],
-  getStyleRule: (cls) => {
-    const key = `.${cls}`;
-    const map = new Map();
-    map.set(key, [
-      'display: flex',
-      'gap: 10px',
-      'margin-top: 10px'
-    ]);
-    return map;
-  }
-});
 styleMap.set('grid', {
   accept: ['div'],
   getStyleRule: (cls) => {
@@ -173,19 +160,66 @@ styleMap.set('card', {
     return map;
   }
 });
-styleMap.set('sns-icon', {
-  accept: ['div'],
-  getStyleRule: (cls, theme) => {
+styleMap.set('icon', {
+  accept: ['span'],
+  getStyleRule: (cls, dark) => {
     const key = `.${cls}`;
     const map = new Map();
-    if (theme == 'dark') {
+    props = [
+      'display: inline'
+    ];
+    if (dark) {
+      props.push('filter: brightness(0) invert(1)');
+    }
+    map.set(`${key} img`, props);
+    return map;
+  }
+})
+styleMap.set('sns-icon-list', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'display: flex',
+      'gap: 10px',
+      'margin-top: 10px'
+    ]);
+    return map;
+  }
+});
+styleMap.set('sns-icon', {
+  accept: ['div'],
+  getStyleRule: (cls, dark) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    if (dark) {
       map.set(key, [
-        'filter: brightness(0) invert(1)'
-      ]);
-      map.set('span > img', [
         'filter: brightness(0) invert(1)'
       ]);
     }
     return map;
   }
-})
+});
+styleMap.set('table', {
+  accept: ['table'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'border-collapse: collapse',
+      'margin-top: 30px',
+    ]);
+    map.set(`${key} th`, [
+      'background: var(--surface-3)',
+      'border: 1px solid var(--surface-4)',
+      'padding: 10px'
+    ]);
+    map.set(`${key} td`, [
+      'border: 1px solid var(--surface-4)',
+      'padding: 10px'
+    ]);
+    return map;
+  }
+
+});
