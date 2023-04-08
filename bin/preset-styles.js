@@ -188,4 +188,26 @@ styleMap.set('sns-icon', {
     }
     return map;
   }
-})
+});
+styleMap.set('table', {
+  accept: ['table'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'border-collapse: collapse',
+      'margin-top: 30px',
+    ]);
+    map.set(`${key} th`, [
+      'background: var(--surface-3)',
+      'border: 1px solid var(--surface-4)',
+      'padding: 10px'
+    ]);
+    map.set(`${key} td`, [
+      'border: 1px solid var(--surface-4)',
+      'padding: 10px'
+    ]);
+    return map;
+  }
+
+});

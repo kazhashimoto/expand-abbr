@@ -491,6 +491,9 @@ function replaceText(specifier) {
     if (macro == 'HEADING') {
       n = fluctuation(6, 2);
       text = getLoremText(`lorem${n}*3`, 1, false, true);
+    } if (macro == 'HEADING_SHORT') {
+      n = fluctuation(5, 1);
+      text = getLoremText(`lorem${n}*3`, 1, false, true);
     } else if (macro == 'PHRASE') {
       text = getLoremText('lorem2*5', 1, false, false);
     } else if (macro == 'NAME') {
