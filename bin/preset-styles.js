@@ -1,5 +1,8 @@
 const styleMap = new Map();
-module.exports.styleMap = styleMap;
+module.exports = {
+  styleMap: styleMap,
+  styleMapOptions: {}
+};
 
 styleMap.set('pg-header', {
   accept: ['header'],
@@ -165,16 +168,44 @@ styleMap.set('icon', {
   getStyleRule: (cls, dark) => {
     const key = `.${cls}`;
     const map = new Map();
-    props = [
-      'display: inline'
-    ];
+    const props = [ 'display: inline' ];
     if (dark) {
       props.push('filter: brightness(0) invert(1)');
     }
     map.set(`${key} img`, props);
     return map;
   }
-})
+});
+styleMap.set('bg-icon', {
+  accept: ['span'],
+  getStyleRule: (cls, dark) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    const { getIconURL } = module.exports.styleMapOptions;
+    const props = [
+      'display: inline-block',
+      'content: ""',
+      'width: 1em',
+      'height: 1em'
+    ];
+    if (dark) {
+      props.push('filter: brightness(0) invert(1)');
+    }
+    let url = getIconURL('LINK', true);
+    map.set(`${key}._x-before-icon1::before`, [
+      ...props,
+      `background: url(${url})`,
+      'margin-right: 0.25em'
+    ]);
+    url = getIconURL('XLINK', true);
+    map.set(`${key}._x-after-icon1::after`, [
+      ...props,
+      `background: url(${url})`,
+      'margin-left: 0.25em'
+    ]);
+    return map;
+  }
+});
 styleMap.set('sns-icon-list', {
   accept: ['div'],
   getStyleRule: (cls) => {

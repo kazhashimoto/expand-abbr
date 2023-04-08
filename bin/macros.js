@@ -29,8 +29,7 @@ macroMap.set('pg-footer', [
 macroMap.set('pg-footer-content', [
   'footer%>div{1}%(%copyright%)',
   'footer%>div{1}%nav>p%3,5%>a[href=page$.html]{page$}',
-  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%copyright%)',
-  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%icon-list%)+(%copyright%)'
+  'footer%>div{1}%(nav>p%3,5%>a[href=page$.html]{page$})+(%copyright%)'
 ]);
 macroMap.set('copyright', [
   'p.copyright{&copy;2023 Example}'
@@ -100,8 +99,8 @@ macroMap.set('list', [
   // 'ul>li%2,5%>lorem4-8',
   // 'ul>li%2,5%>lorem8-16',
   // 'ul>li*4>a[href=page$.html]{__PHRASE__}',
-  // 'ul>li*4>a[href=page$.html]>{__PHRASE__}+(%icon%)',
-  'ul>li*4>a[href=page$.html]>(%icon%)+{__PHRASE__}',
+  'ul>li*4>a[href=page$.html]>(%bg-icon@1%)',
+  // 'ul>li*4>a[href=page$.html]>(%icon%)+{__PHRASE__}',
   // 'ul>li%2,5%>a[href=page$,html]>lorem4-8',
   // 'ol>li%4,6%{__PHRASE__}',
   // 'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
@@ -182,13 +181,14 @@ macroMap.set('card', [
   'div>(%thumbnail@1%)+p>lorem10',
   'div>(%thumbnail@1%)+p>lorem20'
 ]);
-macroMap.set('icon-list', [
-  'div>(%icon@0%)%+4%',
-  'div>(%icon@1%)%+3%'
-]);
 macroMap.set('icon', [
   'span>img[src=__ICON__ width=20 alt=__PHRASE__]',
-  'span>img[src=__ICON__ width=24 alt=__PHRASE__]',
+  'span>img[src=__ICON_XLINK__ width=18 alt=__PHRASE__]',
+  'span>img[src=__ICON_LINK__ width=18 alt=__PHRASE__]',
+]);
+macroMap.set('bg-icon', [
+  'span._x-before-icon1>{__PHRASE__}',
+  'span._x-after-icon1>{__PHRASE__}'
 ]);
 macroMap.set('sns-icon-list', [
   'div>(%sns-icon@0%)+(%sns-icon@1%)'

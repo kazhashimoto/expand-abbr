@@ -8,7 +8,7 @@ const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
 const { macroMap } = require('./macros');
-const { styleMap } = require('./preset-styles');
+const { styleMap, styleMapOptions } = require('./preset-styles');
 const styleRules = [];
 const elements = [
   /* Sections */
@@ -20,6 +20,8 @@ const elements = [
   /* Tabular data */
   'table'
 ];
+
+styleMapOptions.getIconURL = icons.getIconURL;
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -41,7 +43,6 @@ program
   .option('-l,--list-macros', 'list Element macros')
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('-q,--query <key>', 'print Element macro that matches <key>')
-  // .option('--theme <type>', 'apply "dark" or "light" theme on the generated page')
   .option('--dark', 'apply dark theme on the generated page')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
@@ -522,13 +523,15 @@ function replaceText(specifier) {
       let dim = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
-    } else if (macro == 'ICON') {
-      text = icons.getIconURL(() => mt.random_int(), !options.local);
-    } else if (macro == 'ICON_CHAT') {
-      text = icons.getIconURL('chat-bubble-left', !options.local);
-    } else if (macro == 'ICON_LIKE') {
-      text = icons.getIconURL('hand-thumb-up', !options.local);
-    } else if (macro == 'DATETIME') {
+    } else if (/^ICON/.test(macro)) {
+      found = macro.match(/^ICON_([A-Z]+)/);
+      if (found) {
+        text = icons.getIconURL(found[1], !options.local);
+      } else {
+        text = icons.getIconURL(() => mt.random_int(), !options.local);
+      }
+    }
+    else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
       return specifier;
