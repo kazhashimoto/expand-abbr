@@ -530,13 +530,6 @@ function replaceText(specifier) {
         text = icons.getIconURL(() => mt.random_int(), !options.local);
       }
     }
-    // else if (macro == 'ICON') {
-    //   text = icons.getIconURL(() => mt.random_int(), !options.local);
-    // } else if (macro == 'ICON_CHAT') {
-    //   text = icons.getIconURL('chat-bubble-left', !options.local);
-    // } else if (macro == 'ICON_LIKE') {
-    //   text = icons.getIconURL('hand-thumb-up', !options.local);
-    // }
     else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
