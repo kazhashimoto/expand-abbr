@@ -162,13 +162,13 @@ styleMap.set('card', {
 });
 styleMap.set('icon', {
   accept: ['span'],
-  getStyleRule: (cls, theme) => {
+  getStyleRule: (cls, dark) => {
     const key = `.${cls}`;
     const map = new Map();
     props = [
       'display: inline'
     ];
-    if (theme == 'dark') {
+    if (dark) {
       props.push('filter: brightness(0) invert(1)');
     }
     map.set(`${key} img`, props);
@@ -190,10 +190,10 @@ styleMap.set('sns-icon-list', {
 });
 styleMap.set('sns-icon', {
   accept: ['div'],
-  getStyleRule: (cls, theme) => {
+  getStyleRule: (cls, dark) => {
     const key = `.${cls}`;
     const map = new Map();
-    if (theme == 'dark') {
+    if (dark) {
       map.set(key, [
         'filter: brightness(0) invert(1)'
       ]);

@@ -41,7 +41,8 @@ program
   .option('-l,--list-macros', 'list Element macros')
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('-q,--query <key>', 'print Element macro that matches <key>')
-  .option('--theme <type>', 'apply "dark" or "light" theme on the generated page')
+  // .option('--theme <type>', 'apply "dark" or "light" theme on the generated page')
+  .option('--dark', 'apply dark theme on the generated page')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
 
@@ -601,7 +602,7 @@ function embedStyles(/* specifier */) {
   };
   let text = '\n';
   for (const o of styleRules) {
-    const map = o.getStyleRule(o.class, options.theme);
+    const map = o.getStyleRule(o.class, options.dark);
     for (const [key, value] of map) {
       text += ruleText(key, value);
     }
@@ -618,15 +619,10 @@ if (options.head) {
   }
   process.stdout.write(str);
   if (options.addStyle) {
-    let theme_css = 'normalize.min.css';
-    if (options.theme == 'dark') {
-      theme_css = 'normalize.dark.min.css';
-    } else if (options.theme == 'light') {
-      theme_css = 'normalize.light.min.css';
-    }
+    const theme = options.dark? 'normalize.dark.min.css': 'normalize.light.min.css';
     options.css.unshift(
       'https://unpkg.com/open-props',
-      `https://unpkg.com/open-props/${theme_css}`
+      `https://unpkg.com/open-props/${theme}`
     );
   }
   for (const p of options.css) {
