@@ -97,14 +97,14 @@ macroMap.set('anchor', [
   'div>a[href=page$.html]>(%icon%)'
 ]);
 macroMap.set('list', [
-  'ul>li%2,5%>lorem4-8',
-  'ul>li%2,5%>lorem8-16',
-  'ul>li*4>a[href=page$.html]{__PHRASE__}',
-  'ul>li*4>a[href=page$.html]>{__PHRASE__}+(%icon%)',
+  // 'ul>li%2,5%>lorem4-8',
+  // 'ul>li%2,5%>lorem8-16',
+  // 'ul>li*4>a[href=page$.html]{__PHRASE__}',
+  // 'ul>li*4>a[href=page$.html]>{__PHRASE__}+(%icon%)',
   'ul>li*4>a[href=page$.html]>(%icon%)+{__PHRASE__}',
-  'ul>li%2,5%>a[href=page$,html]>lorem4-8',
-  'ol>li%4,6%{__PHRASE__}',
-  'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
+  // 'ul>li%2,5%>a[href=page$,html]>lorem4-8',
+  // 'ol>li%4,6%{__PHRASE__}',
+  // 'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
 ]);
 macroMap.set('section', [
   '%section-content%',

@@ -11,11 +11,13 @@ const { macroMap } = require('./macros');
 const { styleMap } = require('./preset-styles');
 const styleRules = [];
 const elements = [
-  /* sections */
+  /* Sections */
   'article', 'section', 'nav', 'aside', 'header', 'footer',
-  /* grouping content */
+  /* Grouping content */
   'ol', 'ul', 'dl', 'figure', 'figcaption', 'main', 'div',
-  /* tabular data */
+  /* Text-level semantics */
+  'span',
+  /* Tabular data */
   'table'
 ];
 

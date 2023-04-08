@@ -132,19 +132,6 @@ styleMap.set('blog-footer', {
     return map;
   }
 });
-styleMap.set('sns-icon-list', {
-  accept: ['div'],
-  getStyleRule: (cls) => {
-    const key = `.${cls}`;
-    const map = new Map();
-    map.set(key, [
-      'display: flex',
-      'gap: 10px',
-      'margin-top: 10px'
-    ]);
-    return map;
-  }
-});
 styleMap.set('grid', {
   accept: ['div'],
   getStyleRule: (cls) => {
@@ -173,6 +160,34 @@ styleMap.set('card', {
     return map;
   }
 });
+styleMap.set('icon', {
+  accept: ['span'],
+  getStyleRule: (cls, theme) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    props = [
+      'display: inline'
+    ];
+    if (theme == 'dark') {
+      props.push('filter: brightness(0) invert(1)');
+    }
+    map.set(`${key} img`, props);
+    return map;
+  }
+})
+styleMap.set('sns-icon-list', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'display: flex',
+      'gap: 10px',
+      'margin-top: 10px'
+    ]);
+    return map;
+  }
+});
 styleMap.set('sns-icon', {
   accept: ['div'],
   getStyleRule: (cls, theme) => {
@@ -180,9 +195,6 @@ styleMap.set('sns-icon', {
     const map = new Map();
     if (theme == 'dark') {
       map.set(key, [
-        'filter: brightness(0) invert(1)'
-      ]);
-      map.set('span > img', [
         'filter: brightness(0) invert(1)'
       ]);
     }
