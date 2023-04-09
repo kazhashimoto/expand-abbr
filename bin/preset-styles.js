@@ -176,8 +176,8 @@ styleMap.set('icon', {
     return map;
   }
 });
-styleMap.set('bg-icon', {
-  accept: ['span'],
+styleMap.set('link-icon', {
+  accept: ['a'],
   getStyleRule: (cls, dark) => {
     const key = `.${cls}`;
     const map = new Map();
@@ -186,22 +186,21 @@ styleMap.set('bg-icon', {
       'display: inline-block',
       'content: ""',
       'width: 1em',
-      'height: 1em'
+      'height: 1em',
+      'margin-left: 0.25em'
     ];
     if (dark) {
       props.push('filter: brightness(0) invert(1)');
     }
     let url = getIconURL('LINK', true);
-    map.set(`${key}._x-before-icon1::before`, [
+    map.set(`${key}._x-link::after`, [
       ...props,
-      `background: url(${url})`,
-      'margin-right: 0.25em'
+      `background: url(${url})`
     ]);
     url = getIconURL('XLINK', true);
-    map.set(`${key}._x-after-icon1::after`, [
+    map.set(`${key}._x-ext-link::after`, [
       ...props,
-      `background: url(${url})`,
-      'margin-left: 0.25em'
+      `background: url(${url})`
     ]);
     return map;
   }

@@ -16,7 +16,7 @@ const elements = [
   /* Grouping content */
   'ol', 'ul', 'dl', 'figure', 'figcaption', 'main', 'div',
   /* Text-level semantics */
-  'span',
+  'a', 'span',
   /* Tabular data */
   'table'
 ];
