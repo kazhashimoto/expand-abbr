@@ -303,6 +303,7 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 | Textマクロ | 置換される内容 | ワード数 | コンマとピリオド | Capitalize |
 |:--|:--|---|:--|:--|
 | `__HEADING__` | 見出しに適した長さのダミーテキスト | 4〜8 | なし | 各単語 |
+| `__HEADING_SHORT__` | 大見出しに適した短いダミーテキスト | 4〜6 | なし | 各単語 |
 | `__PHRASE__` | リンクのテキストなどに適した２語からなるダミーテキスト | 2 | なし | 最初の語 |
 | `__NAME__` | 人名のような２語からなるダミーテキスト | 2 | なし | 各単語 |
 | `__DIGEST__` | 短い文のダミーテキスト | 4〜8 | あり | 最初の語 |
@@ -320,10 +321,18 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 #### Textマクロの使用例
 例
 ```
-$ expand-abbr 'h1{__HEADING__}'
+$ expand-abbr 'h2{__HEADING__}'
 ```
 ```   
-<h1>Sint Et Possimus Officia Magni Hic</h1>
+<h2>Eum Sed Quidem Voluptatem Facilis Nulla</h2>
+```
+
+例
+```
+$ expand-abbr 'h1{__HEADING_SHORT__}'
+```
+```
+<h1>Unde Quo Blanditiis Rerum Beatae</h1>
 ```
 
 例
