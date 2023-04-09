@@ -274,7 +274,7 @@ function getPresetStyles(cls) {
   }
   const words = str.split('-');
   return bestMatch(words, tag);
-};
+}
 
 function bestMatch(words, tag) {
   let matches;
