@@ -180,11 +180,6 @@ macroMap.set('card', [
   'div>(%thumbnail@1%)+p>lorem10',
   'div>(%thumbnail@1%)+p>lorem20'
 ]);
-macroMap.set('icon', [
-  'span>img[src=__ICON__ width=20 alt=__PHRASE__]',
-  'span>img[src=__ICON_XLINK__ width=18 alt=__PHRASE__]',
-  'span>img[src=__ICON_LINK__ width=18 alt=__PHRASE__]',
-]);
 macroMap.set('link-icon', [
   'a._x-link[href=page$.html]>{__PHRASE__}',
   'a._x-ext-link[href=page$.html]>{__PHRASE__}'
