@@ -40,13 +40,13 @@ Options:
                              pathname starting with prefix
   -c,--css <stylesheet>      insert a link to an external stylesheet inside
                              head element (default: [])
-  --class                    add class attribute to the primary elements
-  --add-style                insert default styles by using a <style> element
-                             in the <head> section
   -f,--load-macros <module>  load user defined macros from <module>
   -l,--list-macros           list Element macros
   -m,--macro <key_value>     add Element macro definition (default: [])
   -q,--query <key>           print Element macro that matches <key>
+  --dark                     apply dark theme on the generated page
+  --without-style            If this option disabled, insert default styles by
+                             using a <style> element in the <head> section
   -x                         add compiled abbreviation as HTML comment to
                              output
   -d                         print debug info.
@@ -153,24 +153,9 @@ $ open index.html
 ```
 
 ### img要素のsrc属性
-expand-abbrが生成するダミーHTML文書では`<img>`要素の`src`属性に設定されるリソースは次の４種類があります。
-
-| Type | URL | Options  |
-|:--|:--|:--|
-| image | photo*.jpg | `--local`, `--path` |
-| image | `https://picsum.photos/`<em>width</em>`/`<em>height</em>`?random=`<em>num</em> | (default) |
-| icon | <em>file</em>.svg | `--local`, `--path` |
-| icon | `data:image/svg+xml;base64`... | (default) |
-
-デフォルトの場合、imageタイプの`<img>`要素には[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLが設定されます。
-
-出力例
+expand-abbrが生成するダミーHTML文書では、`<img>`要素の`src`属性に設定されるリソースは、デフォルトの場合、[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLです。
 ```
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
-```
-一方、iconタイプの`<img>`要素にはbase64エンコードされた組み込みのSVGデータが埋め込まれます([icons.js](https://github.com/kazhashimoto/expand-abbr/blob/main/bin/icons.js))。
-```
-<img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj....jwvcGF0aD4KPC9zdmc+" alt="" width="24">
 ```
 
 `--local`オプションを指定すると、`<img>`要素の`src`属性の値は既定のファイル名が設定されます。
@@ -180,7 +165,6 @@ $ expand-abbr --local '%root%'
 出力例（一部）
 ```
 <img src="photo4x3_1.jpg" alt="Alias ducimus?" width="600" height="450">
-<img src="arrow-left.svg" alt="" width="24">
 ```
 
 `src`属性の値を`/` を含んだパス名にするには、`--path`オプションの引数にディレクトリのパス名を指定します。
@@ -196,30 +180,28 @@ $ grep "img src" index.html
 ....
 ```
 
-### class属性
-`--class`オプションを指定すると、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞`_x-`が付きます。
-```
-$ expand-abbr -h --class "%root%"
-```
-出力例（一部）
-```
-<header class="_x-header"> ...
-<nav class="_x-nav"> ...
-```
-
 ### ダミーHTML文書のスタイルシート
-`--add-style`オプションを指定すると、expand-abbrは出力されるHTML文書の`<head>`セクションに`<style>`要素を挿入し既定のスタイルシートを埋め込みます。このオプションは`-h`オプションも指定しないと効果がありません。
-
+`-h`オプションが与えられた場合、expand-abbrは出力されるHTML文書の`<head>`セクションに`<style>`要素を挿入し既定のスタイルシートを埋め込みます。
 ```
-$ expand-abbr --add-style -h '%root%'  
+$ expand-abbr -h '%root%' | more
 ```
-出力例（一部）
 ```
 <style>
-._x-header {width: 100%; background: #000; color: #fff}
-._x-footer {box-sizing: border-box; width: 100%; padding: 20px 4%; margin-top: 50px; background: #000; color: #fff}
-.......
+._x-pg-header-content_header {box-sizing: border-box; width: 100%; padding: 10px 4%}
+._x-pg-footer-content_footer {box-sizing: border-box; width: 100%; padding: 20px 4%; margin-top: 50px}
+....
 </style>
+```
+このスタイリングのために、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞`_x-`が付きます。
+
+```
+$ expand-abbr -h '%root%' | grep class | more
+```
+```
+<div class="_x-pg-header_div">
+  <header class="_x-pg-header-content_header">
+    <nav class="_x-nav_nav">
+    ....
 ```
 既定のスタイルには[Open Props](https://open-props.style/)のCSSカスタムプロパティが使用されるため、次の外部スタイルシートを参照する`<link>`要素が`<head>`セクションに挿入されます。
 ```
@@ -227,7 +209,10 @@ $ expand-abbr --add-style -h '%root%'
 <link rel="stylesheet" href="https://unpkg.com/open-props/normalize.min.css">
 ```
 
-コマンドラインに`--add-style`が与えられた場合、`--class`オプションも暗黙に有効になります。
+`--without-style`オプションを指定すると、expand-abbrは既定のスタイルシートの埋め込みを抑止し、要素にクラス属性も挿入しません。
+```
+$ expand-abbr -h --without-style '%root%'
+```
 
 ## Extended Syntax
 expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの構文を独自に拡張した次の機能をサポートしています： Elementマクロ, Textマクロ、繰り返し(`%`)オペレーター。
@@ -319,6 +304,7 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 | Textマクロ | 置換される内容 | ワード数 | コンマとピリオド | Capitalize |
 |:--|:--|---|:--|:--|
 | `__HEADING__` | 見出しに適した長さのダミーテキスト | 4〜8 | なし | 各単語 |
+| `__HEADING_SHORT__` | 大見出しに適した短いダミーテキスト | 4〜6 | なし | 各単語 |
 | `__PHRASE__` | リンクのテキストなどに適した２語からなるダミーテキスト | 2 | なし | 最初の語 |
 | `__NAME__` | 人名のような２語からなるダミーテキスト | 2 | なし | 各単語 |
 | `__DIGEST__` | 短い文のダミーテキスト | 4〜8 | あり | 最初の語 |
@@ -336,10 +322,18 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 #### Textマクロの使用例
 例
 ```
-$ expand-abbr 'h1{__HEADING__}'
+$ expand-abbr 'h2{__HEADING__}'
 ```
 ```   
-<h1>Sint Et Possimus Officia Magni Hic</h1>
+<h2>Eum Sed Quidem Voluptatem Facilis Nulla</h2>
+```
+
+例
+```
+$ expand-abbr 'h1{__HEADING_SHORT__}'
+```
+```
+<h1>Unde Quo Blanditiis Rerum Beatae</h1>
 ```
 
 例

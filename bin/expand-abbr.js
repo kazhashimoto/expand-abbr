@@ -8,8 +8,20 @@ const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
 const { macroMap } = require('./macros');
-const presetStyles = require('./preset-styles');
+const { styleMap, styleMapOptions } = require('./preset-styles');
 const styleRules = [];
+const elements = [
+  /* Sections */
+  'article', 'section', 'nav', 'aside', 'header', 'footer',
+  /* Grouping content */
+  'ol', 'ul', 'dl', 'figure', 'figcaption', 'main', 'div',
+  /* Text-level semantics */
+  'a', 'span',
+  /* Tabular data */
+  'table'
+];
+
+styleMapOptions.getIconURL = icons.getIconURL;
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -25,20 +37,17 @@ program
   .option('--local', 'use local path for the src attribute of <img> elements')
   .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
-  .option('--class', 'add class attribute to the primary elements')
-  .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
   .option('-f,--load-macros <module>', 'load user defined macros from <module>')
   .option('-l,--list-macros', 'list Element macros')
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('-q,--query <key>', 'print Element macro that matches <key>')
+  .option('--dark', 'apply dark theme on the generated page')
+  .option('--without-style', 'If this option disabled, insert default styles by using a <style> element in the <head> section')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
 
 program.parse(process.argv);
 const options = program.opts();
-if (options.addStyle) {
-  options.class = true;
-}
 if (options.path) {
   if (/[^/]$/.test(options.path)) {
     options.path += '/';
@@ -57,7 +66,7 @@ if (options.macro) {
 if (options.loadMacros) {
   loadMacros(options.loadMacros);
 }
-if (options.class) {
+if (options.head && !options.withoutStyle) {
   addClassNames();
 }
 if (options.listMacros) {
@@ -225,14 +234,6 @@ function splitText(str, left, right) {
 }
 
 function addClassNames() {
-  const elements = [
-    /* sections */
-    'article', 'section', 'nav', 'aside', 'header', 'footer',
-    /* grouping content */
-    'ol', 'ul', 'dl', 'figure', 'figcaption', 'main', 'div',
-    /* tabular data */
-    'table'
-  ];
   let re =  /^\(*([a-z]+)[^a-z]/;
   const addClass = (key, item) => {
     const prefix = '_x';
@@ -244,7 +245,7 @@ function addClassNames() {
     if (elements.includes(tag)) {
       const cls = `${prefix}-${key}_${tag}`;
       let str = found[0].replace(tag, `${tag}.${cls}`);
-      let obj = presetStyles.getPresetStyles(cls);
+      let obj = getPresetStyles(cls);
       if (obj && !obj.checked) {
         obj.checked = true;
         obj.class = cls;
@@ -261,6 +262,45 @@ function addClassNames() {
     }
   }
 }
+
+function getPresetStyles(cls) {
+  let tag;
+  let str = cls;
+  let re = /_([a-z]+)$/;
+  let found = cls.match(re);
+  if (found) {
+    tag = found[1];
+    str = cls.replace(re, '');
+  }
+  const words = str.split('-');
+  return bestMatch(words, tag);
+};
+
+function bestMatch(words, tag) {
+  let matches;
+  let best = undefined;
+  for (const [key, obj] of styleMap) {
+    if (obj.accept.includes(tag)) {
+      if (!obj._key_words) {
+        obj._key_words = key.split('-');
+      }
+      matches = true;
+      for (const w of obj._key_words) {
+        if (!words.includes(w)) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches) {
+        if (!best ||(obj._key_words.length > best._key_words.length)) {
+          best = obj;
+        }
+      }
+    }
+  }
+  return best;
+}
+
 
 const statMap = new Map();
 const randGenMap = new Map();
@@ -451,6 +491,9 @@ function replaceText(specifier) {
     if (macro == 'HEADING') {
       n = fluctuation(6, 2);
       text = getLoremText(`lorem${n}*3`, 1, false, true);
+    } if (macro == 'HEADING_SHORT') {
+      n = fluctuation(5, 1);
+      text = getLoremText(`lorem${n}*3`, 1, false, true);
     } else if (macro == 'PHRASE') {
       text = getLoremText('lorem2*5', 1, false, false);
     } else if (macro == 'NAME') {
@@ -476,8 +519,6 @@ function replaceText(specifier) {
       let dim = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
-    } else if (macro == 'ICON') {
-      text = icons.getIconURL(() => mt.random_int(), !options.local);
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
@@ -552,13 +593,11 @@ function embedStyles(/* specifier */) {
   };
   let text = '\n';
   for (const o of styleRules) {
-    const map = o.getStyleRule(o.class);
+    const map = o.getStyleRule(o.class, options.dark);
     for (const [key, value] of map) {
       text += ruleText(key, value);
     }
   }
-  // let text = getPresetStyles();
-  // let text = presetStyles.getPresetStyles();
   return text;
 }
 
@@ -570,16 +609,17 @@ if (options.head) {
     str = str.replace(/<body>[^]*<\/html>/, '');
   }
   process.stdout.write(str);
-  if (options.addStyle) {
+  if (!options.withoutStyle) {
+    const theme = options.dark? 'normalize.dark.min.css': 'normalize.light.min.css';
     options.css.unshift(
       'https://unpkg.com/open-props',
-      'https://unpkg.com/open-props/normalize.min.css'
+      `https://unpkg.com/open-props/${theme}`
     );
   }
   for (const p of options.css) {
     console.log('\t' + expand(`link[href=${p}]`));
   }
-  if (options.addStyle) {
+  if (!options.withoutStyle) {
     console.log(expand('style>{__STYLE__}').replace(/__STYLE__/g, embedStyles));
   }
   console.log('</head>');
