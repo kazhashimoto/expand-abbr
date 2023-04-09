@@ -211,7 +211,12 @@ styleMap.set('sns-button', {
     const key = `.${cls}`;
     const map = new Map();
     map.set(`${key} button`, [
-      `background-color: transparent`
+      `background-color: transparent`,
+      'display: flex',
+      'align-items: center'
+    ]);
+    map.set(`${key} button i`, [
+      `display: flex`
     ]);
 
     const { getIconURL } = module.exports.styleMapOptions;
@@ -232,6 +237,11 @@ styleMap.set('sns-button', {
     ]);
     url = getIconURL('CHAT', true);
     map.set(`._x-comment-icon::before`, [
+      ...props,
+      `background: url(${url})`
+    ]);
+    url = getIconURL('SHARE', true);
+    map.set(`._x-share-icon::before`, [
       ...props,
       `background: url(${url})`
     ]);

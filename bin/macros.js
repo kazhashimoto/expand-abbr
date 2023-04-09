@@ -185,9 +185,10 @@ macroMap.set('link-icon', [
   'a._x-ext-link[href=page$.html]>{__PHRASE__}'
 ]);
 macroMap.set('sns-button-list', [
-  'div>(%sns-button@0%)+(%sns-button@1%)'
+  'div>(%sns-button@0%)+(%sns-button@1%)+(%sns-button@2%)'
 ]);
 macroMap.set('sns-button', [
-  'div>button[type=button]>i._x-like-icon+{Like}',
-  'div>button[type=button]>i._x-comment-icon+{Comment}'
+  'div>button[type=button]>i._x-like-icon+span{Like}',
+  'div>button[type=button]>i._x-comment-icon+span{Comment}',
+  'div>button[type=button]>i._x-share-icon+span{Share}'
 ]);

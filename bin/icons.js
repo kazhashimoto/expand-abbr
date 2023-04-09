@@ -3,6 +3,7 @@ const aliasMap = new Map();
 aliasMap
   .set('CHAT', 'chat-bubble-left')
   .set('LIKE', 'hand-thumb-up')
+  .set('SHARE', 'arrow-up-tray')
   .set('XLINK', 'arrow-top-right-on-square')
   .set('LINK', 'chevron-double-right');
 
@@ -44,27 +45,9 @@ const iconMap = new Map();
 /**
  * SVG data are taken from https://heroicons.dev/
  */
-iconMap.set('arrow-left', [
+iconMap.set('arrow-up-tray', [
   `<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>`
-]);
-
-iconMap.set('arrow-right', [
-  `<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>`
-]);
-
-iconMap.set('arrow-up', [
-  `<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <path d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>`
-]);
-
-iconMap.set('arrow-down', [
-  `<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <path d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" stroke-linecap="round" stroke-linejoin="round"></path>
 </svg>`
 ]);
 
