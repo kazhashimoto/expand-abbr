@@ -120,8 +120,8 @@ macroMap.set('section-heading', [
   'div>h2{Section __SEQ_1__}'
 ]);
 macroMap.set('section-body', [
-  '(%section-body-content%)%3%',
-  '((%section-body-content%)+(%block-content%))%3%',
+  '(%ordered-block%)%+3%',
+  '((%ordered-block%)+(%block-content%))%+3%',
   '(%float-block%)%+3%'
 ]);
 macroMap.set('float-block', [
@@ -132,15 +132,11 @@ macroMap.set('float-block', [
   'div._x-float-img-right>(%img@0%)+p{__MESSAGE__}',
   'div._x-float-img-left>(%img@0%)+p{__MESSAGE__}'
 ]);
-macroMap.set('section-body-content', [
+macroMap.set('ordered-block', [
   'div>(%p-long%)+(%img%)',
   'div>(%p-long%)^(%img%)',
-  // 'div>(%p-long%)+(%thumbnail%)',
-  // 'div>(%p-long%)^(%thumbnail%)',
   '%img%+div>(%p-long%)',
   '%img%^div>(%p-long%)',
-  // '%thumbnail%+div>(%p-long%)',
-  // '%thumbnail%^div>(%p-long%)',
 ]);
 macroMap.set('article', [
   'article>h1{__HEADING__}+(%article-item%)%+3,5%'
