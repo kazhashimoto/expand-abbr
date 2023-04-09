@@ -56,7 +56,7 @@ styleMap.set('pg-footer', {
     return map;
   }
 });
-styleMap.set('section-content', {
+styleMap.set('section', {
   accept: ['section'],
   getStyleRule: (cls) => {
     const key = `.${cls}`;
@@ -69,6 +69,39 @@ styleMap.set('section-content', {
     return map;
   }
 });
+styleMap.set('float-block', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(`${key} + ${key}`, [
+      'margin-top: 20px'
+    ]);
+    map.set(`${key} p`, [
+      'max-inline-size: none'
+    ]);
+    map.set(`${key} ._x-img_div`, [
+      'width: 40%'
+    ]);
+    map.set(`${key} ._x-img_div img`, [
+      'display: inline'
+    ]);
+    map.set(`${key}::after`, [
+      'display: block',
+      'content: ""',
+      'clear: both'
+    ]);
+    map.set('._x-float-img-right ._x-img_div ', [
+      'float: right',
+      'margin-left: 10px'
+    ]);
+    map.set('._x-float-img-left ._x-img_div ', [
+      'float: left',
+      'margin-right: 10px'
+    ]);
+    return map;
+  }
+})
 styleMap.set('img', {
   accept: ['div'],
   getStyleRule: (cls) => {
