@@ -31,20 +31,26 @@ $ npm uninstall -g @kazhashimoto/expand-abbr
 Usage: expand-abbr [options] abbreviation ...
 
 Options:
-  -V, --version          output the version number
-  -h,--head              prepend html header
-  -c,--css <stylesheet>  insert a link to an external stylesheet inside head
-                         element (default: [])
-  --class                add class attribute to the primary elements
-  --add-style            insert default styles by using a <style> element in
-                         the <head> section
-  --local                use local path for the src attribute of <img> elements
-  --path <prefix>        set the src attribute of img elements to a pathname
-                         starting with prefix
-  -w,--wrapper <parent>  wrap expanded elements with parent
-  -x                     add compiled abbreviation as HTML comment to output
-  -d                     print debug info.
-  --help                 display help for command
+  -V, --version              output the version number
+  -h,--head                  prepend html header
+  -w,--wrapper <parent>      wrap expanded elements with div.parent
+  --local                    use local path for the src attribute of <img>
+                             elements
+  --path <prefix>            set the src attribute of img elements to a
+                             pathname starting with prefix
+  -c,--css <stylesheet>      insert a link to an external stylesheet inside
+                             head element (default: [])
+  -f,--load-macros <module>  load user defined macros from <module>
+  -l,--list-macros           list Element macros
+  -m,--macro <key_value>     add Element macro definition (default: [])
+  -q,--query <key>           print Element macro that matches <key>
+  --dark                     apply dark theme on the generated page
+  --without-style            If this option disabled, insert default styles by
+                             using a <style> element in the <head> section
+  -x                         add compiled abbreviation as HTML comment to
+                             output
+  -d                         print debug info.
+  --help                     display help for command
 ```
 
 expand-abbrは、引数`abbreviation`ごとにHTML要素のツリーに展開し、展開した結果を順に連結して出力します。
@@ -138,8 +144,6 @@ zsh% expand-abbr $foo
 <p>hello world</p>
 ```
 
-
-
 ## ダミーHTML文書の生成
 expand-abbrを使って、ランダムなコンテンツを含んだ**ダミーHTML文書**を生成することができます。
 引数にキーワード`%root%`を指定すると、expand-abbrはHTML要素をランダムに組み合わせたツリーを出力します。ランダムとはいえ、Emmetを使ってツリーに展開しているため、出力されるHTML文書は文法的に正しいものが得られます。
@@ -149,24 +153,9 @@ $ open index.html
 ```
 
 ### img要素のsrc属性
-expand-abbrが生成するダミーHTML文書では`<img>`要素の`src`属性に設定されるリソースは次の４種類があります。
-
-| Type | URL | Options  |
-|:--|:--|:--|
-| image | photo*.jpg | `--local`, `--path` |
-| image | `https://picsum.photos/`<em>width</em>`/`<em>height</em>`?random=`<em>num</em> | (default) |
-| icon | <em>file</em>.svg | `--local`, `--path` |
-| icon | `data:image/svg+xml;base64`... | (default) |
-
-デフォルトの場合、imageタイプの`<img>`要素には[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLが設定されます。
-
-出力例
+expand-abbrが生成するダミーHTML文書では、`<img>`要素の`src`属性に設定されるリソースは、デフォルトの場合、[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLです。
 ```
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
-```
-一方、iconタイプの`<img>`要素にはbase64エンコードされた組み込みのSVGデータが埋め込まれます([icons.js](https://github.com/kazhashimoto/expand-abbr/blob/main/bin/icons.js))。
-```
-<img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj....jwvcGF0aD4KPC9zdmc+" alt="" width="24">
 ```
 
 `--local`オプションを指定すると、`<img>`要素の`src`属性の値は既定のファイル名が設定されます。
@@ -176,7 +165,6 @@ $ expand-abbr --local '%root%'
 出力例（一部）
 ```
 <img src="photo4x3_1.jpg" alt="Alias ducimus?" width="600" height="450">
-<img src="arrow-left.svg" alt="" width="24">
 ```
 
 `src`属性の値を`/` を含んだパス名にするには、`--path`オプションの引数にディレクトリのパス名を指定します。
@@ -192,30 +180,28 @@ $ grep "img src" index.html
 ....
 ```
 
-### class属性
-`--class`オプションを指定すると、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞`_x-`が付きます。
-```
-$ expand-abbr -h --class "%root%"
-```
-出力例（一部）
-```
-<header class="_x-header"> ...
-<nav class="_x-nav"> ...
-```
-
 ### ダミーHTML文書のスタイルシート
-`--add-style`オプションを指定すると、expand-abbrは出力されるHTML文書の`<head>`セクションに`<style>`要素を挿入し既定のスタイルシートを埋め込みます。このオプションは`-h`オプションも指定しないと効果がありません。
-
+`-h`オプションが与えられた場合、expand-abbrは出力されるHTML文書の`<head>`セクションに`<style>`要素を挿入し既定のスタイルシートを埋め込みます。
 ```
-$ expand-abbr --add-style -h '%root%'  
+$ expand-abbr -h '%root%' | more
 ```
-出力例（一部）
 ```
 <style>
-._x-header {width: 100%; background: #000; color: #fff}
-._x-footer {box-sizing: border-box; width: 100%; padding: 20px 4%; margin-top: 50px; background: #000; color: #fff}
-.......
+._x-pg-header-content_header {box-sizing: border-box; width: 100%; padding: 10px 4%}
+._x-pg-footer-content_footer {box-sizing: border-box; width: 100%; padding: 20px 4%; margin-top: 50px}
+....
 </style>
+```
+このスタイリングのために、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞`_x-`が付きます。
+
+```
+$ expand-abbr -h '%root%' | grep class | more
+```
+```
+<div class="_x-pg-header_div">
+  <header class="_x-pg-header-content_header">
+    <nav class="_x-nav_nav">
+    ....
 ```
 既定のスタイルには[Open Props](https://open-props.style/)のCSSカスタムプロパティが使用されるため、次の外部スタイルシートを参照する`<link>`要素が`<head>`セクションに挿入されます。
 ```
@@ -223,15 +209,92 @@ $ expand-abbr --add-style -h '%root%'
 <link rel="stylesheet" href="https://unpkg.com/open-props/normalize.min.css">
 ```
 
-コマンドラインに`--add-style`が与えられた場合、`--class`オプションも暗黙に有効になります。
+`--without-style`オプションを指定すると、expand-abbrは既定のスタイルシートの埋め込みを抑止し、要素にクラス属性も挿入しません。
+```
+$ expand-abbr -h --without-style '%root%'
+```
 
 ## Extended Syntax
 expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの構文を独自に拡張した次の機能をサポートしています： Elementマクロ, Textマクロ、繰り返し(`%`)オペレーター。
 
 ### Elementマクロ
-Elementマクロは`%`<em>name</em>`%`という書式の文字列であり、<em>name</em>は別のElementマクロおよびEmmet省略記法を含む式<em>expression</em>への参照です。expand-abbrはElementマクロを再起的に式に展開し、最終的に1つのEmmet構文に置き換えます。Elementマクロの一覧は[macros.js](https://github.com/kazhashimoto/expand-abbr/blob/main/bin/macros.js)に記述されています。
+Elementマクロは`%`<em>name</em>`%`という書式の文字列であり、<em>name</em>は別のElementマクロおよびEmmet省略記法を含む式<em>expression</em>への参照です。expand-abbrはElementマクロを再起的に式に展開し、最終的に1つのEmmet構文に置き換えます。
 
-Elementマクロ`%root%`は、展開されるとダミーHTML文書の`<body>`要素のコンテンツを表すEmmet構文に置き換わります。
+組み込みのElementマクロ`%root%`は、展開されるとダミーHTML文書の`<body>`要素のコンテンツを表すEmmet構文に置き換わります。
+
+`-l`オプションを指定すると、expand-abbrはElementマクロの一覧を表示します。
+```
+$ expand-abbr -l
+```
+組み込みElementマクロの一覧は[macros.js](https://github.com/kazhashimoto/expand-abbr/blob/main/bin/macros.js)で確認できます。
+
+#### ユーザー定義のElementマクロ
+ユーザー定義のElementマクロを追加できます。コマンドラインから指定する方法と、外部ファイルから読み込ませる方法があります。いずれの場合も、ユーザー定義のElementマクロは組み込みのElementマクロの一覧に追加されます。
+
+`-m`オプションの引数に<em>key</em>と<em>value</em>のペアを指定することにより、`key`という名前のElementマクロを追加します。
+```
+$ expand-abbr -m 'foo:p>span' -m 'bar:div>%foo%' 'div>h3+(%bar%)'
+```
+```
+<section>
+  <h3></h3>
+  <div>
+    <p><span></span></p>
+  </div>
+</section>
+```
+
+`-m`オプションで指定した`key`に一致する名前を持つElementマクロがすでに存在する場合、そのマクロの値のリストに追加されます。
+```
+$ expand-abbr -m 'root:div>p' -q root
+```
+```    
+[ '(%pg-header%)+(%pg-main-content%)+(%pg-footer%)', 'div>p' ]
+```
+
+ユーザー定義のElementマクロを記述したJavaScriptのモジュールを`-f`オプションまたは`--load-macro`オプションの引数に指定して、expand-abbrに読み込ませることができます。
+読み込ませるファイルはCommonJSのモジュールとして記述し、`macroMap`オブジェクトをエクスポートするように設定します。
+```
+const macroMap = new Map();
+module.exports.macroMap = macroMap;
+```
+そして、マクロ名を<em>key</em>として、`macroMap`オブジェクトの`set`メソッドで<em>value</em>の配列を値として登録します。
+```
+macroMap.set('key', [ value, ... ]);
+```
+
+例: my-macro.js
+```
+const macroMap = new Map();
+module.exports.macroMap = macroMap;
+
+macroMap.set('my-root', [
+  'div>(%root%)',
+  '(%my-header%)+(%my-content%)'
+]);
+macroMap.set('my-header', [
+  'header>h1{__HEADING__}'
+]);
+macroMap.set('my-content', [
+  'div*3>p>lorem10'
+]);
+```
+オプションの引数に指定するモジュールのパス名は、カレントディレクトリからの相対もしくは絶対パスです。ファイルの検索順序に関して、Node.jsの`node_modules`ディレクトリは関係ありません。
+```
+$ expand-abbr -f my-macro.js -h '%my-root%'
+```
+
+#### マクロの値のインデックス指定
+マクロ`%`<em>name</em>`%`が与えられた時、expand-abbrは、キー値<em>name</em>を持つ`macroMap`の値の配列の中から1個をランダムに選び、その文字列でマクロを置換します。
+配列の中で、置換に使用される値を固定するには、書式`%`<em>name</em>`@`<em>index</em>`%`により配列のインデックスを指定します。
+```
+$ expand-abbr -m 'box:div{1}' -m 'box:div{2}' -m 'box:div{3}' -q box   
+[ 'div{1}', 'div{2}', 'div{3}' ]
+```
+```
+$ expand-abbr -m 'box:div{1}' -m 'box:div{2}' -m 'box:div{3}' '%box@2%'
+<div>3</div>
+```
 
 ### Textマクロ
 Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、その文字列はEmmet省略記法の展開時もしくはHTML文書の出力時に別の文字列に置き換わります。Textマクロは、Emmetの構文において通常のテキストを埋め込める箇所で使用できます。（例: `{...}`の内側, タグの属性`[`<em>attr</em>`]`表記に指定する値など）
@@ -241,6 +304,7 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 | Textマクロ | 置換される内容 | ワード数 | コンマとピリオド | Capitalize |
 |:--|:--|---|:--|:--|
 | `__HEADING__` | 見出しに適した長さのダミーテキスト | 4〜8 | なし | 各単語 |
+| `__HEADING_SHORT__` | 大見出しに適した短いダミーテキスト | 4〜6 | なし | 各単語 |
 | `__PHRASE__` | リンクのテキストなどに適した２語からなるダミーテキスト | 2 | なし | 最初の語 |
 | `__NAME__` | 人名のような２語からなるダミーテキスト | 2 | なし | 各単語 |
 | `__DIGEST__` | 短い文のダミーテキスト | 4〜8 | あり | 最初の語 |
@@ -258,10 +322,18 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 #### Textマクロの使用例
 例
 ```
-$ expand-abbr 'h1{__HEADING__}'
+$ expand-abbr 'h2{__HEADING__}'
 ```
 ```   
-<h1>Sint Et Possimus Officia Magni Hic</h1>
+<h2>Eum Sed Quidem Voluptatem Facilis Nulla</h2>
+```
+
+例
+```
+$ expand-abbr 'h1{__HEADING_SHORT__}'
+```
+```
+<h1>Unde Quo Blanditiis Rerum Beatae</h1>
 ```
 
 例

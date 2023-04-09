@@ -8,7 +8,20 @@ const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const icons = require('./icons');
 const { macroMap } = require('./macros');
-const { getPresetStyles } = require('./preset-styles');
+const { styleMap, styleMapOptions } = require('./preset-styles');
+const styleRules = [];
+const elements = [
+  /* Sections */
+  'article', 'section', 'nav', 'aside', 'header', 'footer',
+  /* Grouping content */
+  'ol', 'ul', 'dl', 'figure', 'figcaption', 'main', 'div',
+  /* Text-level semantics */
+  'a', 'span',
+  /* Tabular data */
+  'table'
+];
+
+styleMapOptions.getIconURL = icons.getIconURL;
 
 function collect(value, previous) {
   return previous.concat([value]);
@@ -16,24 +29,25 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.5')
+  .version('1.1.6')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
-  .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
-  .option('--class', 'add class attribute to the primary elements')
-  .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
+  .option('-w,--wrapper <parent>', 'wrap expanded elements with div.parent')
   .option('--local', 'use local path for the src attribute of <img> elements')
   .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
-  .option('-w,--wrapper <parent>', 'wrap expanded elements with parent')
+  .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
+  .option('-f,--load-macros <module>', 'load user defined macros from <module>')
+  .option('-l,--list-macros', 'list Element macros')
+  .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
+  .option('-q,--query <key>', 'print Element macro that matches <key>')
+  .option('--dark', 'apply dark theme on the generated page')
+  .option('--without-style', 'If this option disabled, insert default styles by using a <style> element in the <head> section')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
 
 program.parse(process.argv);
 const options = program.opts();
-if (options.addStyle) {
-  options.class = true;
-}
 if (options.path) {
   if (/[^/]$/.test(options.path)) {
     options.path += '/';
@@ -44,6 +58,70 @@ if (options.path) {
 let debug = () => {};
 if (options.d) {
   debug = (...args) => { console.log(...args); }
+}
+
+if (options.macro) {
+  addMacros(options.macro);
+}
+if (options.loadMacros) {
+  loadMacros(options.loadMacros);
+}
+if (options.head && !options.withoutStyle) {
+  addClassNames();
+}
+if (options.listMacros) {
+  console.log(macroMap);
+  process.exit(0);
+}
+if (options.query) {
+  const value = macroMap.get(options.query);
+  if (value) {
+    console.log(value);
+  }
+  process.exit(0);
+}
+
+function addMacros(defs) {
+  for (const entry of defs) {
+    const [key, value] = entry.split(':');
+    if (!value) {
+      console.error(`${entry}: is not valid macro format [key:value].`);
+      process.exit(1);
+    }
+    if (macroMap.has(key)) {
+      macroMap.get(key).push(value);
+    } else {
+      macroMap.set(key, [ value ]);
+    }
+  }
+}
+
+function loadMacros(local_path) {
+  let obj;
+  const path = require('node:path');
+
+  if (!path.isAbsolute(local_path)) {
+    local_path = path.join(process.cwd(), local_path);
+  }
+  try {
+    obj = require(local_path);
+  } catch(err) {
+    console.error(err.message);
+    process.exit(1);
+  }
+
+  const copyValues = (target, src) => {
+    for (const e of src) {
+      target.push(e);
+    }
+  };
+  for (const [key, value] of obj.macroMap) {
+    if (macroMap.has(key)) {
+      copyValues(macroMap.get(key), value);
+    } else {
+      macroMap.set(key, value);
+    }
+  }
 }
 
 function concat(abbr_list) {
@@ -155,43 +233,28 @@ function splitText(str, left, right) {
   return arr;
 }
 
-if (options.class) {
-  addClassNames();
-}
-
 function addClassNames() {
-  const matches = [
-    [/^pg-header/, 'header'],
-    [/^pg-footer/, 'footer'],
-    [/^nav/, 'nav'],
-    [/^section/, 'section'],
-    [/^list/, '(ul|ol|dl)', 'list'],
-    [/^p(-long)?$/, 'p', 'text'],
-    [/^article/, 'article'],
-    [/^blog-post$/, 'article', 'blog-post'],
-    [/^blog-post-main/, 'section', 'blog-post-main'],
-    [/^blog-post-comment/, 'section', 'blog-post-comment'],
-    [/^table/, 'table'],
-    [/^grid/, 'div', 'grid'],
-    [/^card/, 'div', 'card'],
-    [/^copyright/, 'p', 'copyright']
-  ];
+  let re =  /^\(*([a-z]+)[^a-z]/;
   const addClass = (key, item) => {
     const prefix = '_x';
-    for (const m of matches) {
-      const [re, tag] = m;
-      if (re.test(key)) {
-        const tagRe = new RegExp(`^${tag}[^a-z]`);
-        if (tagRe.test(item)) {
-          const name = m[2]? m[2]: tag;
-          return item.replace(new RegExp(`^${tag}`), `$&.${prefix}-${name}`)
-        }
-        return item;
+    const found = item.match(re);
+    if (!found) {
+      return item;
+    }
+    const tag = found[1];
+    if (elements.includes(tag)) {
+      const cls = `${prefix}-${key}_${tag}`;
+      let str = found[0].replace(tag, `${tag}.${cls}`);
+      let obj = getPresetStyles(cls);
+      if (obj && !obj.checked) {
+        obj.checked = true;
+        obj.class = cls;
+        styleRules.push(obj);
       }
+      return item.replace(re, str);
     }
     return item;
   }
-
   for (const key of macroMap.keys()) {
     const values = macroMap.get(key);
     for (let i = 0; i < values.length; i++) {
@@ -199,6 +262,45 @@ function addClassNames() {
     }
   }
 }
+
+function getPresetStyles(cls) {
+  let tag;
+  let str = cls;
+  let re = /_([a-z]+)$/;
+  let found = cls.match(re);
+  if (found) {
+    tag = found[1];
+    str = cls.replace(re, '');
+  }
+  const words = str.split('-');
+  return bestMatch(words, tag);
+}
+
+function bestMatch(words, tag) {
+  let matches;
+  let best = undefined;
+  for (const [key, obj] of styleMap) {
+    if (obj.accept.includes(tag)) {
+      if (!obj._key_words) {
+        obj._key_words = key.split('-');
+      }
+      matches = true;
+      for (const w of obj._key_words) {
+        if (!words.includes(w)) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches) {
+        if (!best ||(obj._key_words.length > best._key_words.length)) {
+          best = obj;
+        }
+      }
+    }
+  }
+  return best;
+}
+
 
 const statMap = new Map();
 const randGenMap = new Map();
@@ -389,6 +491,9 @@ function replaceText(specifier) {
     if (macro == 'HEADING') {
       n = fluctuation(6, 2);
       text = getLoremText(`lorem${n}*3`, 1, false, true);
+    } if (macro == 'HEADING_SHORT') {
+      n = fluctuation(5, 1);
+      text = getLoremText(`lorem${n}*3`, 1, false, true);
     } else if (macro == 'PHRASE') {
       text = getLoremText('lorem2*5', 1, false, false);
     } else if (macro == 'NAME') {
@@ -414,8 +519,6 @@ function replaceText(specifier) {
       let dim = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
       text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
-    } else if (macro == 'ICON') {
-      text = icons.getIconURL(() => mt.random_int(), !options.local);
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
@@ -483,7 +586,18 @@ function outputHTML(abbr) {
 }
 
 function embedStyles(/* specifier */) {
-  let text = getPresetStyles();
+  const ruleText = (selector, props) => {
+    const decl = props.join('; ');
+    const rules = `${selector} {${decl}}\n`;
+    return rules;
+  };
+  let text = '\n';
+  for (const o of styleRules) {
+    const map = o.getStyleRule(o.class, options.dark);
+    for (const [key, value] of map) {
+      text += ruleText(key, value);
+    }
+  }
   return text;
 }
 
@@ -495,16 +609,17 @@ if (options.head) {
     str = str.replace(/<body>[^]*<\/html>/, '');
   }
   process.stdout.write(str);
-  if (options.addStyle) {
+  if (!options.withoutStyle) {
+    const theme = options.dark? 'normalize.dark.min.css': 'normalize.light.min.css';
     options.css.unshift(
       'https://unpkg.com/open-props',
-      'https://unpkg.com/open-props/normalize.min.css'
+      `https://unpkg.com/open-props/${theme}`
     );
   }
   for (const p of options.css) {
     console.log('\t' + expand(`link[href=${p}]`));
   }
-  if (options.addStyle) {
+  if (!options.withoutStyle) {
     console.log(expand('style>{__STYLE__}').replace(/__STYLE__/g, embedStyles));
   }
   console.log('</head>');
