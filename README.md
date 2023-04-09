@@ -40,13 +40,13 @@ Options:
                              pathname starting with prefix
   -c,--css <stylesheet>      insert a link to an external stylesheet inside
                              head element (default: [])
-  --class                    add class attribute to the primary elements
-  --add-style                insert default styles by using a <style> element
-                             in the <head> section
   -f,--load-macros <module>  load user defined macros from <module>
   -l,--list-macros           list Element macros
   -m,--macro <key_value>     add Element macro definition (default: [])
   -q,--query <key>           print Element macro that matches <key>
+  --dark                     apply dark theme on the generated page
+  --without-style            If this option disabled, insert default styles by
+                             using a <style> element in the <head> section
   -x                         add compiled abbreviation as HTML comment to
                              output
   -d                         print debug info.
@@ -180,30 +180,28 @@ $ grep "img src" index.html
 ....
 ```
 
-### class属性
-`--class`オプションを指定すると、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞`_x-`が付きます。
-```
-$ expand-abbr -h --class "%root%"
-```
-出力例（一部）
-```
-<header class="_x-header"> ...
-<nav class="_x-nav"> ...
-```
-
 ### ダミーHTML文書のスタイルシート
-`--add-style`オプションを指定すると、expand-abbrは出力されるHTML文書の`<head>`セクションに`<style>`要素を挿入し既定のスタイルシートを埋め込みます。このオプションは`-h`オプションも指定しないと効果がありません。
-
+`-h`オプションが与えられた場合、expand-abbrは出力されるHTML文書の`<head>`セクションに`<style>`要素を挿入し既定のスタイルシートを埋め込みます。
 ```
-$ expand-abbr --add-style -h '%root%'  
+$ expand-abbr -h '%root%' | more
 ```
-出力例（一部）
 ```
 <style>
-._x-header {width: 100%; background: #000; color: #fff}
-._x-footer {box-sizing: border-box; width: 100%; padding: 20px 4%; margin-top: 50px; background: #000; color: #fff}
-.......
+._x-pg-header-content_header {box-sizing: border-box; width: 100%; padding: 10px 4%}
+._x-pg-footer-content_footer {box-sizing: border-box; width: 100%; padding: 20px 4%; margin-top: 50px}
+....
 </style>
+```
+このスタイリングのために、expand-abbrは主要なHTML要素に対してclass属性を設定します。設定されるクラスは名前に接頭辞`_x-`が付きます。
+
+```
+$ expand-abbr -h '%root%' | grep class | more
+```
+```
+<div class="_x-pg-header_div">
+  <header class="_x-pg-header-content_header">
+    <nav class="_x-nav_nav">
+    ....
 ```
 既定のスタイルには[Open Props](https://open-props.style/)のCSSカスタムプロパティが使用されるため、次の外部スタイルシートを参照する`<link>`要素が`<head>`セクションに挿入されます。
 ```
@@ -211,7 +209,10 @@ $ expand-abbr --add-style -h '%root%'
 <link rel="stylesheet" href="https://unpkg.com/open-props/normalize.min.css">
 ```
 
-コマンドラインに`--add-style`が与えられた場合、`--class`オプションも暗黙に有効になります。
+`--without-style`オプションを指定すると、expand-abbrは既定のスタイルシートの埋め込みを抑止し、要素にクラス属性も挿入しません。
+```
+$ expand-abbr -h --without-style '%root%'
+```
 
 ## Extended Syntax
 expand-abbrはダミーHTML文書の生成を可能とするために、Emmetの構文を独自に拡張した次の機能をサポートしています： Elementマクロ, Textマクロ、繰り返し(`%`)オペレーター。

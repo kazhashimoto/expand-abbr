@@ -37,8 +37,6 @@ program
   .option('--local', 'use local path for the src attribute of <img> elements')
   .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
-  // .option('--class', 'add class attribute to the primary elements')
-  // .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
   .option('-f,--load-macros <module>', 'load user defined macros from <module>')
   .option('-l,--list-macros', 'list Element macros')
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
@@ -50,9 +48,6 @@ program
 
 program.parse(process.argv);
 const options = program.opts();
-// if (options.addStyle) {
-//   options.class = true;
-// }
 if (options.path) {
   if (/[^/]$/.test(options.path)) {
     options.path += '/';
