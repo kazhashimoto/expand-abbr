@@ -37,21 +37,22 @@ program
   .option('--local', 'use local path for the src attribute of <img> elements')
   .option('--path <prefix>', 'set the src attribute of img elements to a pathname starting with prefix')
   .option('-c,--css <stylesheet>', 'insert a link to an external stylesheet inside head element', collect, [])
-  .option('--class', 'add class attribute to the primary elements')
-  .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
+  // .option('--class', 'add class attribute to the primary elements')
+  // .option('--add-style', 'insert default styles by using a <style> element in the <head> section')
   .option('-f,--load-macros <module>', 'load user defined macros from <module>')
   .option('-l,--list-macros', 'list Element macros')
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('-q,--query <key>', 'print Element macro that matches <key>')
   .option('--dark', 'apply dark theme on the generated page')
+  .option('--without-style', 'If this option disabled, insert default styles by using a <style> element in the <head> section')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('-d', 'print debug info.');
 
 program.parse(process.argv);
 const options = program.opts();
-if (options.addStyle) {
-  options.class = true;
-}
+// if (options.addStyle) {
+//   options.class = true;
+// }
 if (options.path) {
   if (/[^/]$/.test(options.path)) {
     options.path += '/';
@@ -70,7 +71,7 @@ if (options.macro) {
 if (options.loadMacros) {
   loadMacros(options.loadMacros);
 }
-if (options.class) {
+if (options.head && !options.withoutStyle) {
   addClassNames();
 }
 if (options.listMacros) {
@@ -613,7 +614,7 @@ if (options.head) {
     str = str.replace(/<body>[^]*<\/html>/, '');
   }
   process.stdout.write(str);
-  if (options.addStyle) {
+  if (!options.withoutStyle) {
     const theme = options.dark? 'normalize.dark.min.css': 'normalize.light.min.css';
     options.css.unshift(
       'https://unpkg.com/open-props',
@@ -623,7 +624,7 @@ if (options.head) {
   for (const p of options.css) {
     console.log('\t' + expand(`link[href=${p}]`));
   }
-  if (options.addStyle) {
+  if (!options.withoutStyle) {
     console.log(expand('style>{__STYLE__}').replace(/__STYLE__/g, embedStyles));
   }
   console.log('</head>');
