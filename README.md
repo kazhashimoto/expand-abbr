@@ -153,24 +153,9 @@ $ open index.html
 ```
 
 ### img要素のsrc属性
-expand-abbrが生成するダミーHTML文書では`<img>`要素の`src`属性に設定されるリソースは次の４種類があります。
-
-| Type | URL | Options  |
-|:--|:--|:--|
-| image | photo*.jpg | `--local`, `--path` |
-| image | `https://picsum.photos/`<em>width</em>`/`<em>height</em>`?random=`<em>num</em> | (default) |
-| icon | <em>file</em>.svg | `--local`, `--path` |
-| icon | `data:image/svg+xml;base64`... | (default) |
-
-デフォルトの場合、imageタイプの`<img>`要素には[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLが設定されます。
-
-出力例
+expand-abbrが生成するダミーHTML文書では、`<img>`要素の`src`属性に設定されるリソースは、デフォルトの場合、[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLです。
 ```
 <img src="https://picsum.photos/800/450?random=338" alt="Maxime voluptatem" width="800" height="450">
-```
-一方、iconタイプの`<img>`要素にはbase64エンコードされた組み込みのSVGデータが埋め込まれます([icons.js](https://github.com/kazhashimoto/expand-abbr/blob/main/bin/icons.js))。
-```
-<img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj....jwvcGF0aD4KPC9zdmc+" alt="" width="24">
 ```
 
 `--local`オプションを指定すると、`<img>`要素の`src`属性の値は既定のファイル名が設定されます。
@@ -180,7 +165,6 @@ $ expand-abbr --local '%root%'
 出力例（一部）
 ```
 <img src="photo4x3_1.jpg" alt="Alias ducimus?" width="600" height="450">
-<img src="arrow-left.svg" alt="" width="24">
 ```
 
 `src`属性の値を`/` を含んだパス名にするには、`--path`オプションの引数にディレクトリのパス名を指定します。
