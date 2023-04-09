@@ -163,21 +163,8 @@ styleMap.set('card', {
     return map;
   }
 });
-styleMap.set('icon', {
-  accept: ['span'],
-  getStyleRule: (cls, dark) => {
-    const key = `.${cls}`;
-    const map = new Map();
-    const props = [ 'display: inline' ];
-    if (dark) {
-      props.push('filter: brightness(0) invert(1)');
-    }
-    map.set(`${key} img`, props);
-    return map;
-  }
-});
-styleMap.set('bg-icon', {
-  accept: ['span'],
+styleMap.set('link-icon', {
+  accept: ['a'],
   getStyleRule: (cls, dark) => {
     const key = `.${cls}`;
     const map = new Map();
@@ -186,27 +173,26 @@ styleMap.set('bg-icon', {
       'display: inline-block',
       'content: ""',
       'width: 1em',
-      'height: 1em'
+      'height: 1em',
+      'margin-left: 0.25em'
     ];
     if (dark) {
       props.push('filter: brightness(0) invert(1)');
     }
     let url = getIconURL('LINK', true);
-    map.set(`${key}._x-before-icon1::before`, [
+    map.set(`${key}._x-link::after`, [
       ...props,
-      `background: url(${url})`,
-      'margin-right: 0.25em'
+      `background: url(${url})`
     ]);
     url = getIconURL('XLINK', true);
-    map.set(`${key}._x-after-icon1::after`, [
+    map.set(`${key}._x-ext-link::after`, [
       ...props,
-      `background: url(${url})`,
-      'margin-left: 0.25em'
+      `background: url(${url})`
     ]);
     return map;
   }
 });
-styleMap.set('sns-icon-list', {
+styleMap.set('sns-button-list', {
   accept: ['div'],
   getStyleRule: (cls) => {
     const key = `.${cls}`;
@@ -219,16 +205,36 @@ styleMap.set('sns-icon-list', {
     return map;
   }
 });
-styleMap.set('sns-icon', {
+styleMap.set('sns-button', {
   accept: ['div'],
   getStyleRule: (cls, dark) => {
     const key = `.${cls}`;
     const map = new Map();
+    map.set(`${key} button`, [
+      `background-color: transparent`
+    ]);
+
+    const { getIconURL } = module.exports.styleMapOptions;
+    const props = [
+      'display: inline-block',
+      'content: ""',
+      'width: 1em',
+      'height: 1em',
+      'margin-right: 0.5em'
+    ];
     if (dark) {
-      map.set(key, [
-        'filter: brightness(0) invert(1)'
-      ]);
+      props.push('filter: brightness(0) invert(1)');
     }
+    let url = getIconURL('LIKE', true);
+    map.set(`._x-like-icon::before`, [
+      ...props,
+      `background: url(${url})`
+    ]);
+    url = getIconURL('CHAT', true);
+    map.set(`._x-comment-icon::before`, [
+      ...props,
+      `background: url(${url})`
+    ]);
     return map;
   }
 });
