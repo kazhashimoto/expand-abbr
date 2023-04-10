@@ -139,7 +139,7 @@ macroMap.set('ordered-block', [
   'div>(%p-long%)+(%img%)',
   'div>(%p-long%)^(%img%)',
   'div>(%img%)+(%p-long%)',
-  'div>(%img%)+div>(%p-long%)'
+  'div>((%img%)+div>(%p-long%))'
 ]);
 macroMap.set('article', [
   'article>h1{__HEADING__}+(%article-item%)%+3,5%'

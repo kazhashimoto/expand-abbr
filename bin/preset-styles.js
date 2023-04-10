@@ -69,13 +69,24 @@ styleMap.set('section', {
     return map;
   }
 });
+styleMap.set('ordered-block', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(`${key} + ${key}, ._x-float-block_div + ${key}`, [
+      'margin-top: 40px'
+    ]);
+    return map;
+  }
+});
 styleMap.set('float-block', {
   accept: ['div'],
   getStyleRule: (cls) => {
     const key = `.${cls}`;
     const map = new Map();
-    map.set(`${key} + ${key}`, [
-      'margin-top: 20px'
+    map.set(`${key} + ${key}, ._x-ordered-block_div + ${key}`, [
+      'margin-top: 40px'
     ]);
     map.set(`${key} p`, [
       'max-inline-size: none'
