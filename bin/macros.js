@@ -59,7 +59,6 @@ macroMap.set('figure', [
 ]);
 macroMap.set('thumbnail', [
   'div>img[src=photo1x1_$.jpg alt=__PHRASE__]',
-  'div>img[src=photo2x2_$.jpg alt=__PHRASE__]',
   'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
 ]);
@@ -162,13 +161,14 @@ macroMap.set('table', [
   'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>{__PHRASE__}'
 ]);
 macroMap.set('grid', [
-  'div>(%card%)%4,8%'
+  'div._x-grid-3>(%card%)%4,8%',
+  'div._x-grid-4>(%card%)%4,8%'
 ]);
 macroMap.set('card', [
-  'div>(%thumbnail@0%)+div>(h6{__PHRASE__}+p{__DIGEST__}+p{&dollar;99.99})',
-  'div>(%thumbnail@1%)+div>(h5{__HEADING__}+p>lorem20^%anchor@0%)',
-  'div>(%thumbnail@1%)+p>lorem10',
-  'div>(%thumbnail@1%)+p>lorem20'
+  'div>(%thumbnail%)+div>(h6{__PHRASE__}+p{__DIGEST__}+p{&dollar;99.99})',
+  'div>(%thumbnail%)+div>(h5{__HEADING__}+p>lorem20^%anchor@0%)',
+  'div>(%thumbnail%)+p>lorem10',
+  'div>(%thumbnail%)+p>lorem20'
 ]);
 macroMap.set('link-icon', [
   'a._x-link[href=page$.html]>{__PHRASE__}',

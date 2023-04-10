@@ -113,18 +113,7 @@ styleMap.set('float-block', {
     ]);
     return map;
   }
-})
-// styleMap.set('img', {
-//   accept: ['div'],
-//   getStyleRule: (cls) => {
-//     const key = `.${cls}`;
-//     const map = new Map();
-//     map.set(key, [
-//       'margin-top: 10px'
-//     ]);
-//     return map;
-//   }
-// });
+});
 styleMap.set('photo', {
   accept: ['div'],
   getStyleRule: (cls) => {
@@ -217,6 +206,12 @@ styleMap.set('grid', {
       'grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))',
       'gap: 10px'
     ]);
+    map.set(`${key}._x-grid-3`, [
+      'grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))'
+    ]);
+    map.set(`${key}._x-grid-4`, [
+      'grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))'
+    ]);
     return map;
   }
 });
@@ -231,6 +226,20 @@ styleMap.set('card', {
     ]);
     map.set(`${key} p`, [
       'font-size: var(--font-size-1)'
+    ]);
+    return map;
+  }
+});
+styleMap.set('thumbnail', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(`${key} img`, [
+      'display: inline',
+      'max-width: 100%',
+      'height: auto',
+      'vertical-align: bottom'
     ]);
     return map;
   }

@@ -363,9 +363,9 @@ function macro(specifier) {
       let [rx, ry] = found[2].split('x').map(d => +d);
       let c;
       if (item == 'thumbnail') {
-        c = 15;
+        c = 20;
         if (rx < 4) {
-          c = 100;
+          c = 400;
         } else if (rx < 10) {
           c = 60;
         }
