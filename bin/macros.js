@@ -76,8 +76,8 @@ macroMap.set('p-long', [
 macroMap.set('img', [
   'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
-  'div%3%>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div%3%>img[src=photo16x9_$.jpg alt=__PHRASE__]',
+  'div%2%>img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'div%2%>img[src=photo16x9_$.jpg alt=__PHRASE__]',
   '(%figure%)'
 ]);
 macroMap.set('figure', [
@@ -121,8 +121,11 @@ macroMap.set('section-heading', [
 ]);
 macroMap.set('section-body', [
   '(%ordered-block%)%+3%',
-  '((%ordered-block%)+(%block-content%))%+3%',
-  '(%float-block%)%+3%'
+  '(%float-block%)%+3%',
+  '(%ordered-block%)+(%float-block%)',
+  '(%float-block%)+(%ordered-block%)',
+  '(%ordered-block%)+(%float-block%)+(%ordered-block%)',
+  '(%float-block%)+(%ordered-block%)+(%float-block%)'
 ]);
 macroMap.set('float-block', [
   'div._x-float-img-right>(%img@0%)+(%p-long@1%)%3%',
@@ -135,8 +138,8 @@ macroMap.set('float-block', [
 macroMap.set('ordered-block', [
   'div>(%p-long%)+(%img%)',
   'div>(%p-long%)^(%img%)',
-  '%img%+div>(%p-long%)',
-  '%img%^div>(%p-long%)',
+  'div>(%img%)+(%p-long%)',
+  'div>(%img%)+div>(%p-long%)'
 ]);
 macroMap.set('article', [
   'article>h1{__HEADING__}+(%article-item%)%+3,5%'
