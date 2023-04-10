@@ -37,26 +37,6 @@ macroMap.set('copyright', [
 macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s$]{$}'
 ]);
-macroMap.set('block-content', [
-  '%p%',
-  'div>(%p%)^(div>(%p%))',
-  'div>(%p%)+div>(%p%)',
-  'div>(%p%)^(%anchor%)',
-  'div>(%p%)+(%anchor%)',
-  'div>(%p%)^(%img%)',
-  'div>(%p%)+(%img%)',
-  '(%img%)+(div>(%p%))',
-  '%img%+(div>(%p%))',
-  'div>(%p%)^(%img%)^(%anchor%)',
-  '(div>(%p%)+(%img%))^(%anchor%)',
-  'div>(%p%)^(%img%+%anchor%)',
-  'div>((%p%)+%img%+%anchor%)',
-  '(%img%)+(div>(%p%))+(%anchor%)',
-  '(%img%+(div>(%p%))+(%anchor%)',
-  '%img%+(div>(%p%)+(%anchor%))',
-  '(div>(%p%))+(%anchor%)+(%img%)',
-  'div>(%p%)+(%anchor%)+(%img%)'
-]);
 macroMap.set('p', [
   'p%2,5%>lorem10',
   'p%5%>span>lorem2^lorem8',
@@ -73,16 +53,9 @@ macroMap.set('p-long', [
   'p*4>lorem25',
   'p*5>lorem20'
 ]);
-macroMap.set('img', [
-  'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
-  'div%2%>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div%2%>img[src=photo16x9_$.jpg alt=__PHRASE__]',
-  '(%figure%)'
-]);
 macroMap.set('figure', [
-  'figure>figcaption>lorem8^img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'figure>img[src=photo4x3_$.jpg alt=__PHRASE__]+figcaption>lorem8'
+  'figure>figcaption{__MESSAGE__}+img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'figure>img[src=photo4x3_$.jpg alt=__PHRASE__]+figcaption{__MESSAGE__}'
 ]);
 macroMap.set('thumbnail', [
   'div>img[src=photo1x1_$.jpg alt=__PHRASE__]',
@@ -128,12 +101,12 @@ macroMap.set('section-body', [
   '(%float-block%)+(%ordered-block%)+(%float-block%)'
 ]);
 macroMap.set('float-block', [
-  'div._x-float-img-right>(%img@0%)+(%p-long@1%)%3%',
-  'div._x-float-img-left>(%img@0%)+(%p-long@1%)%3%',
-  'div._x-float-img-right>(%img@0%)+(%p-long%)+(%p%)',
-  'div._x-float-img-left>(%img@0%)+(%p-long%)+(%p%)',
-  'div._x-float-img-right>(%img@0%)+p{__MESSAGE__}',
-  'div._x-float-img-left>(%img@0%)+p{__MESSAGE__}'
+  'div._x-float-img-right>(%photo%)+(%p-long@1%)%3%',
+  'div._x-float-img-left>(%photo%)+(%p-long@1%)%3%',
+  'div._x-float-img-right>(%photo%)+(%p-long%)+(%p%)',
+  'div._x-float-img-left>(%photo%)+(%p-long%)+(%p%)',
+  'div._x-float-img-right>(%photo%)+p{__MESSAGE__}',
+  'div._x-float-img-left>(%photo%)+p{__MESSAGE__}'
 ]);
 macroMap.set('ordered-block', [
   'div>(%p-long%)+(%img-block%)',
@@ -167,8 +140,8 @@ macroMap.set('blog-header', [
   'h3{__HEADING__}'
 ]);
 macroMap.set('blog-post', [
-  'section>h4{__HEADING__}+p{__MESSAGE__}+(%img@0%)',
-  'section>h4{__HEADING__}+p%2,4%{__MESSAGE__}+(%img@0%)'
+  'section>h4{__HEADING__}+p{__MESSAGE__}+(%photo@0%)',
+  'section>h4{__HEADING__}+p%2,4%{__MESSAGE__}+(%photo@0%)'
 ]);
 macroMap.set('blog-comment', [
   'div>(%blog-comment-item%)%+2,5%'
@@ -176,7 +149,7 @@ macroMap.set('blog-comment', [
 macroMap.set('blog-comment-item', [
   'article>h6{__DIGEST__}+p{__MESSAGE__}+(%blog-footer%)',
   'article>h6{__DIGEST__}+p%2,4%{__MESSAGE__}+(%blog-footer%)',
-  'article>h6{__DIGEST__}+p{__MESSAGE__}+(%img@0%)+(%blog-footer%)'
+  'article>h6{__DIGEST__}+p{__MESSAGE__}+(%photo@0%)+(%blog-footer%)'
 ]);
 macroMap.set('blog-footer', [
   'footer>p>{Posted on}+(%time%)+{by __NAME__}'

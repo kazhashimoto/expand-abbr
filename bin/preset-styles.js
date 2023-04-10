@@ -91,39 +91,40 @@ styleMap.set('float-block', {
     map.set(`${key} p`, [
       'max-inline-size: none'
     ]);
-    map.set(`${key} ._x-img_div`, [
+    map.set(`${key} ._x-photo_div`, [
       'width: 40%'
     ]);
-    map.set(`${key} ._x-img_div img`, [
-      'display: inline'
+    map.set(`${key} ._x-photo_div img`, [
+      'display: inline',
+      'vertical-align: bottom'
     ]);
     map.set(`${key}::after`, [
       'display: block',
       'content: ""',
       'clear: both'
     ]);
-    map.set('._x-float-img-right ._x-img_div ', [
+    map.set('._x-float-img-right ._x-photo_div ', [
       'float: right',
       'margin-left: 10px'
     ]);
-    map.set('._x-float-img-left ._x-img_div ', [
+    map.set('._x-float-img-left ._x-photo_div ', [
       'float: left',
       'margin-right: 10px'
     ]);
     return map;
   }
 })
-styleMap.set('img', {
-  accept: ['div'],
-  getStyleRule: (cls) => {
-    const key = `.${cls}`;
-    const map = new Map();
-    map.set(key, [
-      'margin-top: 10px'
-    ]);
-    return map;
-  }
-});
+// styleMap.set('img', {
+//   accept: ['div'],
+//   getStyleRule: (cls) => {
+//     const key = `.${cls}`;
+//     const map = new Map();
+//     map.set(key, [
+//       'margin-top: 10px'
+//     ]);
+//     return map;
+//   }
+// });
 styleMap.set('photo', {
   accept: ['div'],
   getStyleRule: (cls) => {
