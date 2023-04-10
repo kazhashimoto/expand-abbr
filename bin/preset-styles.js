@@ -124,6 +124,33 @@ styleMap.set('img', {
     return map;
   }
 });
+styleMap.set('photo', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(`${key} img`, [
+      'display: inline',
+      'max-width: 100%',
+      'height: auto',
+      'vertical-align: bottom'
+    ]);
+    return map;
+  }
+});
+styleMap.set('photo-column', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'display: grid',
+      'grid-template-columns: 1fr 1fr',
+      'gap: 10px'
+    ]);
+    return map;
+  }
+});
 styleMap.set('blog-article', {
   accept: ['article'],
   getStyleRule: (cls) => {

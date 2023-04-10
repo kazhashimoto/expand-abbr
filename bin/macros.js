@@ -136,11 +136,24 @@ macroMap.set('float-block', [
   'div._x-float-img-left>(%img@0%)+p{__MESSAGE__}'
 ]);
 macroMap.set('ordered-block', [
-  'div>(%p-long%)+(%img%)',
-  'div>(%p-long%)^(%img%)',
-  'div>(%img%)+(%p-long%)',
-  'div>((%img%)+div>(%p-long%))'
+  'div>(%p-long%)+(%img-block%)',
+  'div>(%p-long%)^(%img-block%)',
+  'div>(%img-block%)+(%p-long%)',
+  'div>((%img-block%)+div>(%p-long%))'
 ]);
+macroMap.set('img-block', [
+  '%photo%',
+  '%photo-column%',
+  '%figure%',
+]);
+macroMap.set('photo', [
+  'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
+]);
+macroMap.set('photo-column', [
+  'div>(%photo%)*2'
+]);
+
 macroMap.set('article', [
   'article>h1{__HEADING__}+(%article-item%)%+3,5%'
 ]);
