@@ -56,6 +56,17 @@ styleMap.set('pg-footer', {
     return map;
   }
 });
+styleMap.set('list', {
+  accept: ['ul', 'ol', 'dl'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 40px'
+    ]);
+    return map;
+  }
+});
 styleMap.set('section', {
   accept: ['section'],
   getStyleRule: (cls) => {
@@ -141,6 +152,18 @@ styleMap.set('photo-column', {
     return map;
   }
 });
+styleMap.set('figure', {
+  accept: ['figure'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 40px',
+      'margin-bottom: 40px'
+    ]);
+    return map;
+  }
+});
 styleMap.set('blog-article', {
   accept: ['article'],
   getStyleRule: (cls) => {
@@ -204,7 +227,8 @@ styleMap.set('grid', {
     map.set(key, [
       'display: grid',
       'grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))',
-      'gap: 10px'
+      'gap: 10px',
+      'margin-top: 40px'
     ]);
     map.set(`${key}._x-grid-3`, [
       'grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))'
@@ -222,7 +246,7 @@ styleMap.set('card', {
     const map = new Map();
     map.set(key, [
       'padding: 10px',
-      'box-shadow: var(--shadow-2)'
+      'box-shadow: var(--shadow-3)'
     ]);
     map.set(`${key} p`, [
       'font-size: var(--font-size-1)'
@@ -336,7 +360,7 @@ styleMap.set('table', {
     const map = new Map();
     map.set(key, [
       'border-collapse: collapse',
-      'margin-top: 30px',
+      'margin-top: 40px',
     ]);
     map.set(`${key} th`, [
       'background: var(--surface-3)',
