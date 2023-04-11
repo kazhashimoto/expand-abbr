@@ -469,6 +469,17 @@ function concatLoremText(words, count) {
   return arr.join(' ');
 }
 
+function hypertext(word) {
+  let p = mt.random_incl();
+  if (Math.abs(p - 0.5) < 0.02) {
+    let param = word.toLowerCase().replace(/\W/g, encodeURIComponent);
+    let url = `https://www.google.com/search?q=${param}`;
+    const abbr = `a[href="${url}"]{${word}}`;
+    return expand(abbr);
+  }
+  return word;
+}
+
 function fluctuation(base, delta) {
   let r;
   let d = 0;
@@ -516,6 +527,11 @@ function replaceText(specifier) {
       found = macro.match(/^CONCAT(\d+X\d+)/);
       let [words, count] = found[1].split('X').map(d => +d);
       text = concatLoremText(words, count);
+    } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
+      found = macro.match(/^HYPERTEXT(\d+X\d+)/);
+      let [words, count] = found[1].split('X').map(d => +d);
+      text = concatLoremText(words, count);
+      text = text.replace(/[A-Za-z']{5,}/g, hypertext);
     } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
