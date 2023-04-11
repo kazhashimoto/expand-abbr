@@ -359,6 +359,8 @@ styleMap.set('table', {
     const key = `.${cls}`;
     const map = new Map();
     map.set(key, [
+      'table-layout: fixed',
+      'width: 100%',
       'border-collapse: collapse',
       'margin-top: 40px',
     ]);
