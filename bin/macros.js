@@ -156,8 +156,8 @@ macroMap.set('time', [
   'time[datetime=__DATETIME__]{__DATE__}',
 ]);
 macroMap.set('table', [
-  'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
-  'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>{__PHRASE__}'
+  'table>(thead>tr>th*3{item$})+(tbody>tr%3,5%>td*3>{__PHRASE__})',
+  'table>caption{__DIGEST__}+(thead>tr>th*4{item$})+(tbody>tr%3,5%>td*4>{__PHRASE__})'
 ]);
 macroMap.set('grid', [
   'div._x-grid-3>(%card%)%4,8%',

@@ -527,9 +527,9 @@ function replaceText(specifier) {
       text = v[0].toString();
     } else if (/^IMAGE(\d+X\d+)/.test(macro)) {
       found = macro.match(/^IMAGE(\d+X\d+)/);
-      let dim = found[1].split('X').map(d => +d);
+      let [width, height] = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
-      text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
+      text = `https://picsum.photos/${width}/${height}?random=${x}`;
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
