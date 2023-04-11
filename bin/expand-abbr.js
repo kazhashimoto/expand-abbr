@@ -462,6 +462,13 @@ function getLoremText(lorem, idx, punctuation, capitalize) {
   return text;
 }
 
+function concatLoremText(words, count) {
+  const lorem = `lorem${words}*${count + 1}`;
+  let arr = expand(lorem).split('\n');
+  arr.shift();  // skip the first sentence starting "Lorem ipsum"
+  return arr.join(' ');
+}
+
 function fluctuation(base, delta) {
   let r;
   let d = 0;
@@ -505,6 +512,10 @@ function replaceText(specifier) {
     } else if (macro == 'MESSAGE') {
       n = fluctuation(12, 3);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
+    } else if (/^CONCAT(\d+X\d+)/.test(macro)) {
+      found = macro.match(/^CONCAT(\d+X\d+)/);
+      let [words, count] = found[1].split('X').map(d => +d);
+      text = concatLoremText(words, count);
     } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
