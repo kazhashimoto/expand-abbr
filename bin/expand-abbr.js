@@ -462,6 +462,24 @@ function getLoremText(lorem, idx, punctuation, capitalize) {
   return text;
 }
 
+function concatLoremText(words, count) {
+  const lorem = `lorem${words}*${count + 1}`;
+  let arr = expand(lorem).split('\n');
+  arr.shift();  // skip the first sentence starting "Lorem ipsum"
+  return arr.join(' ');
+}
+
+function hypertext(word) {
+  let p = mt.random_incl();
+  if (Math.abs(p - 0.5) < 0.02) {
+    let param = word.toLowerCase().replace(/\W/g, encodeURIComponent);
+    let url = `https://www.google.com/search?q=${param}`;
+    const abbr = `a[href="${url}"]{${word}}`;
+    return expand(abbr);
+  }
+  return word;
+}
+
 function fluctuation(base, delta) {
   let r;
   let d = 0;
@@ -505,6 +523,15 @@ function replaceText(specifier) {
     } else if (macro == 'MESSAGE') {
       n = fluctuation(12, 3);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
+    } else if (/^CONCAT(\d+X\d+)/.test(macro)) {
+      found = macro.match(/^CONCAT(\d+X\d+)/);
+      let [words, count] = found[1].split('X').map(d => +d);
+      text = concatLoremText(words, count);
+    } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
+      found = macro.match(/^HYPERTEXT(\d+X\d+)/);
+      let [words, count] = found[1].split('X').map(d => +d);
+      text = concatLoremText(words, count);
+      text = text.replace(/[A-Za-z']{5,}/g, hypertext);
     } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
@@ -516,9 +543,9 @@ function replaceText(specifier) {
       text = v[0].toString();
     } else if (/^IMAGE(\d+X\d+)/.test(macro)) {
       found = macro.match(/^IMAGE(\d+X\d+)/);
-      let dim = found[1].split('X').map(d => +d);
+      let [width, height] = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
-      text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
+      text = `https://picsum.photos/${width}/${height}?random=${x}`;
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {

@@ -53,6 +53,9 @@ macroMap.set('p-long', [
   'p*4>lorem25',
   'p*5>lorem20'
 ]);
+macroMap.set('p-hypertext', [
+  '(p{__HYPERTEXT20X3__})%+3%',
+])
 macroMap.set('figure', [
   'figure>figcaption{__MESSAGE__}+img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'figure>img[src=photo4x3_$.jpg alt=__PHRASE__]+figcaption{__MESSAGE__}'
@@ -100,17 +103,16 @@ macroMap.set('section-body', [
   '(%float-block%)+(%ordered-block%)+(%float-block%)'
 ]);
 macroMap.set('float-block', [
-  'div._x-float-img-right>(%photo%)+(%p-long@1%)%3%',
-  'div._x-float-img-left>(%photo%)+(%p-long@1%)%3%',
-  'div._x-float-img-right>(%photo%)+(%p-long%)+(%p%)',
-  'div._x-float-img-left>(%photo%)+(%p-long%)+(%p%)',
-  'div._x-float-img-right>(%photo%)+p{__MESSAGE__ __MESSAGE__ __MESSAGE__}',
-  'div._x-float-img-left>(%photo%)+p{__MESSAGE__ __MESSAGE__ __MESSAGE__}'
+  'div._x-float-img-right>(%photo%)+(%p-hypertext%)',
+  'div._x-float-img-left>(%photo%)+(%p-hypertext%)',
+  'div._x-float-img-right>(%photo%)+p{__CONCAT12X3__}',
+  'div._x-float-img-left>(%photo%)+p{__CONCAT12X3__}'
 ]);
 macroMap.set('ordered-block', [
-  'div>(%p-long%)+(%img-block%)',
-  'div>(%img-block%)+(%p-long%)',
-  'div>((%img-block%)+div>(%p-long%))'
+  'div>(%p-hypertext%)+(%img-block%)',
+  'div>(%p-hypertext%)+(%img-block%)',
+  'div>(%img-block%)+(%p-hypertext%)',
+  'div>((%img-block%)+div>(%p-hypertext%))'
 ]);
 macroMap.set('img-block', [
   '%photo%',
@@ -156,8 +158,8 @@ macroMap.set('time', [
   'time[datetime=__DATETIME__]{__DATE__}',
 ]);
 macroMap.set('table', [
-  'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
-  'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>{__PHRASE__}'
+  'table>(thead>tr>th*3{item$})+(tbody>tr%3,5%>td*3>{__PHRASE__})',
+  'table>caption{__DIGEST__}+(thead>tr>th*4{item$})+(tbody>tr%3,5%>td*4>{__PHRASE__})'
 ]);
 macroMap.set('grid', [
   'div._x-grid-3>(%card%)%4,8%',
