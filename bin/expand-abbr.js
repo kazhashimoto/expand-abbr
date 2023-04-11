@@ -480,6 +480,33 @@ function hypertext(word) {
   return word;
 }
 
+function insertNumber(str) {
+  let p = mt.random_incl();
+  if (Math.abs(p - 0.5) < 0.01) {
+    const clamp = (a, x, b) => Math.max(a, Math.min(x, b));
+    const max = 1230000;
+    let n = mt.random_int();
+    n = clamp(10, n % max, max);
+    p = mt.random_incl();
+    if (p < 0.5) {
+      n = Math.floor(Math.sqrt(n));
+    }
+    if (n >= 10000) {
+      n = 100 * Math.floor(n / 100);
+    }
+    let digits = new Intl.NumberFormat('en-US').format(n);
+    str = str.replace(' ', ` ${digits} `);
+  }
+  return str;
+}
+
+function makeHypertext(source) {
+  let text = source;
+  text = text.replace(/[a-z] [a-z]/g, insertNumber);
+  text = text.replace(/[A-Za-z']{5,}/g, hypertext);
+  return text;
+}
+
 function fluctuation(base, delta) {
   let r;
   let d = 0;
@@ -531,7 +558,7 @@ function replaceText(specifier) {
       found = macro.match(/^HYPERTEXT(\d+X\d+)/);
       let [words, count] = found[1].split('X').map(d => +d);
       text = concatLoremText(words, count);
-      text = text.replace(/[A-Za-z']{5,}/g, hypertext);
+      text = makeHypertext(text);
     } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
