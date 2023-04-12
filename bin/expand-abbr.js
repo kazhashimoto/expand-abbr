@@ -469,20 +469,21 @@ function concatLoremText(words, count) {
   return arr.join(' ');
 }
 
-function hypertext(word) {
-  let p = mt.random_incl();
-  if (Math.abs(p - 0.5) < 0.02) {
-    let param = word.toLowerCase().replace(/\W/g, encodeURIComponent);
-    let url = `https://www.google.com/search?q=${param}`;
-    const abbr = `a[href="${url}"]{${word}}`;
-    return expand(abbr);
-  }
-  return word;
+function prob(p) {
+  const x = mt.random_incl();
+  const r = p / 2;
+  return (Math.abs(x - 0.5) < r);
+}
+
+function insertLink(str) {
+  let param = str.toLowerCase().replace(/\W/g, encodeURIComponent);
+  let url = `https://www.google.com/search?q=${param}`;
+  const abbr = `a[href="${url}"]{${str}}`;
+  return expand(abbr);
 }
 
 function insertNumber(str) {
-  let p = mt.random_incl();
-  if (Math.abs(p - 0.5) < 0.01) {
+  if (prob(0.02)) {
     const clamp = (a, x, b) => Math.max(a, Math.min(x, b));
     const max = 1230000;
     let n = mt.random_int();
@@ -500,10 +501,71 @@ function insertNumber(str) {
   return str;
 }
 
+function insertDash(str) {
+  if (prob(0.03)) {
+    str = str.replace(/^([a-z]) /, '$1&mdash;').replace(/ ([a-z])$/, '&mdash;$1');
+  }
+  return str;
+}
+
+function reducePunctuationMarks(source) {
+  let text = source;
+
+  const full_stop = (str) => {
+    if (prob(0.8)) {
+      str = str.replace(/[!?]/, '.');
+    }
+    return str;
+  };
+  const comma = (str) => {
+    if (prob(0.7)) {
+      str = str.replace(/,$/, '');
+    }
+    return str;
+  };
+  const comma2 = (str) => {
+    str = str.replace(',', '');
+    return str;
+  }
+  const parentheses = (str) => {
+    if (prob(0.7)) {
+      str = str.replace(/^, /, ' (').replace(/,$/, ')');
+    }
+    return str;
+  };
+  text = text.replace(/[!?]/g, full_stop);
+  text = text.replace(/[.!?,] [A-Za-z]+,/g, comma);
+  text = text.replace(/[A-Z][a-z]+, [a-z]+[.!?]/g, comma2);
+  text = text.replace(/,( [a-z]+){2},/g, parentheses);
+  return text;
+}
+
 function makeHypertext(source) {
   let text = source;
+  text = reducePunctuationMarks(text);
+  text = text.replace(/[a-z]( [a-z]+){5} [a-z]/, insertDash);
   text = text.replace(/[a-z] [a-z]/g, insertNumber);
-  text = text.replace(/[A-Za-z']{5,}/g, hypertext);
+  const mark = (str) => {
+    if (prob(0.05)) {
+      str = str.replace(/ $/, '#');
+    }
+    return str;
+  };
+  const mark2 = (str) => {
+    if (prob(0.5)) {
+      str = str.replace(/ $/, '#');
+    }
+    return str;
+  };
+  const hypertext = (str) => {
+    str = str.replace(/#/g, ' ').replace(/ $/, '');
+    str = insertLink(str) + ' ';
+    return str;
+  };
+  text = text.replace(/[A-Za-z]{5,} /g, mark)
+              .replace(/#[[A-Za-z]+ /g, mark2)
+              .replace(/#[[A-Za-z]+ /g, mark2)
+              .replace(/([A-Za-z]+#)+/g, hypertext);
   return text;
 }
 
