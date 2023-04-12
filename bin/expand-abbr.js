@@ -475,14 +475,11 @@ function prob(p) {
   return (Math.abs(x - 0.5) < r);
 }
 
-function hypertext(word) {
-  if (prob(0.05)) {
-    let param = word.toLowerCase().replace(/\W/g, encodeURIComponent);
-    let url = `https://www.google.com/search?q=${param}`;
-    const abbr = `a[href="${url}"]{${word}}`;
-    return expand(abbr);
-  }
-  return word;
+function insertLink(str) {
+  let param = str.toLowerCase().replace(/\W/g, encodeURIComponent);
+  let url = `https://www.google.com/search?q=${param}`;
+  const abbr = `a[href="${url}"]{${str}}`;
+  return expand(abbr);
 }
 
 function insertNumber(str) {
@@ -515,7 +512,27 @@ function makeHypertext(source) {
   let text = source;
   text = text.replace(/[a-z]( [a-z]+){5} [a-z]/, insertDash);
   text = text.replace(/[a-z] [a-z]/g, insertNumber);
-  text = text.replace(/[A-Za-z']{5,}/g, hypertext);
+  const mark = (str) => {
+    if (prob(0.05)) {
+      str = str.replace(/ $/, '#');
+    }
+    return str;
+  };
+  const mark2 = (str) => {
+    if (prob(0.5)) {
+      str = str.replace(/ $/, '#');
+    }
+    return str;
+  };
+  const hypertext = (str) => {
+    str = str.replace(/#/g, ' ').replace(/ $/, '');
+    str = insertLink(str) + ' ';
+    return str;
+  };
+  text = text.replace(/[A-Za-z']{5,} /g, mark)
+              .replace(/#[[A-Za-z']+ /g, mark2)
+              .replace(/#[[A-Za-z']+ /g, mark2)
+              .replace(/([A-Za-z']+#)+/g, hypertext);
   return text;
 }
 
