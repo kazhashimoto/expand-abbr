@@ -527,6 +527,10 @@ function reducePunctuationMarks(source) {
     str = str.replace(',', '');
     return str;
   }
+  const single_word = (str) => {
+    str = str.replace(/^[.!?]/, '').replace(/[!?]$/, '.').toLowerCase();
+    return str;
+  };
   const parentheses = (str) => {
     if (prob(0.7)) {
       str = str.replace(/^, /, ' (').replace(/,$/, ')');
@@ -535,7 +539,8 @@ function reducePunctuationMarks(source) {
   };
   text = text.replace(/[!?]/g, full_stop);
   text = text.replace(/[.!?,] [A-Za-z]+,/g, comma);
-  text = text.replace(/[A-Z][a-z]+, [a-z]+[.!?]/g, comma2);
+  text = text.replace(/[A-Z][a-z]*, [a-z]+[.!?]/g, comma2);
+  text = text.replace(/[.!?] [A-Z][a-z]*[.!?]/g, single_word);
   text = text.replace(/,( [a-z]+){2},/g, parentheses);
   return text;
 }
