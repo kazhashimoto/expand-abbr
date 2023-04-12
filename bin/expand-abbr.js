@@ -508,8 +508,41 @@ function insertDash(str) {
   return str;
 }
 
+function reducePunctuationMarks(source) {
+  let text = source;
+
+  const full_stop = (str) => {
+    if (prob(0.8)) {
+      str = str.replace(/[!?]/, '.');
+    }
+    return str;
+  };
+  const comma = (str) => {
+    if (prob(0.7)) {
+      str = str.replace(/,$/, '');
+    }
+    return str;
+  };
+  const comma2 = (str) => {
+    str = str.replace(',', '');
+    return str;
+  }
+  const parentheses = (str) => {
+    if (prob(0.7)) {
+      str = str.replace(/^, /, ' (').replace(/,$/, ')');
+    }
+    return str;
+  };
+  text = text.replace(/[!?]/g, full_stop);
+  text = text.replace(/[.!?,] [A-Za-z]+,/g, comma);
+  text = text.replace(/[A-Z][a-z]+, [a-z]+[.!?]/g, comma2);
+  text = text.replace(/,( [a-z]+){2},/g, parentheses);
+  return text;
+}
+
 function makeHypertext(source) {
   let text = source;
+  text = reducePunctuationMarks(text);
   text = text.replace(/[a-z]( [a-z]+){5} [a-z]/, insertDash);
   text = text.replace(/[a-z] [a-z]/g, insertNumber);
   const mark = (str) => {
@@ -529,10 +562,10 @@ function makeHypertext(source) {
     str = insertLink(str) + ' ';
     return str;
   };
-  text = text.replace(/[A-Za-z']{5,} /g, mark)
-              .replace(/#[[A-Za-z']+ /g, mark2)
-              .replace(/#[[A-Za-z']+ /g, mark2)
-              .replace(/([A-Za-z']+#)+/g, hypertext);
+  text = text.replace(/[A-Za-z]{5,} /g, mark)
+              .replace(/#[[A-Za-z]+ /g, mark2)
+              .replace(/#[[A-Za-z]+ /g, mark2)
+              .replace(/([A-Za-z]+#)+/g, hypertext);
   return text;
 }
 
