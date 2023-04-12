@@ -469,9 +469,14 @@ function concatLoremText(words, count) {
   return arr.join(' ');
 }
 
+function prob(p) {
+  const x = mt.random_incl();
+  const r = p / 2;
+  return (Math.abs(x - 0.5) < r);
+}
+
 function hypertext(word) {
-  let p = mt.random_incl();
-  if (Math.abs(p - 0.5) < 0.02) {
+  if (prob(0.05)) {
     let param = word.toLowerCase().replace(/\W/g, encodeURIComponent);
     let url = `https://www.google.com/search?q=${param}`;
     const abbr = `a[href="${url}"]{${word}}`;
@@ -481,8 +486,7 @@ function hypertext(word) {
 }
 
 function insertNumber(str) {
-  let p = mt.random_incl();
-  if (Math.abs(p - 0.5) < 0.01) {
+  if (prob(0.02)) {
     const clamp = (a, x, b) => Math.max(a, Math.min(x, b));
     const max = 1230000;
     let n = mt.random_int();
@@ -500,8 +504,16 @@ function insertNumber(str) {
   return str;
 }
 
+function insertDash(str) {
+  if (prob(0.03)) {
+    str = str.replace(/^([a-z]) /, '$1&mdash;').replace(/ ([a-z])$/, '&mdash;$1');
+  }
+  return str;
+}
+
 function makeHypertext(source) {
   let text = source;
+  text = text.replace(/[a-z]( [a-z]+){5} [a-z]/, insertDash);
   text = text.replace(/[a-z] [a-z]/g, insertNumber);
   text = text.replace(/[A-Za-z']{5,}/g, hypertext);
   return text;
