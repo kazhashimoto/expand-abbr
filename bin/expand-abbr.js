@@ -617,10 +617,6 @@ function replaceText(specifier) {
     } else if (macro == 'MESSAGE') {
       n = fluctuation(12, 3);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
-    } else if (/^CONCAT(\d+X\d+)/.test(macro)) {
-      found = macro.match(/^CONCAT(\d+X\d+)/);
-      let [words, count] = found[1].split('X').map(d => +d);
-      text = concatLoremText(words, count);
     } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
       found = macro.match(/^HYPERTEXT(\d+X\d+)/);
       let [words, count] = found[1].split('X').map(d => +d);
