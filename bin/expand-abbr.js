@@ -494,7 +494,7 @@ function insertNumber(str) {
 }
 
 function insertDash(str) {
-  if (prob(0.03)) {
+  if (prob(0.2)) {
     str = str.replace(/^([a-z]) /, '$1&mdash;').replace(/ ([a-z])$/, '&mdash;$1');
   }
   return str;
@@ -510,28 +510,30 @@ function reducePunctuationMarks(source) {
     return str;
   };
   const comma = (str) => {
-    if (prob(0.7)) {
-      str = str.replace(/,/, '');
-    }
-    return str;
+    return prob(0.7)? '': str;
   };
-  const comma2 = (str) => {
-    str = str.replace(',', '');
-    return str;
-  }
+  const first_word_comma = (str) => str.replace(',', '');
   const single_word = (str) => {
     str = str.replace(/^[.!?]/, '').replace(/[!?]$/, '.').toLowerCase();
     return str;
   };
+  const single_word1 = (str) => str.replace(/^[.!?]/, '').toLowerCase();
+  const single_word2 = (str) => {
+    str = str.replace(/[.!?]/, '').replace(/[A-Z]$/, str => str.toLowerCase());
+    return str;
+  };
   const parentheses = (str) => {
-    str = str.replace(/^, /, ' (').replace(/,$/, ')');
+    if (prob(0.3)) {
+      str = str.replace(/^, /, ' (').replace(/,$/, ')');
+    }
     return str;
   };
   text = text.replace(/[!?]/g, full_stop);
-  text = text.replace(/[A-Za-z]+,/g, comma);
-  text = text.replace(/([.!?] )?[A-Z][a-z]*[.!?]/g, single_word);
-  text = text.replace(/,( [a-z]+){1,3},/g, parentheses);
-  text = text.replace(/[A-Z][a-z]*,/g, comma2);
+  text = text.replace(/[A-Z][a-z]*,/g, first_word_comma);
+  text = text.replace(/[.!?] [A-Z][a-z]*[.!?]/g, single_word1);
+  text = text.replace(/[A-Z][a-z]*[.!?] [A-Z]/g, single_word2);
+  text = text.replace(/,( [a-z]+){1,4},/g, parentheses);
+  text = text.replace(/,/g, comma);
   return text;
 }
 
