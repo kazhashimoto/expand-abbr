@@ -55,13 +55,10 @@ macroMap.set('anchor', [
   'div>(%link-icon%)'
 ]);
 macroMap.set('list', [
-  // 'ul>li%2,5%>lorem4-8',
-  // 'ul>li%2,5%>lorem8-16',
-  // 'ul>li*4>a[href=page$.html]{__PHRASE__}',
-  'ul>li*4>(%link-icon%)',
-  // 'ul>li%2,5%>a[href=page$,html]>lorem4-8',
-  // 'ol>li%4,6%{__PHRASE__}',
-  // 'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
+  'ul>li%4,6%>(%link-icon%)',
+  'ul>li%4,6%{__MESSAGE__}',
+  'ol>li%4,6%{__MESSAGE__}',
+  'dl>(dt>{__PHRASE__}^dd>{__HYPERTEXT12X3__})%3,6%'
 ]);
 macroMap.set('section', [
   'section[id=s__SEQ_ID__]>(%section-inner%)',
@@ -71,7 +68,7 @@ macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)',
   '(%section-heading%)+(%section-body%)+div>(%list%)',
   '(%section-heading%)+(%section-body%)+div>(%table%)',
-  '(%section-heading%)+(%section-body%)+div>(%list%)^div>(%table%)',
+  '(%section-heading%)+(%section-body%)+(div>(%list%))+div>(%table%)',
   '(%section-heading%)+(%section-body%)+(%grid%)'
 ]);
 macroMap.set('section-heading', [
