@@ -484,9 +484,9 @@ function insertLink(str) {
 
 function insertNumber(str) {
   if (prob(0.02)) {
-    let n = mt.random_int();
-    let k = 1 + mt.random_int() % 100;
-    n = Math.floor(k * Math.log2(n));
+    let x = mt.random_incl();
+    let y = Math.exp(4 * x - 4);
+    let n = Math.floor(2500 * y);
     let digits = new Intl.NumberFormat('en-US').format(n);
     str = str.replace(' ', ` ${digits} `);
   }
