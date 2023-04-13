@@ -37,22 +37,6 @@ macroMap.set('copyright', [
 macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s$]{$}'
 ]);
-macroMap.set('p', [
-  'p%2,5%>lorem10',
-  'p%5%>span>lorem2^lorem8',
-  'p%5%>lorem8+span>lorem2',
-  'p%5%>a[href=page$.html]{__PHRASE__}+lorem8',
-  'p%5%>a[href=page$.html]>{__PHRASE__}+span>{__PHRASE__}',
-  'p%5%>lorem8+a[href=page$.html]{__PHRASE__}',
-  "p%5%>lorem6+a[href=page$.html]>{__PHRASE__}+span{__PHRASE__}"
-]);
-macroMap.set('p-long', [
-  'p>lorem100',
-  'p*2>lorem50',
-  'p*3>lorem33',
-  'p*4>lorem25',
-  'p*5>lorem20'
-]);
 macroMap.set('p-hypertext', [
   '(p{__HYPERTEXT20X3__})%+3%',
 ])
