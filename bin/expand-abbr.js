@@ -484,17 +484,9 @@ function insertLink(str) {
 
 function insertNumber(str) {
   if (prob(0.02)) {
-    const clamp = (a, x, b) => Math.max(a, Math.min(x, b));
-    const max = 1230000;
     let n = mt.random_int();
-    n = clamp(10, n % max, max);
-    p = mt.random_incl();
-    if (p < 0.5) {
-      n = Math.floor(Math.sqrt(n));
-    }
-    if (n >= 10000) {
-      n = 100 * Math.floor(n / 100);
-    }
+    let k = 1 + mt.random_int() % 100;
+    n = Math.floor(k * Math.log2(n));
     let digits = new Intl.NumberFormat('en-US').format(n);
     str = str.replace(' ', ` ${digits} `);
   }
