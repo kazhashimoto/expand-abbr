@@ -519,7 +519,7 @@ function reducePunctuationMarks(source) {
   };
   const comma = (str) => {
     if (prob(0.7)) {
-      str = str.replace(/,$/, '');
+      str = str.replace(/,/, '');
     }
     return str;
   };
@@ -527,16 +527,19 @@ function reducePunctuationMarks(source) {
     str = str.replace(',', '');
     return str;
   }
+  const single_word = (str) => {
+    str = str.replace(/^[.!?]/, '').replace(/[!?]$/, '.').toLowerCase();
+    return str;
+  };
   const parentheses = (str) => {
-    if (prob(0.7)) {
-      str = str.replace(/^, /, ' (').replace(/,$/, ')');
-    }
+    str = str.replace(/^, /, ' (').replace(/,$/, ')');
     return str;
   };
   text = text.replace(/[!?]/g, full_stop);
-  text = text.replace(/[.!?,] [A-Za-z]+,/g, comma);
-  text = text.replace(/[A-Z][a-z]+, [a-z]+[.!?]/g, comma2);
-  text = text.replace(/,( [a-z]+){2},/g, parentheses);
+  text = text.replace(/[A-Za-z]+,/g, comma);
+  text = text.replace(/([.!?] )?[A-Z][a-z]*[.!?]/g, single_word);
+  text = text.replace(/,( [a-z]+){1,3},/g, parentheses);
+  text = text.replace(/[A-Z][a-z]*,/g, comma2);
   return text;
 }
 
@@ -612,10 +615,6 @@ function replaceText(specifier) {
     } else if (macro == 'MESSAGE') {
       n = fluctuation(12, 3);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
-    } else if (/^CONCAT(\d+X\d+)/.test(macro)) {
-      found = macro.match(/^CONCAT(\d+X\d+)/);
-      let [words, count] = found[1].split('X').map(d => +d);
-      text = concatLoremText(words, count);
     } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
       found = macro.match(/^HYPERTEXT(\d+X\d+)/);
       let [words, count] = found[1].split('X').map(d => +d);
