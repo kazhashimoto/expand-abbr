@@ -763,9 +763,12 @@ debug(statMap);
 
 if (options.check) {
   console.log('### check macros ###');
-  const value = macroMap.get('root');
+  let value = macroMap.get('root');
   visitMacros(value, 'root');
   checkMacros();
+
+  console.log('### check style rules ###');
+  checkStyleRules();
 }
 
 function visitMacros(value, parent) {
@@ -791,7 +794,6 @@ function visitMacros(value, parent) {
 }
 
 function checkMacros() {
-  console.log('### check result ###');
   let [used, notused] = [0, 0];
   for (const [key, value] of macroMap) {
     if (value.visited) {
@@ -802,6 +804,22 @@ function checkMacros() {
     }
     if (value.error) {
       console.log(value.error);
+    }
+  }
+  console.log(`used=${used}, not used=${notused}`);
+}
+
+function checkStyleRules() {
+  if (!styleRules.length) {
+    addClassNames();
+  }
+  let [used, notused] = [0, 0];
+  for (const [key, value] of styleMap) {
+    if (value.checked) {
+      used++;
+    } else {
+      notused++;
+      console.log(`${key}: checked=${value.checked}`);
     }
   }
   console.log(`used=${used}, not used=${notused}`);
