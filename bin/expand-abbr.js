@@ -44,6 +44,7 @@ program
   .option('--dark', 'apply dark theme on the generated page')
   .option('--without-style', 'If this option disabled, insert default styles by using a <style> element in the <head> section')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
+  .option('--check', 'check for inconsistency in macro definitions and in style rules')
   .option('-d', 'print debug info.');
 
 program.parse(process.argv);
@@ -759,3 +760,67 @@ if (options.head) {
   console.log('</html>');
 }
 debug(statMap);
+
+if (options.check) {
+  console.log('### check macros ###');
+  let value = macroMap.get('root');
+  visitMacros(value, 'root');
+  checkMacros();
+
+  console.log('### check style rules ###');
+  checkStyleRules();
+}
+
+function visitMacros(value, parent) {
+  if (value.visited) {
+    return;
+  }
+  value.visited = true;
+  let re = /%[a-z-]+(@\d+)?%/g;
+  for (const expression of value) {
+    const found = expression.match(re);
+    if (found) {
+      for (const macro of found) {
+        const key = macro.replace(/%/g, '').replace(/@\d+/, '');
+        const v = macroMap.get(key);
+        if (v) {
+          visitMacros(v, key);
+        } else {
+          value.error = `Error: ${key} in ${parent} not defined`;
+        }
+      }
+    }
+  }
+}
+
+function checkMacros() {
+  let [used, notused] = [0, 0];
+  for (const [key, value] of macroMap) {
+    if (value.visited) {
+      used++;
+    } else {
+      notused++;
+      console.log(`${key} visited=${value.visited}`);
+    }
+    if (value.error) {
+      console.log(value.error);
+    }
+  }
+  console.log(`used=${used}, not used=${notused}`);
+}
+
+function checkStyleRules() {
+  if (!styleRules.length) {
+    addClassNames();
+  }
+  let [used, notused] = [0, 0];
+  for (const [key, value] of styleMap) {
+    if (value.checked) {
+      used++;
+    } else {
+      notused++;
+      console.log(`${key}: checked=${value.checked}`);
+    }
+  }
+  console.log(`used=${used}, not used=${notused}`);
+}
