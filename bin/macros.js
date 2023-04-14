@@ -107,13 +107,6 @@ macroMap.set('photo', [
 macroMap.set('photo-column', [
   'div>(%photo%)*2'
 ]);
-
-macroMap.set('article', [
-  'article>h1{__HEADING__}+(%article-item%)%+3,5%'
-]);
-macroMap.set('article-item', [
-  'article>h2{03 March 2023}+p{__PHRASE__}'
-]);
 macroMap.set('blog-article', [
   'article>(%blog-header%)+(%blog-post%)+(%sns-button-list%)+(%blog-footer%)+(%blog-comment%)+'
 ]);
