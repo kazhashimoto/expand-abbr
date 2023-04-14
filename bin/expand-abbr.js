@@ -442,7 +442,7 @@ function compile(abbr) {
  * @param capitalize  if true, capitalize the first letter of each word in the dummy text
  */
 function getLoremText(lorem, idx, punctuation, capitalize) {
-  let arr = expand(lorem).split('\n');
+  let arr = expand(lorem, {options: {'output.newline': '\n'}}).split('\n');
   if (idx < 0) {
     idx = 0;
   } else if (idx >= arr.length) {
@@ -464,7 +464,7 @@ function getLoremText(lorem, idx, punctuation, capitalize) {
 
 function concatLoremText(words, count) {
   const lorem = `lorem${words}*${count + 1}`;
-  let arr = expand(lorem).split('\n');
+  let arr = expand(lorem, {options: {'output.newline': '\n'}}).split('\n');
   arr.shift();  // skip the first sentence starting "Lorem ipsum"
   return arr.join(' ');
 }
