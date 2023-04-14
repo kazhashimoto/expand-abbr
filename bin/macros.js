@@ -37,22 +37,6 @@ macroMap.set('copyright', [
 macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s$]{$}'
 ]);
-macroMap.set('p', [
-  'p%2,5%>lorem10',
-  'p%5%>span>lorem2^lorem8',
-  'p%5%>lorem8+span>lorem2',
-  'p%5%>a[href=page$.html]{__PHRASE__}+lorem8',
-  'p%5%>a[href=page$.html]>{__PHRASE__}+span>{__PHRASE__}',
-  'p%5%>lorem8+a[href=page$.html]{__PHRASE__}',
-  "p%5%>lorem6+a[href=page$.html]>{__PHRASE__}+span{__PHRASE__}"
-]);
-macroMap.set('p-long', [
-  'p>lorem100',
-  'p*2>lorem50',
-  'p*3>lorem33',
-  'p*4>lorem25',
-  'p*5>lorem20'
-]);
 macroMap.set('p-hypertext', [
   '(p{__HYPERTEXT20X3__})%+3%',
 ])
@@ -71,13 +55,10 @@ macroMap.set('anchor', [
   'div>(%link-icon%)'
 ]);
 macroMap.set('list', [
-  // 'ul>li%2,5%>lorem4-8',
-  // 'ul>li%2,5%>lorem8-16',
-  // 'ul>li*4>a[href=page$.html]{__PHRASE__}',
-  'ul>li*4>(%link-icon%)',
-  // 'ul>li%2,5%>a[href=page$,html]>lorem4-8',
-  // 'ol>li%4,6%{__PHRASE__}',
-  // 'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
+  'ul>li%4,6%>(%link-icon%)',
+  'ul>li%4,6%{__MESSAGE__}',
+  'ol>li%4,6%{__MESSAGE__}',
+  'dl>(dt>{__PHRASE__}^dd>{__HYPERTEXT12X3__})%3,6%'
 ]);
 macroMap.set('section', [
   'section[id=s__SEQ_ID__]>(%section-inner%)',
@@ -87,7 +68,7 @@ macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)',
   '(%section-heading%)+(%section-body%)+div>(%list%)',
   '(%section-heading%)+(%section-body%)+div>(%table%)',
-  '(%section-heading%)+(%section-body%)+div>(%list%)^div>(%table%)',
+  '(%section-heading%)+(%section-body%)+(div>(%list%))+div>(%table%)',
   '(%section-heading%)+(%section-body%)+(%grid%)'
 ]);
 macroMap.set('section-heading', [
