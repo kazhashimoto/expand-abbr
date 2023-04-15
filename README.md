@@ -377,6 +377,7 @@ $ expand-abbr 'p{__MESSAGE__}'
 ```
 
 `__COMMENT__`マクロは文末に絵文字が0〜5個、ランダムに追加されたダミーテキストを生成します。
+
 例
 ```
 % expand-abbr 'p{__COMMENT__}'
