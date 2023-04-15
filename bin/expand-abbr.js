@@ -29,7 +29,7 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.6')
+  .version('1.1.7')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
@@ -44,6 +44,7 @@ program
   .option('--dark', 'apply dark theme on the generated page')
   .option('--without-style', 'If this option disabled, insert default styles by using a <style> element in the <head> section')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
+  .option('--check', 'check for inconsistency in macro definitions and in style rules')
   .option('-d', 'print debug info.');
 
 program.parse(process.argv);
@@ -363,9 +364,9 @@ function macro(specifier) {
       let [rx, ry] = found[2].split('x').map(d => +d);
       let c;
       if (item == 'thumbnail') {
-        c = 15;
+        c = 20;
         if (rx < 4) {
-          c = 100;
+          c = 400;
         } else if (rx < 10) {
           c = 60;
         }
@@ -442,7 +443,7 @@ function compile(abbr) {
  * @param capitalize  if true, capitalize the first letter of each word in the dummy text
  */
 function getLoremText(lorem, idx, punctuation, capitalize) {
-  let arr = expand(lorem).split('\n');
+  let arr = expand(lorem, {options: {'output.newline': '\n'}}).split('\n');
   if (idx < 0) {
     idx = 0;
   } else if (idx >= arr.length) {
@@ -459,6 +460,135 @@ function getLoremText(lorem, idx, punctuation, capitalize) {
     }
     text = arr.join(' ');
   }
+  return text;
+}
+
+function concatLoremText(words, count) {
+  const lorem = `lorem${words}*${count + 1}`;
+  let arr = expand(lorem, {options: {'output.newline': '\n'}}).split('\n');
+  arr.shift();  // skip the first sentence starting "Lorem ipsum"
+  return arr.join(' ');
+}
+
+const emoji_code = [
+  '&#x1F600;', // grinning face
+  '&#x1F923;',  // rolling on the floor laughing
+  '&#x1F602;',  // face with tears of joy
+  '&#x1F970;',  // smiling face with hearts
+  '&#x1F44D;',  // thumbs up
+  '&#x1F4AF;',  // hundred points
+  '&#x1F499;',   // blue heart
+  '&#x1F3B5;',   // musical note
+];
+
+// Fisher–Yates
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const r = Math.floor(mt.random() * (i + 1));
+    [array[i], array[r]] = [array[r], array[i]];
+  }
+}
+
+function getEmoji(count) {
+  shuffle(emoji_code);
+  let str = '';
+  for (let i = 0; i < count; i++) {
+    const idx = i % emoji_code.length;
+    str += emoji_code[idx];
+  }
+  return str;
+}
+
+function prob(p) {
+  const x = mt.random_incl();
+  const r = p / 2;
+  return (Math.abs(x - 0.5) < r);
+}
+
+function insertLink(str) {
+  let param = str.toLowerCase().replace(/\W/g, encodeURIComponent);
+  let url = `https://www.google.com/search?q=${param}`;
+  const abbr = `a[href="${url}"]{${str}}`;
+  return expand(abbr);
+}
+
+function insertNumber(str) {
+  if (prob(0.02)) {
+    let x = mt.random_incl();
+    let y = Math.exp(4 * x - 4);
+    let n = Math.floor(2500 * y);
+    let digits = new Intl.NumberFormat('en-US').format(n);
+    str = str.replace(' ', ` ${digits} `);
+  }
+  return str;
+}
+
+function insertDash(str) {
+  if (prob(0.2)) {
+    str = str.replace(/^([a-z]) /, '$1&mdash;').replace(/ ([a-z])$/, '&mdash;$1');
+  }
+  return str;
+}
+
+function reducePunctuationMarks(source) {
+  let text = source;
+
+  const full_stop = (str) => {
+    if (prob(0.8)) {
+      str = str.replace(/[!?]/, '.');
+    }
+    return str;
+  };
+  const comma = (str) => {
+    return prob(0.7)? '': str;
+  };
+  const first_word_comma = (str) => str.replace(',', '');
+  const single_word1 = (str) => str.replace(/^[.!?]/, '').toLowerCase();
+  const single_word2 = (str) => {
+    str = str.replace(/[.!?]/, '').replace(/[A-Z]$/, str => str.toLowerCase());
+    return str;
+  };
+  const parentheses = (str) => {
+    if (prob(0.3)) {
+      str = str.replace(/^, /, ' (').replace(/,$/, ')');
+    }
+    return str;
+  };
+  text = text.replace(/[!?]/g, full_stop);
+  text = text.replace(/[A-Z][a-z]*,/g, first_word_comma);
+  text = text.replace(/[.!?] [A-Z][a-z]*[.!?]/g, single_word1);
+  text = text.replace(/[A-Z][a-z]*[.!?] [A-Z]/g, single_word2);
+  text = text.replace(/,( [a-z]+){1,4},/g, parentheses);
+  text = text.replace(/,/g, comma);
+  return text;
+}
+
+function makeHypertext(source) {
+  let text = source;
+  text = reducePunctuationMarks(text);
+  text = text.replace(/[a-z]( [a-z]+){5} [a-z]/, insertDash);
+  text = text.replace(/[a-z] [a-z]/g, insertNumber);
+  const mark = (str) => {
+    if (prob(0.05)) {
+      str = str.replace(/ $/, '#');
+    }
+    return str;
+  };
+  const mark2 = (str) => {
+    if (prob(0.5)) {
+      str = str.replace(/ $/, '#');
+    }
+    return str;
+  };
+  const hypertext = (str) => {
+    str = str.replace(/#/g, ' ').replace(/ $/, '');
+    str = insertLink(str) + ' ';
+    return str;
+  };
+  text = text.replace(/[A-Za-z]{5,} /g, mark)
+              .replace(/#[[A-Za-z]+ /g, mark2)
+              .replace(/#[[A-Za-z]+ /g, mark2)
+              .replace(/([A-Za-z]+#)+/g, hypertext);
   return text;
 }
 
@@ -505,6 +635,18 @@ function replaceText(specifier) {
     } else if (macro == 'MESSAGE') {
       n = fluctuation(12, 3);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
+    } else if (macro == 'COMMENT') {
+      n = fluctuation(20, 10);
+      text = getLoremText(`lorem${n}*5`, 1, true, false);
+      if (prob(0.5)) {
+        n = 1 + mt.random_int() % 5;
+        text += getEmoji(n);
+      }
+    } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
+      found = macro.match(/^HYPERTEXT(\d+X\d+)/);
+      let [words, count] = found[1].split('X').map(d => +d);
+      text = concatLoremText(words, count);
+      text = makeHypertext(text);
     } else if (/^SEQ/.test(macro)) {
       let v = [0];
       if (seqMap.has(macro)) {
@@ -516,9 +658,9 @@ function replaceText(specifier) {
       text = v[0].toString();
     } else if (/^IMAGE(\d+X\d+)/.test(macro)) {
       found = macro.match(/^IMAGE(\d+X\d+)/);
-      let dim = found[1].split('X').map(d => +d);
+      let [width, height] = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
-      text = `https://picsum.photos/${dim[0]}/${dim[1]}?random=${x}`;
+      text = `https://picsum.photos/${width}/${height}?random=${x}`;
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
@@ -650,3 +792,67 @@ if (options.head) {
   console.log('</html>');
 }
 debug(statMap);
+
+if (options.check) {
+  console.log('### check macros ###');
+  let value = macroMap.get('root');
+  visitMacros(value, 'root');
+  checkMacros();
+
+  console.log('### check style rules ###');
+  checkStyleRules();
+}
+
+function visitMacros(value, parent) {
+  if (value.visited) {
+    return;
+  }
+  value.visited = true;
+  let re = /%[a-z-]+(@\d+)?%/g;
+  for (const expression of value) {
+    const found = expression.match(re);
+    if (found) {
+      for (const macro of found) {
+        const key = macro.replace(/%/g, '').replace(/@\d+/, '');
+        const v = macroMap.get(key);
+        if (v) {
+          visitMacros(v, key);
+        } else {
+          value.error = `Error: ${key} in ${parent} not defined`;
+        }
+      }
+    }
+  }
+}
+
+function checkMacros() {
+  let [used, notused] = [0, 0];
+  for (const [key, value] of macroMap) {
+    if (value.visited) {
+      used++;
+    } else {
+      notused++;
+      console.log(`${key} visited=${value.visited}`);
+    }
+    if (value.error) {
+      console.log(value.error);
+    }
+  }
+  console.log(`used=${used}, not used=${notused}`);
+}
+
+function checkStyleRules() {
+  if (!styleRules.length) {
+    addClassNames();
+  }
+  let [used, notused] = [0, 0];
+  for (const [key, value] of styleMap) {
+    if (value.checked) {
+      used++;
+    } else {
+      notused++;
+      console.log(`${key}: checked=${value.checked}`);
+    }
+  }
+  console.log(`used=${used}, not used=${notused}`);
+}

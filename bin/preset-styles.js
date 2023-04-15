@@ -56,7 +56,18 @@ styleMap.set('pg-footer', {
     return map;
   }
 });
-styleMap.set('section-content', {
+styleMap.set('list', {
+  accept: ['ul', 'ol', 'dl'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 40px'
+    ]);
+    return map;
+  }
+});
+styleMap.set('section', {
   accept: ['section'],
   getStyleRule: (cls) => {
     const key = `.${cls}`;
@@ -69,13 +80,86 @@ styleMap.set('section-content', {
     return map;
   }
 });
-styleMap.set('img', {
+styleMap.set('ordered-block', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(`${key} + ${key}, ._x-float-block_div + ${key}`, [
+      'margin-top: 40px'
+    ]);
+    return map;
+  }
+});
+styleMap.set('float-block', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(`${key} + ${key}, ._x-ordered-block_div + ${key}`, [
+      'margin-top: 40px'
+    ]);
+    map.set(`${key} p`, [
+      'max-inline-size: none'
+    ]);
+    map.set(`${key} ._x-photo_div`, [
+      'width: 40%'
+    ]);
+    map.set(`${key} ._x-photo_div img`, [
+      'display: inline',
+      'vertical-align: bottom'
+    ]);
+    map.set(`${key}::after`, [
+      'display: block',
+      'content: ""',
+      'clear: both'
+    ]);
+    map.set('._x-float-img-right ._x-photo_div ', [
+      'float: right',
+      'margin-left: 10px'
+    ]);
+    map.set('._x-float-img-left ._x-photo_div ', [
+      'float: left',
+      'margin-right: 10px'
+    ]);
+    return map;
+  }
+});
+styleMap.set('photo', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(`${key} img`, [
+      'display: inline',
+      'max-width: 100%',
+      'height: auto',
+      'vertical-align: bottom'
+    ]);
+    return map;
+  }
+});
+styleMap.set('photo-column', {
   accept: ['div'],
   getStyleRule: (cls) => {
     const key = `.${cls}`;
     const map = new Map();
     map.set(key, [
-      'margin-top: 10px'
+      'display: grid',
+      'grid-template-columns: 1fr 1fr',
+      'gap: 10px'
+    ]);
+    return map;
+  }
+});
+styleMap.set('figure', {
+  accept: ['figure'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 40px',
+      'margin-bottom: 40px'
     ]);
     return map;
   }
@@ -143,7 +227,14 @@ styleMap.set('grid', {
     map.set(key, [
       'display: grid',
       'grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))',
-      'gap: 10px'
+      'gap: 10px',
+      'margin-top: 40px'
+    ]);
+    map.set(`${key}._x-grid-3`, [
+      'grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))'
+    ]);
+    map.set(`${key}._x-grid-4`, [
+      'grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))'
     ]);
     return map;
   }
@@ -155,10 +246,24 @@ styleMap.set('card', {
     const map = new Map();
     map.set(key, [
       'padding: 10px',
-      'box-shadow: var(--shadow-2)'
+      'box-shadow: var(--shadow-3)'
     ]);
     map.set(`${key} p`, [
       'font-size: var(--font-size-1)'
+    ]);
+    return map;
+  }
+});
+styleMap.set('thumbnail', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(`${key} img`, [
+      'display: inline',
+      'max-width: 100%',
+      'height: auto',
+      'vertical-align: bottom'
     ]);
     return map;
   }
@@ -254,8 +359,10 @@ styleMap.set('table', {
     const key = `.${cls}`;
     const map = new Map();
     map.set(key, [
+      'table-layout: fixed',
+      'width: 100%',
       'border-collapse: collapse',
-      'margin-top: 30px',
+      'margin-top: 40px',
     ]);
     map.set(`${key} th`, [
       'background: var(--surface-3)',
