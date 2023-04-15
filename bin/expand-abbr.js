@@ -470,6 +470,35 @@ function concatLoremText(words, count) {
   return arr.join(' ');
 }
 
+const emoji_code = [
+  '&#x1F600;', // grinning face
+  '&#x1F923;',  // rolling on the floor laughing
+  '&#x1F602;',  // face with tears of joy
+  '&#x1F970;',  // smiling face with hearts
+  '&#x1F44D;',  // thumbs up
+  '&#x1F4AF;',  // hundred points
+  '&#x1F499;',   // blue heart
+  '&#x1F3B5;',   // musical note
+];
+
+// Fisher–Yates
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const r = Math.floor(mt.random() * (i + 1));
+    [array[i], array[r]] = [array[r], array[i]];
+  }
+}
+
+function getEmoji(count) {
+  shuffle(emoji_code);
+  let str = '';
+  for (let i = 0; i < count; i++) {
+    const idx = i % emoji_code.length;
+    str += emoji_code[idx];
+  }
+  return str;
+}
+
 function prob(p) {
   const x = mt.random_incl();
   const r = p / 2;
@@ -610,6 +639,13 @@ function replaceText(specifier) {
     } else if (macro == 'MESSAGE') {
       n = fluctuation(12, 3);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
+    } else if (macro == 'COMMENT') {
+      n = fluctuation(20, 10);
+      text = getLoremText(`lorem${n}*5`, 1, true, false);
+      if (prob(0.5)) {
+        n = 1 + mt.random_int() % 5;
+        text += getEmoji(n);
+      }
     } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
       found = macro.match(/^HYPERTEXT(\d+X\d+)/);
       let [words, count] = found[1].split('X').map(d => +d);
