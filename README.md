@@ -49,6 +49,8 @@ Options:
                              using a <style> element in the <head> section
   -x                         add compiled abbreviation as HTML comment to
                              output
+  --check                    check for inconsistency in macro definitions and
+                             in style rules
   -d                         print debug info.
   --help                     display help for command
 ```
@@ -308,7 +310,9 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 | `__PHRASE__` | リンクのテキストなどに適した２語からなるダミーテキスト | 2 | なし | 最初の語 |
 | `__NAME__` | 人名のような２語からなるダミーテキスト | 2 | なし | 各単語 |
 | `__DIGEST__` | 短い文のダミーテキスト | 4〜8 | あり | 最初の語 |
-| `__MESSAGE__` | ブログのコメントのような短い文のダミーテキスト | 9〜15 | あり | 最初の語 |
+| `__MESSAGE__` | ブログの投稿のような短い文のダミーテキスト | 9〜15 | あり | 最初の語 |
+| `__COMMENT__` | ブログのコメントのような短い文のダミーテキスト。絵文字を含む | 10〜30 | あり | 最初の語 |
+| `__HYPERTEXT`<em>words</em>`X`<em>count</em>`__` | 文章中にハイパーリンクや数字、括弧などを含む、記事本文に適した長さのテキスト | `words` * `count` | 含む | 各文の最初の語 |
 
 ダミーテキスト以外の文字列を生成するTextマクロには次のものがあります。
 
@@ -370,6 +374,36 @@ $ expand-abbr 'p{__MESSAGE__}'
 ```
 ```
 <p>Optio architecto nihil porro atque eius est animi quod ipsum.</p>
+```
+
+`__COMMENT__`マクロは文末に絵文字が0〜5個、ランダムに追加されたダミーテキストを生成します。
+
+例
+```
+% expand-abbr 'p{__COMMENT__}'
+```
+```
+<p>Provident voluptatibus maiores eveniet quia dicta vitae nesciunt repellendus vel aliquam enim cum distinctio quos, porro neque quasi optio!&#x1F44D;&#x1F600;&#x1F3B5;</p>
+```
+
+`__HYPERTEXT`<em>words</em>`X`<em>count</em>`__`マクロは、ワード数`words`個からなる文を`count`個連結した文章を生成します。Lorem ipsumのダミーテキストに加えて、次の要素がランダムに埋め込まれます（テキストの長さが短い場合、すべての要素が出現するとは限りません）。
+
+- ハイパーリンク
+- 数字
+- 括弧"(", ")"
+
+また、記事本文に使える「読みやすい」文章に見せるため、expand-abbrは、ダミーテキストに対して次の加工を施した文章を出力します。
+
+- 過剰なコンマ","を取り除く
+- 文末の"!"や"?"記号を高い確率でピリオド"."に置き換える
+- 1語や2語だけの文を、前後の文いずれかと連結し、文の長さを調節する
+
+例
+```
+$ bin/expand-abbr 'p{__HYPERTEXT10X2__}'
+```
+```
+<p>Accusantium nam omnis ipsam nesciunt odit ea aperiam quos placeat. Odit voluptatum harum quisquam pariatur <a href="https://www.google.com/search?q=dolore">dolore</a> 1,167 aliquid explicabo iste nemo.</p>
 ```
 
 `__SEQ__`マクロは、1から始まる番号で置き換えます。Emmetの`$`オペレータとの違いは、`*`オペレーターによって要素が繰り返されたスコープ（親要素）を超えても、番号が1にリセットされない点です。つまり、異なるスコープに渡って通し番号を振ることができます。

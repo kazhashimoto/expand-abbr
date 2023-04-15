@@ -37,56 +37,15 @@ macroMap.set('copyright', [
 macroMap.set('nav', [
   'nav>ul>li%3,6%>a[href=#s$]{$}'
 ]);
-macroMap.set('block-content', [
-  '%p%',
-  'div>(%p%)^(div>(%p%))',
-  'div>(%p%)+div>(%p%)',
-  'div>(%p%)^(%anchor%)',
-  'div>(%p%)+(%anchor%)',
-  'div>(%p%)^(%img%)',
-  'div>(%p%)+(%img%)',
-  '(%img%)+(div>(%p%))',
-  '%img%+(div>(%p%))',
-  'div>(%p%)^(%img%)^(%anchor%)',
-  '(div>(%p%)+(%img%))^(%anchor%)',
-  'div>(%p%)^(%img%+%anchor%)',
-  'div>((%p%)+%img%+%anchor%)',
-  '(%img%)+(div>(%p%))+(%anchor%)',
-  '(%img%+(div>(%p%))+(%anchor%)',
-  '%img%+(div>(%p%)+(%anchor%))',
-  '(div>(%p%))+(%anchor%)+(%img%)',
-  'div>(%p%)+(%anchor%)+(%img%)'
-]);
-macroMap.set('p', [
-  'p%2,5%>lorem10',
-  'p%5%>span>lorem2^lorem8',
-  'p%5%>lorem8+span>lorem2',
-  'p%5%>a[href=page$.html]{__PHRASE__}+lorem8',
-  'p%5%>a[href=page$.html]>{__PHRASE__}+span>{__PHRASE__}',
-  'p%5%>lorem8+a[href=page$.html]{__PHRASE__}',
-  "p%5%>lorem6+a[href=page$.html]>{__PHRASE__}+span{__PHRASE__}"
-]);
-macroMap.set('p-long', [
-  'p>lorem100',
-  'p*2>lorem50',
-  'p*3>lorem33',
-  'p*4>lorem25',
-  'p*5>lorem20'
-]);
-macroMap.set('img', [
-  'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
-  'div%3%>img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'div%3%>img[src=photo16x9_$.jpg alt=__PHRASE__]',
-  '(%figure%)'
-]);
+macroMap.set('p-hypertext', [
+  '(p{__HYPERTEXT20X3__})%+3%',
+])
 macroMap.set('figure', [
-  'figure>figcaption>lorem8^img[src=photo4x3_$.jpg alt=__PHRASE__]',
-  'figure>img[src=photo4x3_$.jpg alt=__PHRASE__]+figcaption>lorem8'
+  'figure>figcaption{__MESSAGE__}+img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'figure>img[src=photo4x3_$.jpg alt=__PHRASE__]+figcaption{__MESSAGE__}'
 ]);
 macroMap.set('thumbnail', [
   'div>img[src=photo1x1_$.jpg alt=__PHRASE__]',
-  'div>img[src=photo2x2_$.jpg alt=__PHRASE__]',
   'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
 ]);
@@ -96,19 +55,12 @@ macroMap.set('anchor', [
   'div>(%link-icon%)'
 ]);
 macroMap.set('list', [
-  // 'ul>li%2,5%>lorem4-8',
-  // 'ul>li%2,5%>lorem8-16',
-  // 'ul>li*4>a[href=page$.html]{__PHRASE__}',
-  'ul>li*4>(%link-icon%)',
-  // 'ul>li%2,5%>a[href=page$,html]>lorem4-8',
-  // 'ol>li%4,6%{__PHRASE__}',
-  // 'dl>(dt>{__PHRASE__}^dd>lorem8-16)%3,6%'
+  'ul>li%4,6%>(%link-icon%)',
+  'ul>li%4,6%{__MESSAGE__}',
+  'ol>li%4,6%{__MESSAGE__}',
+  'dl>(dt>{__PHRASE__}^dd>{__HYPERTEXT12X3__})%3,6%'
 ]);
 macroMap.set('section', [
-  '%section-content%',
-  'div%>div{1}%(%section-content%)'
-]);
-macroMap.set('section-content', [
   'section[id=s__SEQ_ID__]>(%section-inner%)',
   'section[id=s__SEQ_ID__]%>div{1}%(%section-inner%)',
 ]);
@@ -116,7 +68,7 @@ macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)',
   '(%section-heading%)+(%section-body%)+div>(%list%)',
   '(%section-heading%)+(%section-body%)+div>(%table%)',
-  '(%section-heading%)+(%section-body%)+div>(%list%)^div>(%table%)',
+  '(%section-heading%)+(%section-body%)+(div>(%list%))+div>(%table%)',
   '(%section-heading%)+(%section-body%)+(%grid%)'
 ]);
 macroMap.set('section-heading', [
@@ -124,24 +76,36 @@ macroMap.set('section-heading', [
   'div>h2{Section __SEQ_1__}'
 ]);
 macroMap.set('section-body', [
-  '(%section-body-content%)%3%',
-  '((%section-body-content%)+(%block-content%))%3%'
+  '(%ordered-block%)%+3%',
+  '(%float-block%)%+3%',
+  '(%ordered-block%)+(%float-block%)',
+  '(%float-block%)+(%ordered-block%)',
+  '(%ordered-block%)+(%float-block%)+(%ordered-block%)',
+  '(%float-block%)+(%ordered-block%)+(%float-block%)'
 ]);
-macroMap.set('section-body-content', [
-  'div>(%p-long%)+(%img%)',
-  'div>(%p-long%)^(%img%)',
-  'div>(%p-long%)+(%thumbnail%)',
-  'div>(%p-long%)^(%thumbnail%)',
-  '%img%+div>(%p-long%)',
-  '%img%^div>(%p-long%)',
-  '%thumbnail%+div>(%p-long%)',
-  '%thumbnail%^div>(%p-long%)',
+macroMap.set('float-block', [
+  'div._x-float-img-right>(%photo%)+(%p-hypertext%)',
+  'div._x-float-img-left>(%photo%)+(%p-hypertext%)',
+  'div._x-float-img-right>(%photo%)+p{__HYPERTEXT12X3__}',
+  'div._x-float-img-left>(%photo%)+p{__HYPERTEXT12X3__}'
 ]);
-macroMap.set('article', [
-  'article>h1{__HEADING__}+(%article-item%)%+3,5%'
+macroMap.set('ordered-block', [
+  'div>(%p-hypertext%)+(%img-block%)',
+  'div>(%p-hypertext%)+(%img-block%)',
+  'div>(%img-block%)+(%p-hypertext%)',
+  'div>((%img-block%)+div>(%p-hypertext%))'
 ]);
-macroMap.set('article-item', [
-  'article>h2{03 March 2023}+p{__PHRASE__}'
+macroMap.set('img-block', [
+  '%photo%',
+  '%photo-column%',
+  '%figure%',
+]);
+macroMap.set('photo', [
+  'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
+  'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
+]);
+macroMap.set('photo-column', [
+  'div>(%photo%)*2'
 ]);
 macroMap.set('blog-article', [
   'article>(%blog-header%)+(%blog-post%)+(%sns-button-list%)+(%blog-footer%)+(%blog-comment%)+'
@@ -150,16 +114,16 @@ macroMap.set('blog-header', [
   'h3{__HEADING__}'
 ]);
 macroMap.set('blog-post', [
-  'section>h4{__HEADING__}+p{__MESSAGE__}+(%img@0%)',
-  'section>h4{__HEADING__}+p%2,4%{__MESSAGE__}+(%img@0%)'
+  'section>h4{__HEADING__}+p{__MESSAGE__}+(%photo@0%)',
+  'section>h4{__HEADING__}+p%2,4%{__MESSAGE__}+(%photo@0%)'
 ]);
 macroMap.set('blog-comment', [
   'div>(%blog-comment-item%)%+2,5%'
 ]);
 macroMap.set('blog-comment-item', [
-  'article>h6{__DIGEST__}+p{__MESSAGE__}+(%blog-footer%)',
-  'article>h6{__DIGEST__}+p%2,4%{__MESSAGE__}+(%blog-footer%)',
-  'article>h6{__DIGEST__}+p{__MESSAGE__}+(%img@0%)+(%blog-footer%)'
+  'article>h6{__DIGEST__}+p{__COMMENT__}+(%blog-footer%)',
+  'article>h6{__DIGEST__}+p%2,4%{__COMMENT__}+(%blog-footer%)',
+  'article>h6{__DIGEST__}+p{__COMMENT__}+(%photo@0%)+(%blog-footer%)'
 ]);
 macroMap.set('blog-footer', [
   'footer>p>{Posted on}+(%time%)+{by __NAME__}'
@@ -168,17 +132,18 @@ macroMap.set('time', [
   'time[datetime=__DATETIME__]{__DATE__}',
 ]);
 macroMap.set('table', [
-  'table>thead>tr>th*3{item$}^^tbody>tr%3,5%>td*3>{__PHRASE__}',
-  'table>caption>lorem4^thead>tr>th*4{item$}^^tbody>tr%3,5%>td*4>{__PHRASE__}'
+  'table>(thead>tr>th*3{item$})+(tbody>tr%3,5%>td*3>{__PHRASE__})',
+  'table>caption{__DIGEST__}+(thead>tr>th*4{item$})+(tbody>tr%3,5%>td*4>{__PHRASE__})'
 ]);
 macroMap.set('grid', [
-  'div>(%card%)%4,8%'
+  'div._x-grid-3>(%card%)%4,8%',
+  'div._x-grid-4>(%card%)%4,8%'
 ]);
 macroMap.set('card', [
-  'div>(%thumbnail@0%)+div>(h6{__PHRASE__}+p{__DIGEST__}+p{&dollar;99.99})',
-  'div>(%thumbnail@1%)+div>(h5{__HEADING__}+p>lorem20^%anchor@0%)',
-  'div>(%thumbnail@1%)+p>lorem10',
-  'div>(%thumbnail@1%)+p>lorem20'
+  'div>(%thumbnail%)+div>(h6{__PHRASE__}+p{__DIGEST__}+p{&dollar;99.99})',
+  'div>(%thumbnail%)+div>(h5{__HEADING__}+p>lorem20^%anchor@0%)',
+  'div>(%thumbnail%)+p>lorem10',
+  'div>(%thumbnail%)+p>lorem20'
 ]);
 macroMap.set('link-icon', [
   'a._x-link[href=page$.html]>{__PHRASE__}',
