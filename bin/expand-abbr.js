@@ -543,10 +543,6 @@ function reducePunctuationMarks(source) {
     return prob(0.7)? '': str;
   };
   const first_word_comma = (str) => str.replace(',', '');
-  const single_word = (str) => {
-    str = str.replace(/^[.!?]/, '').replace(/[!?]$/, '.').toLowerCase();
-    return str;
-  };
   const single_word1 = (str) => str.replace(/^[.!?]/, '').toLowerCase();
   const single_word2 = (str) => {
     str = str.replace(/[.!?]/, '').replace(/[A-Z]$/, str => str.toLowerCase());
