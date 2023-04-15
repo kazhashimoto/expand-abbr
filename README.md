@@ -49,6 +49,8 @@ Options:
                              using a <style> element in the <head> section
   -x                         add compiled abbreviation as HTML comment to
                              output
+  --check                    check for inconsistency in macro definitions and
+                             in style rules
   -d                         print debug info.
   --help                     display help for command
 ```
@@ -308,7 +310,8 @@ Textマクロは`__`<em>keyword</em>`__`という書式の文字列であり、�
 | `__PHRASE__` | リンクのテキストなどに適した２語からなるダミーテキスト | 2 | なし | 最初の語 |
 | `__NAME__` | 人名のような２語からなるダミーテキスト | 2 | なし | 各単語 |
 | `__DIGEST__` | 短い文のダミーテキスト | 4〜8 | あり | 最初の語 |
-| `__MESSAGE__` | ブログのコメントのような短い文のダミーテキスト | 9〜15 | あり | 最初の語 |
+| `__MESSAGE__` | ブログの投稿のような短い文のダミーテキスト | 9〜15 | あり | 最初の語 |
+| `__COMMENT__` | ブログのコメントのような短い文のダミーテキスト。絵文字を含む | 10〜30 | あり | 最初の語 |
 | `__HYPERTEXT`<em>words</em>`X`<em>count</em>`__` | 文章中にハイパーリンクや数字、括弧などを含む、記事本文に適した長さのテキスト | `words` * `count` | 含む | 各文の最初の語 |
 
 ダミーテキスト以外の文字列を生成するTextマクロには次のものがあります。
@@ -371,6 +374,15 @@ $ expand-abbr 'p{__MESSAGE__}'
 ```
 ```
 <p>Optio architecto nihil porro atque eius est animi quod ipsum.</p>
+```
+
+`__COMMENT__`マクロは文末に絵文字が0〜5個、ランダムに追加されたダミーテキストを生成します。
+例
+```
+% expand-abbr 'p{__COMMENT__}'
+```
+```
+<p>Provident voluptatibus maiores eveniet quia dicta vitae nesciunt repellendus vel aliquam enim cum distinctio quos, porro neque quasi optio!&#x1F44D;&#x1F600;&#x1F3B5;</p>
 ```
 
 `__HYPERTEXT`<em>words</em>`X`<em>count</em>`__`マクロは、ワード数`words`個からなる文を`count`個連結した文章を生成します。Lorem ipsumのダミーテキストに加えて、次の要素がランダムに埋め込まれます（テキストの長さが短い場合、すべての要素が出現するとは限りません）。
