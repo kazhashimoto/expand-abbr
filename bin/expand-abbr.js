@@ -761,7 +761,7 @@ if (options.head) {
     console.log('\t' + expand(`link[href=${p}]`));
   }
   if (!options.withoutStyle) {
-    console.log(expand('style>{__STYLE__}').replace(/__STYLE__/g, embedStyles));
+    console.log(expand('style>{__STYLE__}').replace(/__STYLE__/, embedStyles));
   }
   console.log('</head>');
 }
