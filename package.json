@@ -23,7 +23,7 @@
   "homepage": "https://github.com/kazhashimoto/expand-abbr#readme",
   "dependencies": {
     "commander": "^10.0.0",
-    "emmet": "^2.3.6",
+    "emmet": "^2.4.2",
     "mersenne-twister": "^1.1.0",
     "xregexp": "^5.1.1"
   },
