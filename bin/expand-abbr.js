@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 const { program } = require("commander");
-const emmet = require('emmet');
-const expand = emmet.default;
+const expand = require('emmet').default;
 const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();

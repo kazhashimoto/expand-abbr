@@ -58,10 +58,11 @@ styleMap.set('pg-footer', {
 });
 styleMap.set('list', {
   accept: ['ul', 'ol', 'dl'],
-  getStyleRule: (cls) => {
-    const key = `.${cls}`;
+  getStyleRule: function(cls) {
+    const base = cls.replace(/_(ul|ol|dl)$/, '');
+    const selectors = this.accept.map(e => `.${base}_${e}`).join(', ');
     const map = new Map();
-    map.set(key, [
+    map.set(selectors, [
       'margin-top: 40px'
     ]);
     return map;
