@@ -45,6 +45,8 @@ Options:
   -m,--macro <key_value>     add Element macro definition (default: [])
   -q,--query <key>           print Element macro that matches <key>
   --dark                     apply dark theme on the generated page
+  -t,--tab                   use a tab character for indenting instead of
+                             spaces. (default: 2 spaces)
   --without-style            If this option disabled, insert default styles by
                              using a <style> element in the <head> section
   -x                         add compiled abbreviation as HTML comment to
@@ -95,10 +97,7 @@ $ expand-abbr -h -c "reset.css" -c "https://www.example.com/style.css" ”div>p�
 </head>
 ```
 
-出力される行のインデントはtabです。タブをスペースに置き換えるにはコードフォーマッターを使って整形することができます。次の例では、expand-abbrの出力を[js-beautify](https://github.com/beautify-web/js-beautify)の標準入力を通じてタブをスペース2個に置き換えています。
-```
-$ expand-abbr -h 'ul>(li>a)*5' | js-beautify --type html -s 2 -n
-```
+出力行のインデント１個の幅はスペース2個です。`-t`オプションを指定すると、タブ文字を使用してインデントします。
 
 ## Examples
 デモのソースコードはこちら： https://github.com/kazhashimoto/expand-abbr-demo
@@ -113,9 +112,7 @@ footer='footer>p{&copy; 2023 Example}'
 
 css='style.css'
 
-INDENT="js-beautify --type html -s 2 -n"
-
-expand-abbr -h -c "$css" "$header" "$main" "$footer" | $INDENT
+expand-abbr -h -c "$css" "$header" "$main" "$footer"
 ```
 このスクリプトの出力をindex.htmlファイルに保存すれば、ブラウザーで開くことができます(macOSでの例)。
 ```
