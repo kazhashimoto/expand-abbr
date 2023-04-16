@@ -49,11 +49,6 @@ macroMap.set('thumbnail', [
   'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
 ]);
-macroMap.set('anchor', [
-  'div>a[href=page$.html]{__PHRASE__}',
-  'div>a[href=page$.html]>span{__PHRASE__}',
-  'div>(%link-icon%)'
-]);
 macroMap.set('list', [
   'ul>li%4,6%>(%link-icon%)',
   'ul>li%4,6%{__MESSAGE__}',
@@ -141,9 +136,11 @@ macroMap.set('grid', [
 ]);
 macroMap.set('card', [
   'div>(%thumbnail%)+div>(h6{__PHRASE__}+p{__DIGEST__}+p{&dollar;99.99})',
-  'div>(%thumbnail%)+div>(h5{__HEADING__}+p>lorem20^%anchor@0%)',
-  'div>(%thumbnail%)+p>lorem10',
-  'div>(%thumbnail%)+p>lorem20'
+  'div>(%thumbnail%)+div>(h5{__HEADING__}+p{__MESSAGE__}+div>(%link-icon%)',
+  'div>(%thumbnail%)+div>(h5{__HEADING__}+p>{__MESSAGE__ }+(%link-icon%)',
+  'div>(%thumbnail%)+p{__MESSAGE__}+div>(%link-icon%)',
+  'div>(%thumbnail%)+p>{__MESSAGE__ }+(%link-icon%)',
+
 ]);
 macroMap.set('link-icon', [
   'a._x-link[href=page$.html]>{__PHRASE__}',
