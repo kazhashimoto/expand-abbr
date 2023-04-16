@@ -20,6 +20,12 @@ const elements = [
   'table'
 ];
 
+const emmetOptions = {
+  options: {
+    'output.indent': '  '
+  }
+};
+
 styleMapOptions.getIconURL = icons.getIconURL;
 
 function collect(value, previous) {
@@ -41,6 +47,7 @@ program
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('-q,--query <key>', 'print Element macro that matches <key>')
   .option('--dark', 'apply dark theme on the generated page')
+  .option('-t,--tab', 'use a tab character for indenting instead of spaces. (default: 2 spaces)')
   .option('--without-style', 'If this option disabled, insert default styles by using a <style> element in the <head> section')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('--check', 'check for inconsistency in macro definitions and in style rules')
@@ -79,6 +86,9 @@ if (options.query) {
     console.log(value);
   }
   process.exit(0);
+}
+if (options.tab) {
+  emmetOptions.options['output.indent'] = '\t';
 }
 
 function addMacros(defs) {
@@ -720,7 +730,7 @@ function replaceLocalPath(html) {
 }
 
 function outputHTML(abbr) {
-  let html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
+  let html = expand(abbr, emmetOptions).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
   html = replaceLocalPath(html);
   html = replaceDate(html);
   console.log(html);
@@ -743,7 +753,7 @@ function embedStyles(/* specifier */) {
 }
 
 if (options.head) {
-  let str = expand('!');
+  let str = expand('!', emmetOptions);
   if (options.css) {
     str = str.replace(/<\/head>[^]*<\/html>/, '');
   } else {
