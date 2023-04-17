@@ -476,6 +476,9 @@ function concatLoremText(words, count) {
   const lorem = `lorem${words}*${count + 1}`;
   let arr = expand(lorem, {options: {'output.newline': '\n'}}).split('\n');
   arr.shift();  // skip the first sentence starting "Lorem ipsum"
+  if (words > 5 && prob(0.2)) {
+    arr[0] = arr[0].replace(/^[A-Z][a-z]*( [a-z]+){4}/, 'Lorem ipsum dolor sit amet')
+  }
   return arr.join(' ');
 }
 
