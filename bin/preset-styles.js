@@ -58,10 +58,11 @@ styleMap.set('pg-footer', {
 });
 styleMap.set('list', {
   accept: ['ul', 'ol', 'dl'],
-  getStyleRule: (cls) => {
-    const key = `.${cls}`;
+  getStyleRule: function(cls) {
+    const base = cls.replace(/_(ul|ol|dl)$/, '');
+    const selectors = this.accept.map(e => `.${base}_${e}`).join(', ');
     const map = new Map();
-    map.set(key, [
+    map.set(selectors, [
       'margin-top: 40px'
     ]);
     return map;
@@ -245,11 +246,16 @@ styleMap.set('card', {
     const key = `.${cls}`;
     const map = new Map();
     map.set(key, [
+      'display: flex',
+      'flex-direction: column',
       'padding: 10px',
-      'box-shadow: var(--shadow-3)'
+      'box-shadow: var(--shadow-3)',
     ]);
     map.set(`${key} p`, [
       'font-size: var(--font-size-1)'
+    ]);
+    map.set(`${key} time`, [
+      'font-size: var(--font-size-0)'
     ]);
     return map;
   }
@@ -375,5 +381,18 @@ styleMap.set('table', {
     ]);
     return map;
   }
-
 });
+styleMap.set('alternative', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 40px'
+    ]);
+    map.set(`${key} figcaption > cite`, [
+      'border-width: 0'
+    ]);
+    return map;
+  }
+})
