@@ -104,7 +104,13 @@ macroMap.set('photo-column', [
   'div>(%photo%)*2'
 ]);
 macroMap.set('alternative', [
-  'div>div>figure>(blockquote>p{__HYPERTEXT12X3__})+(figcaption>{&mdash;__NAME__, }+cite{__HEADING_SHORT__})'
+  'div>div>figure>(blockquote>p{__HYPERTEXT12X3__})+(figcaption>{&mdash;__NAME__, }+cite{__HEADING_SHORT__})',
+  'div>div>details>(%summary-content%)'
+]);
+macroMap.set('summary-content', [
+  'summary{__HEADING_SHORT__}+{__HYPERTEXT12X3__}',
+  'summary{__HEADING_SHORT__}+ul>li%3,5%{__MESSAGE__}',
+  'summary{__HEADING_SHORT__}+ol>li%3,5%{__MESSAGE__}'
 ]);
 macroMap.set('blog-article', [
   'article>(%blog-header%)+(%blog-post%)+(%sns-button-list%)+(%blog-footer%)+(%blog-comment%)+'
