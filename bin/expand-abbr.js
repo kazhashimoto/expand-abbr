@@ -364,6 +364,10 @@ function macro(specifier) {
     stat[idx]++;
   }
   abbr = values[idx];
+  if (item == 'table' && !values.used) {
+    values.fill('%alternative%');
+    values.used = true;
+  }
 
   re = /(img\[src=)photo(\d+x\d+)?_?\$?\.(jpg|png)/;
   found = abbr.match(re);

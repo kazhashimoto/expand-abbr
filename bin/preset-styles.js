@@ -381,5 +381,18 @@ styleMap.set('table', {
     ]);
     return map;
   }
-
 });
+styleMap.set('alternative', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 40px'
+    ]);
+    map.set(`${key} figcaption > cite`, [
+      'border-width: 0'
+    ]);
+    return map;
+  }
+})

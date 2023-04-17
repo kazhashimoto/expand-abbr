@@ -64,7 +64,8 @@ macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)+div>(%list%)',
   '(%section-heading%)+(%section-body%)+div>(%table%)',
   '(%section-heading%)+(%section-body%)+(div>(%list%))+div>(%table%)',
-  '(%section-heading%)+(%section-body%)+(%grid%)'
+  '(%section-heading%)+(%section-body%)+(%grid%)',
+  '(%section-heading%)+(%section-body%)+(%alternative%)'
 ]);
 macroMap.set('section-heading', [
   'h2{Section __SEQ_1__}',
@@ -101,6 +102,9 @@ macroMap.set('photo', [
 ]);
 macroMap.set('photo-column', [
   'div>(%photo%)*2'
+]);
+macroMap.set('alternative', [
+  'div>div>figure>(blockquote>p{__HYPERTEXT12X3__})+(figcaption>{&mdash;__NAME__, }+cite{__HEADING_SHORT__})'
 ]);
 macroMap.set('blog-article', [
   'article>(%blog-header%)+(%blog-post%)+(%sns-button-list%)+(%blog-footer%)+(%blog-comment%)+'
@@ -140,8 +144,7 @@ macroMap.set('card', [
   'div>(%thumbnail%)+div>(h5{__HEADING__}+p>{__MESSAGE__ }+(%link-icon%))',
   'div>(%thumbnail%)+p{__MESSAGE__}+div>(%link-icon%)',
   'div>(%thumbnail%)+p>{__MESSAGE__ }+(%link-icon%)',
-  'div>(%thumbnail%)+p{__MESSAGE__ }+div>(%time%)',
-
+  'div>(%thumbnail%)+p{__MESSAGE__ }+div>(%time%)'
 ]);
 macroMap.set('link-icon', [
   'a._x-link[href=page$.html]>{__PHRASE__}',
