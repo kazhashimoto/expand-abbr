@@ -246,11 +246,16 @@ styleMap.set('card', {
     const key = `.${cls}`;
     const map = new Map();
     map.set(key, [
+      'display: flex',
+      'flex-direction: column',
       'padding: 10px',
-      'box-shadow: var(--shadow-3)'
+      'box-shadow: var(--shadow-3)',
     ]);
     map.set(`${key} p`, [
       'font-size: var(--font-size-1)'
+    ]);
+    map.set(`${key} time`, [
+      'font-size: var(--font-size-0)'
     ]);
     return map;
   }
@@ -376,5 +381,18 @@ styleMap.set('table', {
     ]);
     return map;
   }
-
 });
+styleMap.set('alternative', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 40px'
+    ]);
+    map.set(`${key} figcaption > cite`, [
+      'border-width: 0'
+    ]);
+    return map;
+  }
+})
