@@ -49,11 +49,6 @@ macroMap.set('thumbnail', [
   'div>img[src=photo4x3_$.jpg alt=__PHRASE__]',
   'div>img[src=photo16x9_$.jpg alt=__PHRASE__]',
 ]);
-macroMap.set('anchor', [
-  'div>a[href=page$.html]{__PHRASE__}',
-  'div>a[href=page$.html]>span{__PHRASE__}',
-  'div>(%link-icon%)'
-]);
 macroMap.set('list', [
   'ul>li%4,6%>(%link-icon%)',
   'ul>li%4,6%{__MESSAGE__}',
@@ -69,7 +64,8 @@ macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)+div>(%list%)',
   '(%section-heading%)+(%section-body%)+div>(%table%)',
   '(%section-heading%)+(%section-body%)+(div>(%list%))+div>(%table%)',
-  '(%section-heading%)+(%section-body%)+(%grid%)'
+  '(%section-heading%)+(%section-body%)+(%grid%)',
+  '(%section-heading%)+(%section-body%)+(%alternative%)'
 ]);
 macroMap.set('section-heading', [
   'h2{Section __SEQ_1__}',
@@ -107,6 +103,15 @@ macroMap.set('photo', [
 macroMap.set('photo-column', [
   'div>(%photo%)*2'
 ]);
+macroMap.set('alternative', [
+  'div>div>figure>(blockquote>p{__HYPERTEXT12X3__})+(figcaption>{&mdash;__NAME__, }+cite{__HEADING_SHORT__})',
+  'div>div>details>(%summary-content%)'
+]);
+macroMap.set('summary-content', [
+  'summary{__HEADING_SHORT__}+{__HYPERTEXT12X3__}',
+  'summary{__HEADING_SHORT__}+ul>li%3,5%{__MESSAGE__}',
+  'summary{__HEADING_SHORT__}+ol>li%3,5%{__MESSAGE__}'
+]);
 macroMap.set('blog-article', [
   'article>(%blog-header%)+(%blog-post%)+(%sns-button-list%)+(%blog-footer%)+(%blog-comment%)+'
 ]);
@@ -141,9 +146,11 @@ macroMap.set('grid', [
 ]);
 macroMap.set('card', [
   'div>(%thumbnail%)+div>(h6{__PHRASE__}+p{__DIGEST__}+p{&dollar;99.99})',
-  'div>(%thumbnail%)+div>(h5{__HEADING__}+p>lorem20^%anchor@0%)',
-  'div>(%thumbnail%)+p>lorem10',
-  'div>(%thumbnail%)+p>lorem20'
+  'div>(%thumbnail%)+div>(h5{__HEADING__}+p{__MESSAGE__}+div>(%link-icon%))',
+  'div>(%thumbnail%)+div>(h5{__HEADING__}+p>{__MESSAGE__ }+(%link-icon%))',
+  'div>(%thumbnail%)+p{__MESSAGE__}+div>(%link-icon%)',
+  'div>(%thumbnail%)+p>{__MESSAGE__ }+(%link-icon%)',
+  'div>(%thumbnail%)+p{__MESSAGE__ }+div>(%time%)'
 ]);
 macroMap.set('link-icon', [
   'a._x-link[href=page$.html]>{__PHRASE__}',

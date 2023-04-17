@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 const { program } = require("commander");
-const emmet = require('emmet');
-const expand = emmet.default;
+const expand = require('emmet').default;
 const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
@@ -21,6 +20,12 @@ const elements = [
   'table'
 ];
 
+const emmetOptions = {
+  options: {
+    'output.indent': '  '
+  }
+};
+
 styleMapOptions.getIconURL = icons.getIconURL;
 
 function collect(value, previous) {
@@ -29,7 +34,7 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.8')
+  .version('1.1.9')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
@@ -42,6 +47,7 @@ program
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('-q,--query <key>', 'print Element macro that matches <key>')
   .option('--dark', 'apply dark theme on the generated page')
+  .option('-t,--tab', 'use a tab character for indenting instead of spaces. (default: 2 spaces)')
   .option('--without-style', 'If this option disabled, insert default styles by using a <style> element in the <head> section')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
   .option('--check', 'check for inconsistency in macro definitions and in style rules')
@@ -80,6 +86,9 @@ if (options.query) {
     console.log(value);
   }
   process.exit(0);
+}
+if (options.tab) {
+  emmetOptions.options['output.indent'] = '\t';
 }
 
 function addMacros(defs) {
@@ -355,6 +364,10 @@ function macro(specifier) {
     stat[idx]++;
   }
   abbr = values[idx];
+  if (item == 'table' && !values.used) {
+    values.fill('%alternative%');
+    values.used = true;
+  }
 
   re = /(img\[src=)photo(\d+x\d+)?_?\$?\.(jpg|png)/;
   found = abbr.match(re);
@@ -467,6 +480,9 @@ function concatLoremText(words, count) {
   const lorem = `lorem${words}*${count + 1}`;
   let arr = expand(lorem, {options: {'output.newline': '\n'}}).split('\n');
   arr.shift();  // skip the first sentence starting "Lorem ipsum"
+  if (words > 5 && prob(0.2)) {
+    arr[0] = arr[0].replace(/^[A-Z][a-z]*( [a-z]+){4}/, 'Lorem ipsum dolor sit amet')
+  }
   return arr.join(' ');
 }
 
@@ -477,8 +493,10 @@ const emoji_code = [
   '&#x1F970;',  // smiling face with hearts
   '&#x1F44D;',  // thumbs up
   '&#x1F4AF;',  // hundred points
-  '&#x1F499;',   // blue heart
-  '&#x1F3B5;',   // musical note
+  '&#x1F49A;',  // green heart
+  '&#x1F3B5;',  // musical note,
+  '&#x1F4F8;',  // camera with flash,
+  '&#x1F63B;',   //smiling cat with heart-eyes
 ];
 
 // Fisher–Yates
@@ -639,7 +657,7 @@ function replaceText(specifier) {
       n = fluctuation(20, 10);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
       if (prob(0.5)) {
-        n = 1 + mt.random_int() % 5;
+        n = 1 + mt.random_int() % 4;
         text += getEmoji(n);
       }
     } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
@@ -721,7 +739,7 @@ function replaceLocalPath(html) {
 }
 
 function outputHTML(abbr) {
-  let html = expand(abbr).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
+  let html = expand(abbr, emmetOptions).replace(/__([A-Z][A-Z_0-9]*)__/g, replaceText);
   html = replaceLocalPath(html);
   html = replaceDate(html);
   console.log(html);
@@ -744,7 +762,7 @@ function embedStyles(/* specifier */) {
 }
 
 if (options.head) {
-  let str = expand('!');
+  let str = expand('!', emmetOptions);
   if (options.css) {
     str = str.replace(/<\/head>[^]*<\/html>/, '');
   } else {
@@ -762,7 +780,7 @@ if (options.head) {
     console.log('\t' + expand(`link[href=${p}]`));
   }
   if (!options.withoutStyle) {
-    console.log(expand('style>{__STYLE__}').replace(/__STYLE__/g, embedStyles));
+    console.log(expand('style>{__STYLE__}').replace(/__STYLE__/, embedStyles));
   }
   console.log('</head>');
 }
