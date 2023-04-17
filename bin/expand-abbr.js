@@ -489,8 +489,10 @@ const emoji_code = [
   '&#x1F970;',  // smiling face with hearts
   '&#x1F44D;',  // thumbs up
   '&#x1F4AF;',  // hundred points
-  '&#x1F499;',   // blue heart
-  '&#x1F3B5;',   // musical note
+  '&#x1F49A;',  // green heart
+  '&#x1F3B5;',  // musical note,
+  '&#x1F4F8;',  // camera with flash,
+  '&#x1F63B;',   //smiling cat with heart-eyes
 ];
 
 // Fisher–Yates
@@ -651,7 +653,7 @@ function replaceText(specifier) {
       n = fluctuation(20, 10);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
       if (prob(0.5)) {
-        n = 1 + mt.random_int() % 5;
+        n = 1 + mt.random_int() % 4;
         text += getEmoji(n);
       }
     } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
