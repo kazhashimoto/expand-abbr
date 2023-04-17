@@ -140,6 +140,7 @@ macroMap.set('card', [
   'div>(%thumbnail%)+div>(h5{__HEADING__}+p>{__MESSAGE__ }+(%link-icon%))',
   'div>(%thumbnail%)+p{__MESSAGE__}+div>(%link-icon%)',
   'div>(%thumbnail%)+p>{__MESSAGE__ }+(%link-icon%)',
+  'div>(%thumbnail%)+p{__MESSAGE__ }+div>(%time%)',
 
 ]);
 macroMap.set('link-icon', [
