@@ -320,6 +320,39 @@ for (const key of macroMap.keys()) {
   statMap.set(key, (new Array(val.length)).fill(0));
 }
 
+function dig(specifier) {
+  let re = /^%>([a-z]+)\{(\d+(,\d+)?)\}%$/;
+  let found = specifier.match(re);
+  if (found) {
+    let tag = found[1];
+    let arr = found[2].split(',').map(x => isNaN(x)? 0: +x);
+    let min, max;
+    if (arr.length < 2) {
+      min = 0;
+      max = arr[0];
+    } else {
+      [min, max] = arr;
+    }
+    const descend = [];
+
+    let depth;
+    if (max > min) {
+      depth = min + mt.random_int() % (max + 1 - min);
+    } else {
+      depth = max;
+    }
+    for (let i = 0; i < depth; i++) {
+      descend.push(tag);
+    }
+    if (descend.length) {
+      let abbr = descend.join('>');
+      return `>${abbr}>`;
+    }
+    return '>';
+  }
+  return specifier;
+}
+
 function macro(specifier) {
   let idx = -1;
   let abbr;
@@ -329,26 +362,8 @@ function macro(specifier) {
     idx = parseInt(found[1]);
     specifier = specifier.replace(re, '');
   }
+
   const item = specifier.replace(/%/g, '');
-  re = /^>([a-z]+){(\d+)}$/;
-  found = item.match(re);
-  if (found) {
-      let tag = found[1];
-      let depth = found[2];
-      const descend = [];
-      for (let i = 0; i < depth; i++) {
-        const p = mt.random_incl();
-        if (p < 0.4) {
-          break;
-        }
-        descend.push(tag);
-      }
-      if (descend.length) {
-        abbr = descend.join('>');
-        return `>${abbr}>`;
-      }
-      return `>`;
-  }
   const values = macroMap.get(item);
   if (!values) {
     return 'div.error';
@@ -418,25 +433,25 @@ function replaceAddition(abbr) {
 }
 
 function replaceMultiplication(abbr) {
-  let re = /%\d+(,\d+)?%/g;
+  let re = /%\d+(,\d+)?%/;
   while (re.test(abbr)) {
-    abbr = abbr.replace(re, multiplication);
+    abbr = abbr.replace(new RegExp(re, 'g'), multiplication);
   }
   return abbr;
 }
 
+const reMacros = [
+  {re: /%[a-z-]+(\d+)?(@\d+)?%/, handler: macro },
+  {re: /%>[a-z]+\{\d+(,\d+)?\}%/, handler: dig }
+];
+
 function replaceMacro(abbr) {
-  let re = /%>?[a-z-]+(\d+)?({\d+})?(@\d+)?%/g;
-  const found = abbr.match(re);
-  if (found) {
-    let limit = 20;
-    while (limit > 0 && re.test(abbr)) {
-      abbr = abbr.replace(re, macro);
-      limit--;
-    }
-    debug('## limit, length', limit, found.length, found);
-    if (!limit) {
-      abbr = abbr.replace(re, '');
+  const fn = (p, o) => p || o.re.test(abbr);
+  while (reMacros.reduce(fn, false)) {
+    for (const o of reMacros) {
+      while (o.re.test(abbr)) {
+        abbr = abbr.replace(new RegExp(o.re, 'g'), o.handler);
+      }
     }
   }
   return abbr;
