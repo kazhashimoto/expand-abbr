@@ -240,6 +240,24 @@ styleMap.set('grid', {
     return map;
   }
 });
+styleMap.set('grid-repeat', {
+  accept: ['div'],
+  getStyleRule: (cls) => {
+    const key = `.${cls}`;
+    const map = new Map();
+    map.set(key, [
+      'margin-top: 40px'
+    ]);
+    map.set(`${key} > div:not(:first-child)`, [
+      'margin-top: 40px'
+    ]);
+    map.set(`${key} ._x-grid_div`, [
+      'margin-top: 10px'
+    ]);
+    return map;
+  }
+
+});
 styleMap.set('card', {
   accept: ['div'],
   getStyleRule: (cls) => {

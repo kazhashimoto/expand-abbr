@@ -145,7 +145,7 @@ macroMap.set('grid', [
   'div._x-grid-4>(%card%)%4,8%'
 ]);
 macroMap.set('grid-repeat', [
-  'div>(div>h3{__PHRASE__}+(%grid%))%+2%'
+  'div>(div>h3{__PHRASE__}+(%grid%))%+2,3%'
 ]);
 macroMap.set('card', [
   'div>(%thumbnail%)+div>(h6{__PHRASE__}+p{__DIGEST__}+p{&dollar;99.99})',
