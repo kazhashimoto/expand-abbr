@@ -45,6 +45,7 @@ Options:
   -m,--macro <key_value>     add Element macro definition (default: [])
   -q,--query <key>           print Element macro that matches <key>
   --dark                     apply dark theme on the generated page
+  --grayscale                get grayscale images
   -t,--tab                   use a tab character for indenting instead of
                              spaces. (default: 2 spaces)
   --without-style            If this option disabled, insert default styles by
