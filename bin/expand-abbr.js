@@ -146,25 +146,34 @@ function concat(abbr_list) {
   return expression;
 }
 
-function multiplication(match) {
-  // convert '%min,max%' to array [min, max]
-  const range = match.replace(/%/g, '').split(',').map(x => isNaN(x)? 1: parseInt(x));
-  if (!range.length) {
-    return '*1';
+/**
+ * @param range min | min,max
+ * @param min   default min value
+ * @return  random integer between min and max values (inclusive).
+ */
+function getRandomInt(range, min) {
+  const arr = range.split(',').map(x => isNaN(x)? min : +x);
+  if (!arr.length) {
+    return min;
   }
-  let x, y;
-  if (range.length === 1) {
-    x = 1;
-    y = range[0];
+  let x, y, num;
+  if (arr.length < 2) {
+    x = min;
+    y = arr[0];
   } else {
-    [x, y] = range;
+    [x, y] = arr;
   }
-  if (x > y) {
-    return '*1';
+  if (x < y) {
+    num = x + mt.random_int() % (y + 1 - x);
+  } else {
+    num = y;
   }
-  const base = mt.random_int();
-  const n = x + base % (y - x + 1);
-  debug('rand=n,x,y', n, x, y);
+  return num;
+}
+
+function multiplication(match) {
+  const str = match.replace(/%/g, '');
+  const n = getRandomInt(str, 1);
   return `*${n}`;
 }
 
@@ -311,7 +320,6 @@ function bestMatch(words, tag) {
   return best;
 }
 
-
 const statMap = new Map();
 const randGenMap = new Map();
 for (const key of macroMap.keys()) {
@@ -325,22 +333,8 @@ function dig(specifier) {
   let found = specifier.match(re);
   if (found) {
     let tag = found[1];
-    let arr = found[2].split(',').map(x => isNaN(x)? 0: +x);
-    let min, max;
-    if (arr.length < 2) {
-      min = 0;
-      max = arr[0];
-    } else {
-      [min, max] = arr;
-    }
     const descend = [];
-
-    let depth;
-    if (max > min) {
-      depth = min + mt.random_int() % (max + 1 - min);
-    } else {
-      depth = max;
-    }
+    let depth = getRandomInt(found[2], 0);
     for (let i = 0; i < depth; i++) {
       descend.push(tag);
     }
