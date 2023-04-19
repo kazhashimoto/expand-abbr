@@ -191,15 +191,7 @@ function addition(str) {
   for (const o of found) {
     if (o.name == 'outside' && /^%\+\d+/.test(o.value)) {
       range.end = o.start;
-      let [min, max] = [1, 1];
-      let val = o.value.replace(/^%\+/, '').replace(/%.*$/, '')
-              .split(',').map(d => isNaN(d)? 1: +d);
-      if (val.length === 1) {
-        max = val[0];
-      } else {
-        [min, max] = val;
-      }
-      range.repeat = [min, max];
+      range.repeat = o.value.replace(/^%\+/, '').replace(/%.*$/, '');
       const t = o.value.match(/^%\+\d+(,\d+)?%/);
       range.startTrailing = o.start + t[0].length;
       break;
@@ -231,11 +223,7 @@ function addition(str) {
    */
   arr = splitText(str, range.startExpr - 1, range.startTrailing);
   const term = `(${range.expression})`;
-
-  let [x, y] = range.repeat;
-  const base = mt.random_int();
-  let n = x + base % (y - x + 1);
-  debug('addition: rand=n,x,y', n, x, y);
+  let n = getRandomInt(range.repeat, 1);
 
   let expression = term;
   for (let i = 1; i < n; i++) {
