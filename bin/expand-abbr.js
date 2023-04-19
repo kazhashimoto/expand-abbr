@@ -47,6 +47,7 @@ program
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('-q,--query <key>', 'print Element macro that matches <key>')
   .option('--dark', 'apply dark theme on the generated page')
+  .option('--grayscale', 'get grayscale images')
   .option('-t,--tab', 'use a tab character for indenting instead of spaces. (default: 2 spaces)')
   .option('--without-style', 'If this option disabled, insert default styles by using a <style> element in the <head> section')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
@@ -366,6 +367,7 @@ function macro(specifier) {
     values.used = true;
   }
 
+  let grayscale = '';
   re = /(img\[src=)photo(\d+x\d+)?_?\$?\.(jpg|png)/;
   found = abbr.match(re);
   if (found) {
@@ -387,6 +389,9 @@ function macro(specifier) {
         } else if (rx < 10) {
           c = 150;
         }
+        if (options.grayscale) {
+          grayscale = '_GRAYSCALE'
+        }
       }
 
       width = rx * c;
@@ -397,7 +402,7 @@ function macro(specifier) {
     if (!options.local) {
       found = abbr.match(re);
       if (found) {
-        abbr = abbr.replace(re, `$1__IMAGE${width}X${height}__`);
+        abbr = abbr.replace(re, `$1__IMAGE${width}X${height}${grayscale}__`);
       }
     }
   }
@@ -672,10 +677,11 @@ function replaceText(specifier) {
       v[0]++;
       text = v[0].toString();
     } else if (/^IMAGE(\d+X\d+)/.test(macro)) {
-      found = macro.match(/^IMAGE(\d+X\d+)/);
+      found = macro.match(/^IMAGE(\d+X\d+)(_GRAYSCALE)?/);
       let [width, height] = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
-      text = `https://picsum.photos/${width}/${height}?random=${x}`;
+      let grayscale = found[2]? '&grayscale': '';
+      text = `https://picsum.photos/${width}/${height}?random=${x}${grayscale}`;
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
