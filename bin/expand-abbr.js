@@ -420,25 +420,23 @@ function replaceAddition(abbr) {
 }
 
 function replaceMultiplication(abbr) {
-  let re = /%\d+(,\d+)?%/;
+  let re = /%\d+(,\d+)?%/g;
   while (re.test(abbr)) {
-    abbr = abbr.replace(new RegExp(re, 'g'), multiplication);
+    abbr = abbr.replace(re, multiplication);
   }
   return abbr;
 }
 
 const reMacros = [
-  {re: /%[a-z-]+(\d+)?(@\d+)?%/, handler: macro },
-  {re: /%>[a-z]+\{\d+(,\d+)?\}%/, handler: dig }
+  {re: /%[a-z-]+(\d+)?(@\d+)?%/g, handler: macro },
+  {re: /%>[a-z]+\{\d+(,\d+)?\}%/g, handler: dig }
 ];
 
 function replaceMacro(abbr) {
   const fn = (p, o) => p || o.re.test(abbr);
   while (reMacros.reduce(fn, false)) {
     for (const o of reMacros) {
-      while (o.re.test(abbr)) {
-        abbr = abbr.replace(new RegExp(o.re, 'g'), o.handler);
-      }
+      abbr = abbr.replace(o.re, o.handler);
     }
   }
   return abbr;
