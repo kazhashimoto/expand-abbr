@@ -5,6 +5,9 @@ const expand = require('emmet').default;
 const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
+const { xrand } = require('./xrand');
+xrand(0, 0, () => mt.random_int()); // init
+
 const icons = require('./icons');
 const { macroMap } = require('./macros');
 const { styleMap, styleMapOptions } = require('./preset-styles');
@@ -157,19 +160,14 @@ function getRandomInt(range, min) {
   if (!arr.length) {
     return min;
   }
-  let x, y, num;
+  let x, y;
   if (arr.length < 2) {
     x = min;
     y = arr[0];
   } else {
     [x, y] = arr;
   }
-  if (x < y) {
-    num = x + mt.random_int() % (y + 1 - x);
-  } else {
-    num = y;
-  }
-  return num;
+  return xrand(x, y);
 }
 
 function multiplication(match) {
@@ -420,23 +418,23 @@ function replaceAddition(abbr) {
 }
 
 function replaceMultiplication(abbr) {
-  let re = /%\d+(,\d+)?%/g;
+  let re = /%\d+(,\d+)?%/;
   while (re.test(abbr)) {
-    abbr = abbr.replace(re, multiplication);
+    abbr = abbr.replace(new RegExp(re, 'g'), multiplication);
   }
   return abbr;
 }
 
 const reMacros = [
-  {re: /%[a-z-]+(\d+)?(@\d+)?%/g, handler: macro },
-  {re: /%>[a-z]+\{\d+(,\d+)?\}%/g, handler: dig }
+  {re: /%[a-z-]+(\d+)?(@\d+)?%/, handler: macro },
+  {re: /%>[a-z]+\{\d+(,\d+)?\}%/, handler: dig }
 ];
 
 function replaceMacro(abbr) {
   const fn = (p, o) => p || o.re.test(abbr);
   while (reMacros.reduce(fn, false)) {
     for (const o of reMacros) {
-      abbr = abbr.replace(o.re, o.handler);
+      abbr = abbr.replace(new RegExp(o.re, 'g'), o.handler);
     }
   }
   return abbr;
@@ -502,7 +500,7 @@ const emoji_code = [
 // Fisher–Yates
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
-    const r = Math.floor(mt.random() * (i + 1));
+    const r = xrand(0, i);
     [array[i], array[r]] = [array[r], array[i]];
   }
 }
@@ -657,7 +655,7 @@ function replaceText(specifier) {
       n = fluctuation(20, 10);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
       if (prob(0.5)) {
-        n = 1 + mt.random_int() % 4;
+        n = xrand(1, 4);
         text += getEmoji(n);
       }
     } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
