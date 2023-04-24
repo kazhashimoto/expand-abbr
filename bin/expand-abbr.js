@@ -5,6 +5,9 @@ const expand = require('emmet').default;
 const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
+const { xrand } = require('./xrand');
+xrand(0, 0, () => mt.random_int()); // init
+
 const icons = require('./icons');
 const { macroMap } = require('./macros');
 const { styleMap, styleMapOptions } = require('./preset-styles');
@@ -157,19 +160,14 @@ function getRandomInt(range, min) {
   if (!arr.length) {
     return min;
   }
-  let x, y, num;
+  let x, y;
   if (arr.length < 2) {
     x = min;
     y = arr[0];
   } else {
     [x, y] = arr;
   }
-  if (x < y) {
-    num = x + mt.random_int() % (y + 1 - x);
-  } else {
-    num = y;
-  }
-  return num;
+  return xrand(x, y);
 }
 
 function multiplication(match) {
@@ -502,7 +500,7 @@ const emoji_code = [
 // Fisher–Yates
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
-    const r = Math.floor(mt.random() * (i + 1));
+    const r = xrand(0, i);
     [array[i], array[r]] = [array[r], array[i]];
   }
 }
@@ -657,7 +655,7 @@ function replaceText(specifier) {
       n = fluctuation(20, 10);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
       if (prob(0.5)) {
-        n = 1 + mt.random_int() % 4;
+        n = xrand(1, 4);
         text += getEmoji(n);
       }
     } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
