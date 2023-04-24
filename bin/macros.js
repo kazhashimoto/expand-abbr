@@ -63,8 +63,8 @@ macroMap.set('section-inner', [
   '(%section-heading%)+(%section-body%)',
   '(%section-heading%)+(%section-body%)+div>(%list%)',
   '(%section-heading%)+(%section-body%)+div>(%table%)',
-  '(%section-heading%)+(%section-body%)+(div>(%list%))+div>(%table%)',
   '(%section-heading%)+(%section-body%)+(%grid%)',
+  '(%section-heading%)+(%section-body%)+(%grid-repeat%)',
   '(%section-heading%)+(%section-body%)+(%alternative%)'
 ]);
 macroMap.set('section-heading', [
@@ -144,13 +144,19 @@ macroMap.set('grid', [
   'div._x-grid-3>(%card%)%4,8%',
   'div._x-grid-4>(%card%)%4,8%'
 ]);
+macroMap.set('grid-repeat', [
+  'div>(div>h3{__PHRASE__}+(%grid%))%+2,3%'
+]);
 macroMap.set('card', [
   'div>(%thumbnail%)+div>(h6{__PHRASE__}+p{__DIGEST__}+p{&dollar;99.99})',
-  'div>(%thumbnail%)+div>(h5{__HEADING__}+p{__MESSAGE__}+div>(%link-icon%))',
+  'div>(%thumbnail%)+div>(h5{__HEADING__}+p{__MESSAGE__}+div>(%link-text%))',
   'div>(%thumbnail%)+div>(h5{__HEADING__}+p>{__MESSAGE__ }+(%link-icon%))',
-  'div>(%thumbnail%)+p{__MESSAGE__}+div>(%link-icon%)',
+  'div>(%thumbnail%)+p{__MESSAGE__}+div>(%link-text%)',
   'div>(%thumbnail%)+p>{__MESSAGE__ }+(%link-icon%)',
   'div>(%thumbnail%)+p{__MESSAGE__ }+div>(%time%)'
+]);
+macroMap.set('link-text', [
+  'a[href=page$.html]>{__PHRASE__}',
 ]);
 macroMap.set('link-icon', [
   'a._x-link[href=page$.html]>{__PHRASE__}',
