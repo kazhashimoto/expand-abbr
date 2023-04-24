@@ -45,6 +45,7 @@ Options:
   -m,--macro <key_value>     add Element macro definition (default: [])
   -q,--query <key>           print Element macro that matches <key>
   --dark                     apply dark theme on the generated page
+  --grayscale                get grayscale images
   -t,--tab                   use a tab character for indenting instead of
                              spaces. (default: 2 spaces)
   --without-style            If this option disabled, insert default styles by
@@ -151,6 +152,20 @@ $ expand-abbr -h '%root%' > index.html
 $ open index.html
 ```
 
+現在、expand-abbrが生成できるダミーHTML文書には次の2種類があり、それぞれインデックス付（後述）のキーワード`%root@0%`, `%root@1%`が割り当てられています。
+
+| キーワード | ダミーHTMLのタイプ |
+|:--|:--|
+| `%root@0%` | 数個のセクションから成る記事風のページ |
+| `%root@1%` | ブログ風のページ |
+
+
+例
+```
+$ expand-abbr -h --dark "%root@0%" > article.html
+$ expand-abbr -h --dark "%root@1%" > blog.html
+```
+
 ### img要素のsrc属性
 expand-abbrが生成するダミーHTML文書では、`<img>`要素の`src`属性に設定されるリソースは、デフォルトの場合、[Lorem Picsum](https://picsum.photos/)のランダムな画像へのURLです。
 ```
@@ -206,6 +221,11 @@ $ expand-abbr -h '%root%' | grep class | more
 ```
 <link rel="stylesheet" href="https://unpkg.com/open-props">
 <link rel="stylesheet" href="https://unpkg.com/open-props/normalize.min.css">
+```
+
+`--dark`オプションを指定すると、既定のスタイルにダークモードの配色を適用します（デフォルトはライトモード）
+```
+$ expand-abbr -h --dark "%root%"
 ```
 
 `--without-style`オプションを指定すると、expand-abbrは既定のスタイルシートの埋め込みを抑止し、要素にクラス属性も挿入しません。
@@ -397,7 +417,7 @@ $ expand-abbr 'p{__MESSAGE__}'
 
 例
 ```
-$ bin/expand-abbr 'p{__HYPERTEXT10X2__}'
+$ expand-abbr 'p{__HYPERTEXT10X2__}'
 ```
 ```
 <p>Accusantium nam omnis ipsam nesciunt odit ea aperiam quos placeat. Odit voluptatum harum quisquam pariatur <a href="https://www.google.com/search?q=dolore">dolore</a> 1,167 aliquid explicabo iste nemo.</p>
@@ -481,15 +501,17 @@ $ expand-abbr 'time[datetime=__DATETIME__]{__DATE__}'
 
 | 式 | 説明 |
 |:-- |:--|
-| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | 式<em>expression</em>を`+`オペレーターで<em>N</em>個結合した式に展開<br>_min_ &le; _N_ &le; _max_<br>default: _min_ = 1 |
-| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | 要素<em>element</em>を`*`オペレーターで<em>N</em>個繰り返した式に展開<br>_min_ &le; _N_ &le; _max_<br>default: _min_ = 1 |
-| <em>parentTag</em>`%>`<em>tag</em>`{`<em>maxDepth</em>`}`| 親要素<em>parentTag</em>と子要素の間にタグ<em>tag</em>を<em>N</em>階層入れ子で挿入する式に展開<br>0 &le; _N_ &le; _maxDepth_ |
+| `(`<em>expression</em>`)%+`<em>max</em>`%`<br>`(`<em>expression</em>`)%+`<em>min</em>`,` <em>max</em>`%` | 式<em>expression</em>を`+`オペレーターで<em>N</em>個結合した式に展開します。<br>_min_ &le; _N_ &le; _max_<br>default: _min_ = 1 |
+| <em>element</em>`%*`<em>max</em>`%`<br><em>element</em>`%*`<em>min</em>`,`<em>max</em>`%` | 要素<em>element</em>を`*`オペレーターで<em>N</em>個繰り返した式に展開します。<br>_min_ &le; _N_ &le; _max_<br>default: _min_ = 1 |
+| <em>parentTag</em>`%>`<em>tag</em>`{`<em>max</em>`}`<br><em>parentTag</em>`%>`<em>tag</em>`{`<em>min</em>`,`<em>max</em>`}`| 親要素<em>parentTag</em>と子要素の間にタグ<em>tag</em>を<em>N</em>階層入れ子で挿入する式に展開します。<br>_min_ &le; _N_ &le; _max_<br>default: _min_ = 0 |
 
 
 #### %オペレーターの使用例
+`-x`オプションを指定してexpand-abbrを実行すると、`%`オペレーターによって展開された結果の式を表示させることができます。
+
 例
 ```
-$ expand-abbr '(div>p)%+3%'
+expand-abbr -x '(div>p)%+3%'
 ```
 これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
@@ -499,7 +521,7 @@ $ expand-abbr '(div>p)%+3%'
 ```
 例
 ```
-$ expand-abbr '(div>p)%+2,4%'
+expand-abbr -x '(div>p)%+2,4%'
 ```
 これは次の3通りの記法のいずれか1つに展開されます。
 ```
@@ -510,7 +532,7 @@ $ expand-abbr '(div>p)%+2,4%'
 
 例
 ```
-$ expand-abbr '(div>p)%+3%+(p>span)%+2,2%'
+expand-abbr -x '(div>p)%+3%+(p>span)%+2,2%'
 ```
 これは次の3通りの記法のいずれか1つに展開されます。
 ```
@@ -523,7 +545,7 @@ $ expand-abbr '(div>p)%+3%+(p>span)%+2,2%'
 
 例
 ```
-$ expand-abbr '((div>p)%+3%+(p>span))%+2,2%'
+expand-abbr -x '((div>p)%+3%+(p>span))%+2,2%'
 ```
 これは次に示した多数のバリエーションのうちいずれか1つに展開されます。
 ```
@@ -536,7 +558,7 @@ $ expand-abbr '((div>p)%+3%+(p>span))%+2,2%'
 
 例
 ```
-$ expand-abbr 'p%3%>span{item $}'
+expand-abbr -x 'p%3%>span{item $}'
 ```
 これは次の3通りのEmmet省略記法のいずれか1つに展開されます。
 ```
@@ -547,7 +569,7 @@ p*3>span{item $}
 
 例
 ```
-$ expand-abbr '(p>span{item $})%3%'
+$ expand-abbr -x '(p>span{item $})%3%'
 ```
 これは次のいずれか1つに展開されます。
 ```
@@ -558,7 +580,7 @@ $ expand-abbr '(p>span{item $})%3%'
 
 例
 ```
-$ expand-abbr '(p>span{item $})%2,4%'
+expand-abbr -x '(p>span{item $})%2,4%'
 ```
 これは次のいずれか1つに展開されます。
 ```
@@ -569,7 +591,7 @@ $ expand-abbr '(p>span{item $})%2,4%'
 
 例
 ```
-$ expand-abbr 'header%>div{3}%p'
+expand-abbr -x 'header%>div{3}%p'
 ```
 これは次のいずれか1つに展開されます。
 ```

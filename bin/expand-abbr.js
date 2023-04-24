@@ -5,6 +5,9 @@ const expand = require('emmet').default;
 const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
+const { xrand } = require('./xrand');
+xrand(0, 0, () => mt.random_int()); // init
+
 const icons = require('./icons');
 const { macroMap } = require('./macros');
 const { styleMap, styleMapOptions } = require('./preset-styles');
@@ -34,7 +37,7 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.9')
+  .version('1.1.10')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
@@ -47,6 +50,7 @@ program
   .option('-m,--macro <key_value>', 'add Element macro definition', collect, [])
   .option('-q,--query <key>', 'print Element macro that matches <key>')
   .option('--dark', 'apply dark theme on the generated page')
+  .option('--grayscale', 'get grayscale images')
   .option('-t,--tab', 'use a tab character for indenting instead of spaces. (default: 2 spaces)')
   .option('--without-style', 'If this option disabled, insert default styles by using a <style> element in the <head> section')
   .option('-x', 'add compiled abbreviation as HTML comment to output')
@@ -146,25 +150,29 @@ function concat(abbr_list) {
   return expression;
 }
 
-function multiplication(match) {
-  // convert '%min,max%' to array [min, max]
-  const range = match.replace(/%/g, '').split(',').map(x => isNaN(x)? 1: parseInt(x));
-  if (!range.length) {
-    return '*1';
+/**
+ * @param range min | min,max
+ * @param min   default min value
+ * @return  random integer between min and max values (inclusive).
+ */
+function getRandomInt(range, min) {
+  const arr = range.split(',').map(x => isNaN(x)? min : +x);
+  if (!arr.length) {
+    return min;
   }
   let x, y;
-  if (range.length === 1) {
-    x = 1;
-    y = range[0];
+  if (arr.length < 2) {
+    x = min;
+    y = arr[0];
   } else {
-    [x, y] = range;
+    [x, y] = arr;
   }
-  if (x > y) {
-    return '*1';
-  }
-  const base = mt.random_int();
-  const n = x + base % (y - x + 1);
-  debug('rand=n,x,y', n, x, y);
+  return xrand(x, y);
+}
+
+function multiplication(match) {
+  const str = match.replace(/%/g, '');
+  const n = getRandomInt(str, 1);
   return `*${n}`;
 }
 
@@ -182,15 +190,7 @@ function addition(str) {
   for (const o of found) {
     if (o.name == 'outside' && /^%\+\d+/.test(o.value)) {
       range.end = o.start;
-      let [min, max] = [1, 1];
-      let val = o.value.replace(/^%\+/, '').replace(/%.*$/, '')
-              .split(',').map(d => isNaN(d)? 1: +d);
-      if (val.length === 1) {
-        max = val[0];
-      } else {
-        [min, max] = val;
-      }
-      range.repeat = [min, max];
+      range.repeat = o.value.replace(/^%\+/, '').replace(/%.*$/, '');
       const t = o.value.match(/^%\+\d+(,\d+)?%/);
       range.startTrailing = o.start + t[0].length;
       break;
@@ -222,11 +222,7 @@ function addition(str) {
    */
   arr = splitText(str, range.startExpr - 1, range.startTrailing);
   const term = `(${range.expression})`;
-
-  let [x, y] = range.repeat;
-  const base = mt.random_int();
-  let n = x + base % (y - x + 1);
-  debug('addition: rand=n,x,y', n, x, y);
+  let n = getRandomInt(range.repeat, 1);
 
   let expression = term;
   for (let i = 1; i < n; i++) {
@@ -311,13 +307,31 @@ function bestMatch(words, tag) {
   return best;
 }
 
-
 const statMap = new Map();
 const randGenMap = new Map();
 for (const key of macroMap.keys()) {
   randGenMap.set(key, new MersenneTwister());
   const val = macroMap.get(key);
   statMap.set(key, (new Array(val.length)).fill(0));
+}
+
+function dig(specifier) {
+  let re = /^%>([a-z]+)\{(\d+(,\d+)?)\}%$/;
+  let found = specifier.match(re);
+  if (found) {
+    let tag = found[1];
+    const descend = [];
+    let depth = getRandomInt(found[2], 0);
+    for (let i = 0; i < depth; i++) {
+      descend.push(tag);
+    }
+    if (descend.length) {
+      let abbr = descend.join('>');
+      return `>${abbr}>`;
+    }
+    return '>';
+  }
+  return specifier;
 }
 
 function macro(specifier) {
@@ -329,26 +343,8 @@ function macro(specifier) {
     idx = parseInt(found[1]);
     specifier = specifier.replace(re, '');
   }
+
   const item = specifier.replace(/%/g, '');
-  re = /^>([a-z]+){(\d+)}$/;
-  found = item.match(re);
-  if (found) {
-      let tag = found[1];
-      let depth = found[2];
-      const descend = [];
-      for (let i = 0; i < depth; i++) {
-        const p = mt.random_incl();
-        if (p < 0.4) {
-          break;
-        }
-        descend.push(tag);
-      }
-      if (descend.length) {
-        abbr = descend.join('>');
-        return `>${abbr}>`;
-      }
-      return `>`;
-  }
   const values = macroMap.get(item);
   if (!values) {
     return 'div.error';
@@ -369,6 +365,7 @@ function macro(specifier) {
     values.used = true;
   }
 
+  let grayscale = '';
   re = /(img\[src=)photo(\d+x\d+)?_?\$?\.(jpg|png)/;
   found = abbr.match(re);
   if (found) {
@@ -390,6 +387,9 @@ function macro(specifier) {
         } else if (rx < 10) {
           c = 150;
         }
+        if (options.grayscale) {
+          grayscale = '_GRAYSCALE'
+        }
       }
 
       width = rx * c;
@@ -400,7 +400,7 @@ function macro(specifier) {
     if (!options.local) {
       found = abbr.match(re);
       if (found) {
-        abbr = abbr.replace(re, `$1__IMAGE${width}X${height}__`);
+        abbr = abbr.replace(re, `$1__IMAGE${width}X${height}${grayscale}__`);
       }
     }
   }
@@ -418,25 +418,23 @@ function replaceAddition(abbr) {
 }
 
 function replaceMultiplication(abbr) {
-  let re = /%\d+(,\d+)?%/g;
+  let re = /%\d+(,\d+)?%/;
   while (re.test(abbr)) {
-    abbr = abbr.replace(re, multiplication);
+    abbr = abbr.replace(new RegExp(re, 'g'), multiplication);
   }
   return abbr;
 }
 
+const reMacros = [
+  {re: /%[a-z-]+(\d+)?(@\d+)?%/, handler: macro },
+  {re: /%>[a-z]+\{\d+(,\d+)?\}%/, handler: dig }
+];
+
 function replaceMacro(abbr) {
-  let re = /%>?[a-z-]+(\d+)?({\d+})?(@\d+)?%/g;
-  const found = abbr.match(re);
-  if (found) {
-    let limit = 20;
-    while (limit > 0 && re.test(abbr)) {
-      abbr = abbr.replace(re, macro);
-      limit--;
-    }
-    debug('## limit, length', limit, found.length, found);
-    if (!limit) {
-      abbr = abbr.replace(re, '');
+  const fn = (p, o) => p || o.re.test(abbr);
+  while (reMacros.reduce(fn, false)) {
+    for (const o of reMacros) {
+      abbr = abbr.replace(new RegExp(o.re, 'g'), o.handler);
     }
   }
   return abbr;
@@ -502,7 +500,7 @@ const emoji_code = [
 // Fisher–Yates
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
-    const r = Math.floor(mt.random() * (i + 1));
+    const r = xrand(0, i);
     [array[i], array[r]] = [array[r], array[i]];
   }
 }
@@ -657,7 +655,7 @@ function replaceText(specifier) {
       n = fluctuation(20, 10);
       text = getLoremText(`lorem${n}*5`, 1, true, false);
       if (prob(0.5)) {
-        n = 1 + mt.random_int() % 4;
+        n = xrand(1, 3);
         text += getEmoji(n);
       }
     } else if (/^HYPERTEXT(\d+X\d+)/.test(macro)) {
@@ -675,10 +673,11 @@ function replaceText(specifier) {
       v[0]++;
       text = v[0].toString();
     } else if (/^IMAGE(\d+X\d+)/.test(macro)) {
-      found = macro.match(/^IMAGE(\d+X\d+)/);
+      found = macro.match(/^IMAGE(\d+X\d+)(_GRAYSCALE)?/);
       let [width, height] = found[1].split('X').map(d => +d);
       let x = 1 + mt.random_int() % 1000;
-      text = `https://picsum.photos/${width}/${height}?random=${x}`;
+      let grayscale = found[2]? '&grayscale': '';
+      text = `https://picsum.photos/${width}/${height}?random=${x}${grayscale}`;
     } else if (macro == 'DATETIME') {
       text = getRandomTime();
     } else if (macro == 'DATE') {
