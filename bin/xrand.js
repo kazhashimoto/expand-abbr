@@ -1,5 +1,11 @@
-const history = [];
-let generator = () => 0; // default
+let generator = () => Math.random(); // default
+let history = [];
+history.range = 0;
+
+const reset = (x) => {
+  history = [];
+  history.range = x;
+};
 
 function _xrand(max) {
   let length = max + 1;
@@ -13,16 +19,21 @@ function _xrand(max) {
 }
 
 module.exports.xrand = function (min, max, fn) {
+  const range = max - min;
   if (typeof fn === 'function') {
     generator = fn;
+    reset(range);
+  }
+  if (range !== history.range) {
+    reset(range);
   }
   if (max <= min) {
     return min;
   }
   let n;
-  let limit = 10;
+  let limit = Math.min(5, range + 1);
   do {
-    n = _xrand(max - min);
+    n = _xrand(range);
   } while (history.includes(n) && --limit > 0);
 
   history.push(n);
