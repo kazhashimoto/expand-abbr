@@ -8,12 +8,9 @@ const reset = (x) => {
 };
 
 function _xrand(max) {
-  let length = max + 1;
-  const arr = [];
-  for (let i = 0; i < length; i++) {
-    const x = generator();
-    arr.push({ idx: i, val: x });
-  }
+  const arr = Array.from({ length: max + 1 }, (v, i) => {
+    return { idx: i, val: generator() };
+  });
   arr.sort((a, b) => a.val - b.val);
   return arr[0].idx;
 }
