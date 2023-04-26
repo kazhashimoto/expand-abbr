@@ -33,16 +33,25 @@ module.exports.xrand = function (min, max, fn) {
     n = _xrand(range);
   } while (history.includes(n) && --limit > 0);
 
-  if (!limit) {
+  if (history.length > 1) {
     const freq = Array.from({ length: range + 1 }, (v, i) => 0);
     for (const v of history) {
       freq[v]++;
     }
     const x = freq.indexOf(Math.max(...freq));
+    const exclude = [x];
+    const seq = history.slice(-2);
+    if (seq[1] === seq[0] + 1) {
+      exclude.push(seq[1] + 1, ...seq);
+    } else if (seq[1] === seq[0] - 1) {
+      exclude.push(seq[1] - 1, ...seq);
+    } else if (seq[0] === seq[1]) {
+      exclude.push(seq[0]);
+    }
     limit = range + 1;
-    do {
+    while (exclude.includes(n) && limit-- > 0) {
       n = _xrand(range);
-    } while (n === x && --limit > 0);
+    }
   }
 
   history.push(n);
