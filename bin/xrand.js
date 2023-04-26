@@ -28,10 +28,22 @@ module.exports.xrand = function (min, max, fn) {
     return min;
   }
   let n;
-  let limit = Math.min(5, range + 1);
+  let limit = range + 1;
   do {
     n = _xrand(range);
   } while (history.includes(n) && --limit > 0);
+
+  if (!limit) {
+    const freq = Array.from({ length: range + 1 }, (v, i) => 0);
+    for (const v of history) {
+      freq[v]++;
+    }
+    const x = freq.indexOf(Math.max(...freq));
+    limit = range + 1;
+    do {
+      n = _xrand(range);
+    } while (n === x && --limit > 0);
+  }
 
   history.push(n);
   if (history.length > 5) {
