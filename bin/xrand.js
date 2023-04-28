@@ -11,8 +11,8 @@ const reset = (x) => {
   followedBy = matrix(x + 1);
 };
 
-const empty = (x) => new Array(x).fill(0);
-const matrix = (x) => empty(x).map((v) => empty(x));
+const zero = (x) => new Array(x).fill(0);
+const matrix = (x) => zero(x).map((v) => zero(x));
 const indicesMax = (arr) => {
   const top = Math.max(...arr);
   if (top > 0) {
@@ -33,6 +33,7 @@ function _xrand(max) {
 
 module.exports.xrand = function (min, max, fn) {
   const range = max - min;
+  const LIMIT = 2 * (range + 1);
   if (typeof fn === 'function') {
     generator = fn;
     reset(range);
@@ -44,11 +45,10 @@ module.exports.xrand = function (min, max, fn) {
     return min;
   }
   let n;
-  let limit = range + 1;
-  limit *= 2;
+  let counter = LIMIT;
   do {
     n = _xrand(range);
-  } while (history.includes(n) && --limit > 0);
+  } while (history.includes(n) && --counter > 0);
 
   if (history.length > 1) {
     const exclude = indicesMax(frequency);
@@ -56,13 +56,12 @@ module.exports.xrand = function (min, max, fn) {
     const last = seq[1];
     exclude.push(last);
     const maxFollowed = indicesMax(followedBy[last]);
-    limit = range + 1;
-    limit *= 2;
-    while (maxFollowed.includes(n) && limit-- > 0) {
+    counter = LIMIT;
+    while (maxFollowed.includes(n) && counter-- > 0) {
       n = _xrand(range);
     }
     let tentative = undefined;
-    if (limit) {
+    if (counter) {
       tentative = n;
     }
 
@@ -74,16 +73,13 @@ module.exports.xrand = function (min, max, fn) {
       exclude.push(seq[0]);
     }
 
-    limit = range + 1;
-    limit *= 2;
-    while (exclude.includes(n) && limit-- > 0) {
+    counter = LIMIT;
+    while (exclude.includes(n) && counter-- > 0) {
       n = _xrand(range);
     }
-
-    if (!limit && tentative) {
+    if (!counter && tentative) {
       n = tentative;
     }
-
     followedBy[last][n]++;
   }
 
