@@ -31,24 +31,44 @@ function _xrand(max) {
   return arr[0].idx;
 }
 
-module.exports.xrand = function (min, max, fn) {
+function xrand(min, max, fn) {
   const range = max - min;
   const LIMIT = 2 * (range + 1);
+  let first = false;
+  let n, counter;
+  const initial_seq = [];
   if (typeof fn === 'function') {
     generator = fn;
     reset(range);
+    first = true;
   }
   if (range !== history.range) {
     reset(range);
+    first = true;
   }
   if (max <= min) {
     return min;
   }
-  let n;
-  let counter = LIMIT;
-  do {
+  if (first) {
+    first = false;
+    const freq = zero(range + 1);
+    for (let i = 0; i < 10; i++) {
+      n = _xrand(range);
+      freq[n]++;
+    }
+    const ex = indicesMax(freq);
+    counter = LIMIT;
+    do {
+      n = _xrand(range);
+    } while (ex.includes(n) && --counter > 0);
+  } else {
     n = _xrand(range);
-  } while (history.includes(n) && --counter > 0);
+  }
+
+  counter = LIMIT;
+  while (history.includes(n) && --counter > 0) {
+    n = _xrand(range);
+  }
 
   if (history.length > 1) {
     const exclude = indicesMax(frequency);
@@ -89,4 +109,6 @@ module.exports.xrand = function (min, max, fn) {
     history.shift();
   }
   return min + n;
-};
+}
+
+module.exports.xrand = xrand;
