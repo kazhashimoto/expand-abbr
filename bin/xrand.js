@@ -33,10 +33,11 @@ function _xrand(max) {
 
 function xrand(min, max, fn) {
   const range = max - min;
-  const LIMIT = 2 * (range + 1);
   let first = false;
-  let n, counter;
-  const initial_seq = [];
+  let n;
+  let exclude;
+  let result;
+
   if (typeof fn === 'function') {
     generator = fn;
     reset(range);
@@ -49,6 +50,15 @@ function xrand(min, max, fn) {
   if (max <= min) {
     return min;
   }
+
+  const pick = (v, ex) => {
+    let k = 2 * (range + 1);
+    while (ex.includes(v) && --k > 0) {
+      v = _xrand(range);
+    }
+    return { value: v, found: k > 0 };
+  };
+
   if (first) {
     first = false;
     const freq = zero(range + 1);
@@ -56,32 +66,25 @@ function xrand(min, max, fn) {
       n = _xrand(range);
       freq[n]++;
     }
-    const ex = indicesMax(freq);
-    counter = LIMIT;
-    do {
-      n = _xrand(range);
-    } while (ex.includes(n) && --counter > 0);
+    exclude = indicesMax(freq);
+    n = pick(_xrand(range), exclude).value;
   } else {
     n = _xrand(range);
   }
 
-  counter = LIMIT;
-  while (history.includes(n) && --counter > 0) {
-    n = _xrand(range);
-  }
+  n = pick(n, history).value;
 
   if (history.length > 1) {
-    const exclude = indicesMax(frequency);
+    exclude = indicesMax(frequency);
     const seq = history.slice(-2);
     const last = seq[1];
     exclude.push(last);
+
     const maxFollowed = indicesMax(followedBy[last]);
-    counter = LIMIT;
-    while (maxFollowed.includes(n) && counter-- > 0) {
-      n = _xrand(range);
-    }
+    result = pick(n, maxFollowed);
+    n = result.value;
     let tentative = undefined;
-    if (counter) {
+    if (result.found) {
       tentative = n;
     }
 
@@ -93,11 +96,9 @@ function xrand(min, max, fn) {
       exclude.push(seq[0]);
     }
 
-    counter = LIMIT;
-    while (exclude.includes(n) && counter-- > 0) {
-      n = _xrand(range);
-    }
-    if (!counter && tentative) {
+    result = pick(n, exclude);
+    n = result.value;
+    if (!result.found && tentative) {
       n = tentative;
     }
     followedBy[last][n]++;
