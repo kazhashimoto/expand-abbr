@@ -75,10 +75,8 @@ function xrand(min, max, fn) {
   n = pick(n, history).value;
 
   if (history.length > 1) {
-    exclude = indicesMax(frequency);
     const seq = history.slice(-2);
     const last = seq[1];
-    exclude.push(last);
 
     const maxFollowed = indicesMax(followedBy[last]);
     result = pick(n, maxFollowed);
@@ -88,18 +86,25 @@ function xrand(min, max, fn) {
       tentative = n;
     }
 
+    exclude = indicesMax(frequency);
+    exclude.push(last);
     if (last === seq[0] + 1) {
-      exclude.push(last + 1, ...seq);
+      exclude.push(last + 1);
     } else if (last === seq[0] - 1) {
-      exclude.push(last - 1, ...seq);
-    } else if (seq[0] === last) {
-      exclude.push(seq[0]);
+      exclude.push(last - 1);
     }
 
     result = pick(n, exclude);
     n = result.value;
     if (!result.found && tentative) {
       n = tentative;
+      if (n === last + 1 && last === seq[0] + 1) {
+        n = pick(n, [last, last + 1]).value;
+      } else if (n === last - 1 && last === seq[0] - 1) {
+        n = pick(n, [last - 1, last]).value;
+      } else if (n === last && last === seq[0]) {
+        n = pick(n, [last]).value;
+      }
     }
     followedBy[last][n]++;
   }
