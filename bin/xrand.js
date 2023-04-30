@@ -42,25 +42,11 @@ function _xrand(max) {
   return arr[0].idx;
 }
 
-function xrand(min, max, fn) {
+function _xrand_proc(min, max, fn) {
   const range = max - min;
-  let first = false;
   let n;
   let exclude;
   let result;
-
-  if (typeof fn === 'function') {
-    generator = fn;
-    reset(range);
-    first = true;
-  }
-  if (range !== history.range) {
-    reset(range);
-    first = true;
-  }
-  if (max <= min) {
-    return min;
-  }
 
   const pick = (v, ex) => {
     let k = 2 * (range + 1);
@@ -70,8 +56,9 @@ function xrand(min, max, fn) {
     return { value: v, found: k > 0 };
   };
 
-  if (first) {
-    first = false;
+  if (history.length) {
+    n = _xrand(range);
+  } else {
     const freq = zero(range + 1);
     for (let i = 0; i < 10; i++) {
       n = _xrand(range);
@@ -79,8 +66,6 @@ function xrand(min, max, fn) {
     }
     exclude = indicesMax(freq);
     n = pick(_xrand(range), exclude).value;
-  } else {
-    n = _xrand(range);
   }
 
   n = pick(n, history).value;
@@ -136,6 +121,33 @@ function xrand(min, max, fn) {
     history.shift();
   }
   return min + n;
+}
+
+function _xrand_init(min, max, fn) {
+  const range = max - min;
+  if (typeof fn === 'function') {
+    generator = fn;
+  }
+  reset(range);
+}
+
+function xrand(min, max, fn) {
+  const range = max - min;
+  const prev_range = history.range;
+
+  if (typeof fn === 'function' || range !== history.range) {
+    _xrand_init(min, max, fn);
+  }
+  if (max <= min) {
+    return min;
+  }
+
+  if (range !== prev_range) {
+    for (let i = 0; i < 20; i++) {
+      _xrand_proc(min, max);
+    }
+  }
+  return _xrand_proc(min, max);
 }
 
 module.exports.xrand = xrand;
