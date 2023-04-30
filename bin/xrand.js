@@ -12,7 +12,7 @@ const reset = (x) => {
 };
 
 const zero = (x) => new Array(x).fill(0);
-const matrix = (x) => zero(x).map((v) => zero(x));
+const matrix = (x) => zero(x).map(() => zero(x));
 const indicesMax = (arr) => {
   const top = Math.max(...arr);
   if (top > 0) {
