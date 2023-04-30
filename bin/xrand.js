@@ -21,6 +21,17 @@ const indicesMax = (arr) => {
   }
   return [];
 };
+const upper = () => {
+  const sum = (p, c) => p + c;
+  let s = frequency.reduce(sum);
+  if (!s) {
+    return 0;
+  }
+  const m = (frequency.length - 1) / 2;
+  let fn = (p, c, i) => (i > m ? p + c : i === m ? c / 2 : p);
+  let u = frequency.reduce(fn, 0);
+  return u / s;
+};
 
 function _xrand(max) {
   const arr = Array.from({ length: max + 1 }, (v, i) => ({
@@ -98,12 +109,22 @@ function xrand(min, max, fn) {
     n = result.value;
     if (!result.found && tentative) {
       n = tentative;
+      exclude = undefined;
       if (n === last + 1 && last === seq[0] + 1) {
-        n = pick(n, [last, last + 1]).value;
+        exclude = [last, last + 1];
       } else if (n === last - 1 && last === seq[0] - 1) {
-        n = pick(n, [last - 1, last]).value;
+        exclude = [last - 1, last];
       } else if (n === last && last === seq[0]) {
-        n = pick(n, [last]).value;
+        exclude = [last];
+      }
+      if (exclude) {
+        n = pick(n, exclude).value;
+        if (upper() > 0.5) {
+          exclude = [Math.ceil(range / 2), range];
+        } else {
+          exclude = [0, Math.floor(range / 2)];
+        }
+        n = pick(n, exclude).value;
       }
     }
     followedBy[last][n]++;
