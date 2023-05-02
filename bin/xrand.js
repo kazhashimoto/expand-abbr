@@ -1,14 +1,16 @@
 let generator = () => Math.random(); // default
 let history = [];
 history.range = 0;
+const MAX_HIST = 5;
 let frequency = [];
-let followedBy = [];
+let distance = [];
+const MAX_DISTANCE = 5;
 
 const reset = (x) => {
   history = [];
   history.range = x;
-  frequency = new Array(x + 1).fill(0);
-  followedBy = matrix(x + 1);
+  frequency = zero(x + 1);
+  distance = zero(MAX_DISTANCE).map(() => matrix(x + 1));
 };
 
 const zero = (x) => new Array(x).fill(0);
@@ -53,14 +55,18 @@ function _xrand_proc(min, max, fn) {
     while (ex.includes(v) && --k > 0) {
       v = _xrand(range);
     }
-    return { value: v, found: k > 0 };
+    let found = k > 0;
+    if (!found) {
+      v = n;
+    }
+    return { value: v, found: found };
   };
 
   if (history.length) {
     n = _xrand(range);
   } else {
     const freq = zero(range + 1);
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       n = _xrand(range);
       freq[n]++;
     }
@@ -70,54 +76,108 @@ function _xrand_proc(min, max, fn) {
 
   n = pick(n, history).value;
 
+  const p_upper = () => {
+    let arr = undefined;
+    if (upper() > 0.5) {
+      arr = [Math.ceil(range / 2), range];
+    } else {
+      arr = [0, Math.floor(range / 2)];
+    }
+    return arr;
+  };
+
+  const p_consecutive = (n) => {
+    const seq = history.slice(-2);
+    const last = seq[1];
+    let arr = undefined;
+    if (n === last + 1 && last === seq[0] + 1) {
+      arr = [last, last + 1];
+    } else if (n === last - 1 && last === seq[0] - 1) {
+      arr = [last - 1, last];
+    } else if (n === last && last === seq[0]) {
+      arr = [last];
+    }
+    return arr;
+  };
+
+  const p_maxfreq = () => indicesMax(frequency);
+  const p_maxhist = () => indicesMax(history);
+  const p_equal = () => [history[history.length - 1]];
+
+  const p_zigzag = () => {
+    const seq = history.slice(-2);
+    return [seq[0]];
+  };
+
+  const getDistanceArray = (d) => {
+    const idx = history.length - 1 - d;
+    let arr = undefined;
+    if (idx >= 0) {
+      const x = history[idx];
+      arr = indicesMax(distance[d][x]);
+    }
+    return arr;
+  };
+
+  const p_pair_0 = () => getDistanceArray(0);
+  const p_pair_1 = () => getDistanceArray(1);
+  const p_pair_2 = () => getDistanceArray(2);
+
+  const procList = [
+    { handler: p_maxfreq, weight: 10 },
+    { handler: p_maxhist, weight: 8 },
+    { handler: p_upper, weight: 2 },
+    { handler: p_zigzag, weight: 3 },
+    { handler: p_consecutive, weight: 10 },
+    { handler: p_equal, weight: 8 },
+    { handler: p_pair_0, weight: 10 },
+    { handler: p_pair_1, weight: 8 },
+    { handler: p_pair_2, weight: 6 },
+  ];
+
+  const evaluate = (n) => {
+    let score = 0;
+    for (const p of procList) {
+      const excl = p.handler(n);
+      if (excl && excl.includes(n)) {
+        score += p.weight;
+      }
+    }
+    return score;
+  };
+
   if (history.length > 1) {
     const seq = history.slice(-2);
     const last = seq[1];
 
-    const maxFollowed = indicesMax(followedBy[last]);
-    result = pick(n, maxFollowed);
-    n = result.value;
-    let tentative = undefined;
-    if (result.found) {
-      tentative = n;
-    }
-
-    exclude = indicesMax(frequency);
-    exclude.push(last);
-    if (last === seq[0] + 1) {
-      exclude.push(last + 1);
-    } else if (last === seq[0] - 1) {
-      exclude.push(last - 1);
-    }
-
-    result = pick(n, exclude);
-    n = result.value;
-    if (!result.found && tentative) {
-      n = tentative;
-      exclude = undefined;
-      if (n === last + 1 && last === seq[0] + 1) {
-        exclude = [last, last + 1];
-      } else if (n === last - 1 && last === seq[0] - 1) {
-        exclude = [last - 1, last];
-      } else if (n === last && last === seq[0]) {
-        exclude = [last];
+    let k = 2 * (range + 1);
+    let min_score = 100;
+    let best = n;
+    do {
+      let score = evaluate(n);
+      if (score < min_score) {
+        min_score = score;
+        best = n;
       }
-      if (exclude) {
-        n = pick(n, exclude).value;
-        if (upper() > 0.5) {
-          exclude = [Math.ceil(range / 2), range];
-        } else {
-          exclude = [0, Math.floor(range / 2)];
-        }
-        n = pick(n, exclude).value;
+      n = _xrand(range);
+    } while (--k > 0);
+
+    n = best;
+
+    for (let i = 0; i < MAX_DISTANCE; i++) {
+      let idx = history.length - 1 - i;
+      if (idx < 0) {
+        break;
       }
+      let x = history[idx];
+      const arr = distance[i];
+      arr[x][n]++;
     }
-    followedBy[last][n]++;
   }
 
   history.push(n);
   frequency[n]++;
-  if (history.length > 5) {
+  if (history.length > MAX_HIST) {
     history.shift();
   }
   return min + n;
@@ -140,12 +200,6 @@ function xrand(min, max, fn) {
   }
   if (max <= min) {
     return min;
-  }
-
-  if (range !== prev_range) {
-    for (let i = 0; i < 20; i++) {
-      _xrand_proc(min, max);
-    }
   }
   return _xrand_proc(min, max);
 }
