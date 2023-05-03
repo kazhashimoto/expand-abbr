@@ -16,9 +16,12 @@ const reset = (x) => {
 
 const zero = (x) => new Array(x).fill(0);
 const matrix = (x) => zero(x).map(() => zero(x));
-const indicesMax = (arr) => {
+const indicesMax = (arr, threshold) => {
   const top = Math.max(...arr);
-  if (top > 0) {
+  if (typeof threshold === 'undefined') {
+    threshold = 0;
+  }
+  if (top > threshold) {
     arr = arr.map((v, i) => (v === top ? i : -1)).filter((v) => v >= 0);
     return arr;
   }
@@ -76,18 +79,29 @@ function _xrand_proc(min, max, fn) {
     const last = seq[1];
     let arr = undefined;
     if (x === last + 1 && last === seq[0] + 1) {
-      arr = [last, last + 1];
+      arr = [x];
     } else if (x === last - 1 && last === seq[0] - 1) {
-      arr = [last - 1, last];
-    } else if (x === last && last === seq[0]) {
-      arr = [last];
+      arr = [x];
+    }
+    return arr;
+  };
+
+  const p_triple = (x) => {
+    const seq = history.slice(-2);
+    let arr = undefined;
+    if (x === seq[0] && x === seq[1]) {
+      arr = [x];
     }
     return arr;
   };
 
   const p_maxfreq = () => indicesMax(frequency);
-  const p_recent = () => indicesMax(history.slice(-RECENT_LEN));
-  const p_equal = () => [history[history.length - 1]];
+  const p_recent = (x) => {
+    const arr = history.slice(-RECENT_LEN);
+    arr.push(x);
+    return indicesMax(arr, 1);
+  };
+  const p_double = () => [history[history.length - 1]];
 
   const p_zigzag = () =>
     history.length > 1 ? [history[history.length - 2]] : undefined;
@@ -106,16 +120,29 @@ function _xrand_proc(min, max, fn) {
   const p_pair_1 = () => getDistanceArray(1);
   const p_pair_2 = () => getDistanceArray(2);
 
+  const p_step = (x) => {
+    let arr = undefined;
+    if (history.length >= 3) {
+      const seq = history.slice(-3);
+      if (seq[0] === seq[1] && seq[2] === x) {
+        return [x];
+      }
+    }
+    return arr;
+  };
+
   const procList = [
     { handler: p_maxfreq, weight: 10 },
-    { handler: p_recent, weight: 8 },
+    { handler: p_recent, weight: 20 },
     { handler: p_upper, weight: 2 },
     { handler: p_zigzag, weight: 3 },
     { handler: p_consecutive, weight: 10 },
-    { handler: p_equal, weight: 8 },
+    { handler: p_triple, weight: 30 },
+    { handler: p_double, weight: 20 },
     { handler: p_pair_0, weight: 10 },
     { handler: p_pair_1, weight: 8 },
     { handler: p_pair_2, weight: 6 },
+    { handler: p_step, weight: 40 },
   ];
 
   const match = (seq, arr, from) => {
@@ -166,11 +193,15 @@ function _xrand_proc(min, max, fn) {
       }
     }
     if (history.length >= 5) {
-      let count = countDuplicate(3, x);
+      let count;
+      count = countDuplicate(2, x);
+      score += count * 20;
+
+      count = countDuplicate(3, x);
       score += count * 20;
 
       count = countDuplicate(4, x);
-      score += count * 30;
+      score += count * 20;
     }
     return score;
   };
@@ -178,7 +209,7 @@ function _xrand_proc(min, max, fn) {
   let n = pick(_xrand(range), history).value;
   if (history.length > 1) {
     let k = 2 * (range + 1);
-    let min_score = 100;
+    let min_score = 1000;
     let best = n;
     do {
       let score = evaluate(n);
