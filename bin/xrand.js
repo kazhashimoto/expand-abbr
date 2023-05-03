@@ -1,7 +1,8 @@
 let generator = () => Math.random(); // default
 let history = [];
 history.range = 0;
-const MAX_HIST = 5;
+const MAX_HIST = 50;
+const RECENT_LEN = 5;
 let frequency = [];
 let distance = [];
 const MAX_DISTANCE = 5;
@@ -46,12 +47,10 @@ function _xrand(max) {
 
 function _xrand_proc(min, max, fn) {
   const range = max - min;
-  let n;
-  let exclude;
-  let result;
 
   const pick = (v, ex) => {
     let k = 2 * (range + 1);
+    let n = v;
     while (ex.includes(v) && --k > 0) {
       v = _xrand(range);
     }
@@ -61,20 +60,6 @@ function _xrand_proc(min, max, fn) {
     }
     return { value: v, found: found };
   };
-
-  if (history.length) {
-    n = _xrand(range);
-  } else {
-    const freq = zero(range + 1);
-    for (let i = 0; i < 20; i++) {
-      n = _xrand(range);
-      freq[n]++;
-    }
-    exclude = indicesMax(freq);
-    n = pick(_xrand(range), exclude).value;
-  }
-
-  n = pick(n, history).value;
 
   const p_upper = () => {
     let arr = undefined;
@@ -86,28 +71,26 @@ function _xrand_proc(min, max, fn) {
     return arr;
   };
 
-  const p_consecutive = (n) => {
+  const p_consecutive = (x) => {
     const seq = history.slice(-2);
     const last = seq[1];
     let arr = undefined;
-    if (n === last + 1 && last === seq[0] + 1) {
+    if (x === last + 1 && last === seq[0] + 1) {
       arr = [last, last + 1];
-    } else if (n === last - 1 && last === seq[0] - 1) {
+    } else if (x === last - 1 && last === seq[0] - 1) {
       arr = [last - 1, last];
-    } else if (n === last && last === seq[0]) {
+    } else if (x === last && last === seq[0]) {
       arr = [last];
     }
     return arr;
   };
 
   const p_maxfreq = () => indicesMax(frequency);
-  const p_maxhist = () => indicesMax(history);
+  const p_recent = () => indicesMax(history.slice(-RECENT_LEN));
   const p_equal = () => [history[history.length - 1]];
 
-  const p_zigzag = () => {
-    const seq = history.slice(-2);
-    return [seq[0]];
-  };
+  const p_zigzag = () =>
+    history.length > 1 ? [history[history.length - 2]] : undefined;
 
   const getDistanceArray = (d) => {
     const idx = history.length - 1 - d;
@@ -125,7 +108,7 @@ function _xrand_proc(min, max, fn) {
 
   const procList = [
     { handler: p_maxfreq, weight: 10 },
-    { handler: p_maxhist, weight: 8 },
+    { handler: p_recent, weight: 8 },
     { handler: p_upper, weight: 2 },
     { handler: p_zigzag, weight: 3 },
     { handler: p_consecutive, weight: 10 },
@@ -135,21 +118,65 @@ function _xrand_proc(min, max, fn) {
     { handler: p_pair_2, weight: 6 },
   ];
 
-  const evaluate = (n) => {
+  const match = (seq, arr, from) => {
+    let end = from + seq.length;
+    if (end > arr.length) {
+      return false;
+    }
+    for (let i = 0, k = from; i < seq.length; i++, k++) {
+      if (seq[i] !== arr[k]) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const occurrences = (seq) => {
+    let count = 0;
+    const min_len = seq.length;
+    if (history.length >= min_len) {
+      let from = 0;
+      let idx;
+      while ((idx = history.indexOf(seq[0], from)) !== -1) {
+        if (match(seq, history, idx)) {
+          count++;
+        }
+        from = idx + 1;
+      }
+    }
+    return count;
+  };
+
+  const countDuplicate = (len, last) => {
+    let count = 0;
+    if (history.length >= len) {
+      const seq = history.slice(-len + 1);
+      seq.push(last);
+      count = occurrences(seq);
+    }
+    return count;
+  };
+
+  const evaluate = (x) => {
     let score = 0;
     for (const p of procList) {
-      const excl = p.handler(n);
-      if (excl && excl.includes(n)) {
+      const excl = p.handler(x);
+      if (excl && excl.includes(x)) {
         score += p.weight;
       }
+    }
+    if (history.length >= 5) {
+      let count = countDuplicate(3, x);
+      score += count * 20;
+
+      count = countDuplicate(4, x);
+      score += count * 30;
     }
     return score;
   };
 
+  let n = pick(_xrand(range), history).value;
   if (history.length > 1) {
-    const seq = history.slice(-2);
-    const last = seq[1];
-
     let k = 2 * (range + 1);
     let min_score = 100;
     let best = n;
@@ -183,20 +210,14 @@ function _xrand_proc(min, max, fn) {
   return min + n;
 }
 
-function _xrand_init(min, max, fn) {
-  const range = max - min;
-  if (typeof fn === 'function') {
-    generator = fn;
-  }
-  reset(range);
-}
-
 function xrand(min, max, fn) {
   const range = max - min;
-  const prev_range = history.range;
 
   if (typeof fn === 'function' || range !== history.range) {
-    _xrand_init(min, max, fn);
+    if (typeof fn === 'function') {
+      generator = fn;
+    }
+    reset(range);
   }
   if (max <= min) {
     return min;
