@@ -318,18 +318,13 @@ function _xrand_proc(min, max, fn) {
     return score;
   };
 
-  let n = pick(_xrand(range), history).value;
+  let n;
   if (history.length > 1) {
     let k = 2 * (range + 1);
     let min_score = 1000;
-    let best = n;
-    let first = true;
+    let best = 0;
     do {
-      if (first) {
-        first = false;
-      } else {
-        n = _xrand(range);
-      }
+      n = _xrand(range);
       let score = evaluate(n);
       if (score < min_score) {
         min_score = score;
@@ -348,6 +343,8 @@ function _xrand_proc(min, max, fn) {
       const arr = distance[i];
       arr[x][n]++;
     }
+  } else {
+    n = pick(_xrand(range), history).value;
   }
 
   history.push(n);
