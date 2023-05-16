@@ -37,7 +37,7 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.10')
+  .version('1.1.11')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
@@ -307,14 +307,6 @@ function bestMatch(words, tag) {
   return best;
 }
 
-const statMap = new Map();
-const randGenMap = new Map();
-for (const key of macroMap.keys()) {
-  randGenMap.set(key, new MersenneTwister());
-  const val = macroMap.get(key);
-  statMap.set(key, (new Array(val.length)).fill(0));
-}
-
 function dig(specifier) {
   let re = /^%>([a-z]+)\{(\d+(,\d+)?)\}%$/;
   let found = specifier.match(re);
@@ -352,12 +344,8 @@ function macro(specifier) {
   if (idx >= 0) {
     idx = Math.min(idx, values.length - 1);
   } else {
-    const gen = randGenMap.get(item);
-    const base = gen.random_int();
-    idx = base % values.length;
+    idx = xrand(0, values.length - 1);
     debug('macro: rand=i,length', idx, values.length);
-    const stat = statMap.get(item);
-    stat[idx]++;
   }
   abbr = values[idx];
   if (item == 'table' && !values.used) {
@@ -808,7 +796,6 @@ if (options.head || options.wrapper) {
 if (options.head) {
   console.log('</html>');
 }
-debug(statMap);
 
 if (options.check) {
   console.log('### check macros ###');
