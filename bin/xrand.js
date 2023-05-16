@@ -152,7 +152,7 @@ function _xrand(max) {
   }
   if (slot.length) {
     slot.sort((a, b) => a.idx - b.idx);
-    count = max + 1 - slot.length;
+    const count = max + 1 - slot.length;
     for (let i = 0; i < count; i++) {
       slot.push({
         idx: 0,
@@ -175,7 +175,7 @@ function _xrand(max) {
   return n;
 }
 
-function _xrand_proc(min, max, fn) {
+function _xrand_proc(min, max) {
   const range = max - min;
 
   const p_bias = (x) => {
@@ -284,7 +284,6 @@ function _xrand_proc(min, max, fn) {
     if (range >= 5 && history.length >= 2) {
       const seq = history.slice(-2);
       seq.push(x);
-      let arr;
       let r;
       if (x > seq[0]) {
         r = seq.map((v, i) => v + 2 - i).filter((v) => v === x).length;
