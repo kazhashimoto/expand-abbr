@@ -6,7 +6,6 @@ const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const { xrand } = require('./xrand');
-xrand(0, 0, () => mt.random_int()); // init
 
 const icons = require('./icons');
 const { macroMap } = require('./macros');

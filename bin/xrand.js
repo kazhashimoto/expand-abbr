@@ -16,8 +16,7 @@ let runs_down_even = [];
 let pairs = [];
 const config = {
   mode: 'default',
-  generator: () => Math.random(),
-  refData: undefined,
+  generator: () => Math.random()
 };
 // DEBUG--
 const stat = {};
@@ -419,23 +418,6 @@ function record(n) {
   updatePairsCount();
 }
 
-function _xrand_ref(min, max) {
-  const range = max - min;
-  if (range > config.refData.length) {
-    return 0;
-  }
-  const values = config.refData[range - 1];
-  const n = values[age % values.length];
-  record(n);
-  return n;
-}
-
-function _xrand_unadjusted(min, max) {
-  const n = _xrand(max - min);
-  record(n);
-  return min + n;
-}
-
 // DEBUG--
 function printStat() {
   for (const p in stat) {
@@ -478,7 +460,6 @@ function xrand(min, max, arg) {
   }
   if (typeof arg === 'object') {
     Object.assign(config, arg);
-    console.log('## config', config);
     return 0;
   }
   //-- DEBUG
@@ -488,14 +469,6 @@ function xrand(min, max, arg) {
   }
   if (max <= min) {
     return min;
-  }
-  switch (config.mode) {
-    case 'ref':
-      return _xrand_ref(min, max);
-    case 'unadjusted':
-      return _xrand_unadjusted(min, max);
-    default:
-      break;
   }
   return _xrand_proc(min, max);
 }
