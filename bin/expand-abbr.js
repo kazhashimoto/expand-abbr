@@ -6,7 +6,6 @@ const XRegExp = require('xregexp');
 const MersenneTwister = require('mersenne-twister');
 const mt = new MersenneTwister();
 const { xrand } = require('./xrand');
-xrand(0, 0, () => mt.random_int()); // init
 
 const icons = require('./icons');
 const { macroMap } = require('./macros');
@@ -37,7 +36,7 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.11')
+  .version('1.1.12')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')

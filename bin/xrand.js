@@ -1,4 +1,3 @@
-let generator = () => Math.random(); // default
 let history = [];
 history.range = 0;
 const MAX_HIST = 200;
@@ -6,8 +5,6 @@ let frequency = [];
 let last_update = [];
 let temp_median = 0;
 let age = 0;
-let rand_cache = [];
-let slot = [];
 let runs_count = [0, 0];
 let runs_length = [];
 let runs_up = [];
@@ -19,8 +16,7 @@ let runs_down_even = [];
 let pairs = [];
 const config = {
   mode: 'default',
-  generator: undefined,
-  refData: undefined,
+  generator: () => Math.random()
 };
 // DEBUG--
 const stat = {};
@@ -33,8 +29,6 @@ const reset = (x) => {
   frequency = zero(x + 1);
   last_update = zero(x + 1);
   age = 0;
-  rand_cache = [];
-  slot = [];
   score_log = [];
 
   temp_median = v_median();
@@ -147,32 +141,7 @@ const is_bias = (x) => {
 };
 
 function _xrand(max) {
-  if (rand_cache.length) {
-    return rand_cache.shift();
-  }
-  if (slot.length) {
-    slot.sort((a, b) => a.idx - b.idx);
-    const count = max + 1 - slot.length;
-    for (let i = 0; i < count; i++) {
-      slot.push({
-        idx: 0,
-        val: generator(),
-      });
-    }
-    for (let i = 0; i < slot.length; i++) {
-      slot[i].idx = i;
-    }
-  } else {
-    slot = Array.from({ length: max + 1 }, (v, i) => ({
-      idx: i,
-      val: generator(),
-    }));
-  }
-
-  slot.sort((a, b) => a.val - b.val);
-  const n = slot.shift().idx;
-  slot = slot.filter((o) => o.idx > n);
-  return n;
+  return getRandomIntInclusive(0, max, config.generator);
 }
 
 function _xrand_proc(min, max) {
@@ -423,10 +392,6 @@ function _xrand_proc(min, max) {
       }
     } while (--k > 0);
 
-    if (!k) {
-      rand_cache.push(n);
-    }
-
     n = best;
     // DEBUG--
     score_log.push(min_score);
@@ -470,10 +435,12 @@ function printStat() {
   console.log('runs up_even', runs_up_even);
   console.log('runs_down_odd:', runs_down_odd);
   console.log('runs_down_even:', runs_down_even);
+}
+
+function printInfo() {
+  console.log('');
   console.log(`mode: ${config.mode}`);
-  if (config.mode === 'conventional') {
-    console.log(`generator: ${config.generator.toString()}`);
-  }
+  console.log(`generator: ${config.generator.toString()}`);
 }
 //-- DEBUG
 
@@ -484,6 +451,10 @@ function xrand(min, max, arg) {
   if (typeof arg === 'string') {
     if (arg == 'stat') {
       printStat();
+    } else if (arg == 'info') {
+      printInfo();
+    } else if (arg == 'reset') {
+      reset(0);
     }
     return 0;
   }
@@ -493,16 +464,22 @@ function xrand(min, max, arg) {
   }
   //-- DEBUG
 
-  if (typeof arg === 'function' || range !== history.range) {
-    if (typeof arg === 'function') {
-      generator = arg;
-    }
+  if (range !== history.range) {
     reset(range);
   }
   if (max <= min) {
     return min;
   }
   return _xrand_proc(min, max);
+}
+
+/**
+ * taken from https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+ */
+function getRandomIntInclusive(min, max, fn) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(fn() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
 }
 
 module.exports.xrand = xrand;
