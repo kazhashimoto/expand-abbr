@@ -36,7 +36,7 @@ function collect(value, previous) {
 
 program
   .name('expand-abbr')
-  .version('1.1.13')
+  .version('1.1.14')
   .usage('[options] abbreviation ...')
   .showHelpAfterError()
   .option('-h,--head', 'prepend html header')
